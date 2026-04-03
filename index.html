@@ -1779,7 +1779,8 @@ function renderHome() {
         const clientId = getStravaClientId();
         return `<div class="home-section-label">Strava</div>
           <div class="home-tip-card" style="border-left-color:#FC4C02">
-            ${authErr ? `<div style="background:rgba(196,88,28,0.15);border:1px solid rgba(196,88,28,0.4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e07045;line-height:1.5"><strong>Error:</strong> ${authErr}</div>` : ''}
+            ${authErr ? `<div style="background:rgba(196,88,28,0.15);border:1px solid rgba(196,88,28,0.4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e07045;line-height:1.5"><strong>Status:</strong> ${authErr}</div>` : ''}
+            ${localStorage.getItem('mtb_strava_debug') ? `<div style="background:rgba(90,150,90,0.12);border:1px solid rgba(90,150,90,0.3);border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--text-muted);word-break:break-all"><strong>Debug:</strong> ${localStorage.getItem('mtb_strava_debug')}</div>` : ''}
             <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">Each profile needs their own Strava API app. <strong style="color:var(--text)">Create one free at strava.com/settings/api</strong> — takes 2 minutes.</div>
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
               <input id="strava-client-id" type="text" placeholder="Client ID (e.g. 219863)" value="${clientId}"
@@ -2713,6 +2714,34 @@ function updateHeader() {
 // INIT
 // =============================================
 function init() {
+  // Handle Strava OAuth callback FIRST — before any rendering that could throw
+  const urlParams = new URLSearchParams(window.location.search);
+  const stravaCode = urlParams.get('code');
+  const stravaError = urlParams.get('error');
+
+  // Log debug info to localStorage so it shows in the Strava UI section
+  if (window.location.search) {
+    localStorage.setItem('mtb_strava_debug', 'Callback received: ' + window.location.search.substring(0, 120));
+  }
+
+  if (stravaCode || stravaError) {
+    window.history.replaceState({}, '', window.location.pathname);
+    if (stravaError) {
+      localStorage.setItem(profileKey('strava_auth_error'), 'Strava declined: ' + stravaError);
+    } else {
+      localStorage.setItem(profileKey('strava_auth_error'), 'Connecting…');
+      stravaExchangeCode(stravaCode).then(result => {
+        if (!result.ok) {
+          localStorage.setItem(profileKey('strava_auth_error'), 'Token exchange failed: ' + (result.error || 'unknown'));
+        } else {
+          localStorage.removeItem(profileKey('strava_auth_error'));
+          stravaSyncActivities();
+        }
+        renderHome();
+      });
+    }
+  }
+
   selectedWeek = getCurrentWeek();
   document.getElementById('btn-loren').classList.toggle('active', activeProfile === 'Loren');
   document.getElementById('btn-kevin').classList.toggle('active', activeProfile === 'Kevin');
@@ -2723,39 +2752,8 @@ function init() {
   showNutrTab('on-bike', document.querySelector('.sub-nav-btn'));
   renderPrep('gear');
   renderRoutes();
-
-  // Handle Strava OAuth callback (code or error in URL after redirect)
-  const urlParams = new URLSearchParams(window.location.search);
-  const stravaCode = urlParams.get('code');
-  const stravaError = urlParams.get('error');
-
-  // DEBUG: show exactly what arrived in the URL
-  if (window.location.search) {
-    alert('DEBUG — URL params: ' + window.location.search);
-  }
-
-  if (stravaCode || stravaError) {
-    window.history.replaceState({}, '', window.location.pathname);
-    if (stravaError) {
-      localStorage.setItem(profileKey('strava_auth_error'), 'Strava declined: ' + stravaError);
-      renderHome();
-    } else {
-      localStorage.setItem(profileKey('strava_auth_error'), 'Got code — exchanging for token…');
-      renderHome();
-      stravaExchangeCode(stravaCode).then(result => {
-        if (!result.ok) {
-          renderHome();
-          alert('DEBUG — Token exchange failed: ' + (result.error || 'unknown'));
-        } else {
-          renderHome();
-          stravaSyncActivities();
-        }
-      });
-    }
-  } else {
-    renderHome();
-    if (getStravaTokens()) stravaSyncActivities();
-  }
+  renderHome();
+  if (!stravaCode && !stravaError && getStravaTokens()) stravaSyncActivities();
 }
 
 document.addEventListener('DOMContentLoaded', init);

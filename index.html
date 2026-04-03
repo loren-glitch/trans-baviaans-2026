@@ -1521,8 +1521,54 @@ function switchProfile(name) {
 
 function profileKey(key) { return `${key}_${activeProfile}`; }
 
-function getLogs() { try { return JSON.parse(localStorage.getItem(profileKey('mtb_logs'))||'[]'); } catch(e) { return []; } }
-function saveLogs(logs) { localStorage.setItem(profileKey('mtb_logs'), JSON.stringify(logs)); }
+function getLogs() { try { return JSON.parse(localStorage.getItem(`mtb_logs_${activeProfile}`)||'[]'); } catch(e) { return []; } }
+function saveLogs(logs) { localStorage.setItem(`mtb_logs_${activeProfile}`, JSON.stringify(logs)); }
+
+// =============================================
+// SUPABASE SYNC
+// =============================================
+const SB_URL = 'https://idkbvimbglzcfoglofpd.supabase.co';
+const SB_KEY = 'sb_publishable_70ilEnrmZ5YYmA5Px-v4Uw_EBG0uPXH';
+
+async function sbFetch(path, options = {}) {
+  return fetch(`${SB_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(options.headers || {})
+    },
+    ...options
+  });
+}
+
+async function syncFromSupabase() {
+  try {
+    const res = await sbFetch('logs?order=created_at.asc');
+    if (!res.ok) return;
+    const allLogs = await res.json();
+    ['Loren', 'Kevin'].forEach(profile => {
+      localStorage.setItem(`mtb_logs_${profile}`, JSON.stringify(allLogs.filter(l => l.profile === profile)));
+    });
+    renderLogList();
+    renderCalendar();
+    if (currentTab === 'home') renderHome();
+    if (currentTab === 'progress') renderProgress();
+  } catch(e) { console.error('Supabase sync:', e); }
+}
+
+async function migrateLocalLogsToSupabase() {
+  if (localStorage.getItem('mtb_sb_migrated')) return;
+  for (const profile of ['Loren', 'Kevin']) {
+    const logs = JSON.parse(localStorage.getItem(`mtb_logs_${profile}`) || '[]');
+    for (const log of logs) {
+      const { id, ...rest } = log;
+      try { await sbFetch('logs', { method: 'POST', body: JSON.stringify({ ...rest, profile }) }); } catch(e) {}
+    }
+  }
+  localStorage.setItem('mtb_sb_migrated', '1');
+}
 function getGear() { try { return JSON.parse(localStorage.getItem(profileKey('mtb_gear'))||'{}'); } catch(e) { return {}; } }
 function saveGear(g) { localStorage.setItem(profileKey('mtb_gear'), JSON.stringify(g)); }
 function getDropboxes() {
@@ -2022,8 +2068,14 @@ function saveLog() {
     alert(`You already logged a ${type} on this date. Delete the existing entry first if you want to re-log it.`);
     return;
   }
-  logs.push({ id: Date.now(), session_id: sessionId, date, type, hours, mins, dist, elev, rpe, notes });
+  const newLog = { id: Date.now(), session_id: sessionId, date, type, hours, mins, dist, elev, rpe, notes };
+  logs.push(newLog);
   saveLogs(logs);
+
+  // Push to Supabase then re-sync both profiles
+  const { id: _lid, ...logData } = newLog;
+  sbFetch('logs', { method: 'POST', body: JSON.stringify({ ...logData, profile: activeProfile }) })
+    .then(() => syncFromSupabase()).catch(() => {});
 
   // Reset form
   document.getElementById('log-session-id').value = '';
@@ -2144,6 +2196,7 @@ function deleteLog(id, e) {
   saveLogs(logs);
   expandedLogId = null;
   renderLogList();
+  sbFetch(`logs?id=eq.${id}`, { method: 'DELETE' }).then(() => syncFromSupabase()).catch(() => {});
 }
 
 // =============================================
@@ -2716,7 +2769,7 @@ function updateHeader() {
 // =============================================
 // INIT
 // =============================================
-function init() {
+async function init() {
   // Handle Strava OAuth callback FIRST — before any rendering that could throw
   const urlParams = new URLSearchParams(window.location.search);
   const stravaCode = urlParams.get('code');
@@ -2757,6 +2810,11 @@ function init() {
   renderRoutes();
   renderHome();
   if (!stravaCode && !stravaError && getStravaTokens()) stravaSyncActivities();
+
+  // Migrate existing local logs to Supabase (first run only), then sync
+  await migrateLocalLogsToSupabase();
+  await syncFromSupabase();
+  setInterval(syncFromSupabase, 60000); // refresh every 60s
 }
 
 document.addEventListener('DOMContentLoaded', init);

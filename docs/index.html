@@ -356,18 +356,24 @@ body {
   gap: 14px;
 }
 .day-card:active { background: var(--bg-card-2); transform: scale(0.99); }
-.day-card.today {
-  border-color: var(--ochre);
-  background: linear-gradient(135deg, rgba(232,146,30,0.08), rgba(14,15,17,0));
+.day-card.done {
+  opacity: 0.55;
+  border-color: var(--border);
+}
+.day-card.done .day-session {
+  text-decoration: line-through;
+  color: var(--text-muted);
 }
 .day-dot {
-  width: 8px; height: 8px;
+  width: 22px; height: 22px;
   border-radius: 50%;
   flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
 }
+.day-dot.done-dot { background: rgba(122,143,62,0.2); color: var(--olive); border: 1.5px solid var(--olive); }
 .day-info { flex: 1; min-width: 0; }
-.day-name { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-.day-session { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 3px; }
+.day-session { font-size: 14px; font-weight: 700; color: var(--text); }
 .day-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
 .day-chevron { color: var(--border-bright); font-size: 18px; font-weight: 300; }
 /* LOG TAB */
@@ -879,6 +885,7 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
           <label class="form-label">Notes</label>
           <textarea class="form-textarea" id="log-notes" placeholder="How did it feel? Any issues?"></textarea>
         </div>
+        <input type="hidden" id="log-session-id" value="">
         <button class="btn-primary" onclick="saveLog()">Save Session</button>
       </div>
       <div class="section-label">Recent Sessions</div>
@@ -1654,15 +1661,9 @@ function renderHome() {
   // Countdown
   const daysToRace = Math.max(0, Math.ceil((RACE_DATE - new Date()) / (1000*60*60*24)));
 
-  // Today's sessions
-  const todaySessions = PLAN.filter(s => s.date === todayStr);
-
   // Weekly progress
   const weekSessions = getWeekSessions(curWeek).filter(s => s.type !== 'Rest');
-  const weekStart = addDays(PLAN_START, (curWeek-1)*7);
-  const weekEnd = addDays(weekStart, 7);
-  const weekLogs = logs.filter(l => { const d = new Date(l.date); return d >= weekStart && d < weekEnd; });
-  const weekDone = weekLogs.length;
+  const weekDone = weekSessions.filter(s => isSessionLoggedById(s.id)).length;
   const weekPlanned = weekSessions.length;
   const weekPct = weekPlanned > 0 ? Math.round(weekDone / weekPlanned * 100) : 0;
   const barColor = weekPct === 100 ? 'var(--olive)' : 'var(--ochre)';
@@ -1676,45 +1677,36 @@ function renderHome() {
   const dayOfYear = Math.floor((TODAY - new Date(TODAY.getFullYear(),0,0)) / 86400000);
   const quote = QUOTES[dayOfYear % QUOTES.length];
 
-  // Today cards HTML
+  // Next to do: up to 3 unlogged sessions from this week
+  const unlogged = weekSessions.filter(s => !isSessionLoggedById(s.id));
   let todayHtml;
-  if (todaySessions.length === 0) {
-    todayHtml = `<div class="home-rest-card">
-      <span style="font-size:28px">😴</span>
-      <div>
-        <div style="font-weight:700;font-size:16px">Rest Day</div>
-        <div style="color:var(--text-muted);font-size:13px;margin-top:2px">Recovery is training too. Eat well, sleep well.</div>
-      </div>
-    </div>`;
+  if (weekSessions.length === 0) {
+    todayHtml = `<div class="home-rest-card"><span style="font-size:28px">🏁</span><div><div style="font-weight:700;font-size:16px">Race week!</div><div style="color:var(--text-muted);font-size:13px;margin-top:2px">See Race Prep for your timeline.</div></div></div>`;
+  } else if (unlogged.length === 0) {
+    todayHtml = `<div class="home-rest-card"><span style="font-size:28px">🎉</span><div><div style="font-weight:700;font-size:16px">Week complete!</div><div style="color:var(--text-muted);font-size:13px;margin-top:2px">All sessions done. Rest up and come back strong.</div></div></div>`;
   } else {
-    todayHtml = todaySessions.map(s => {
-      const logged = logs.some(l => l.date === s.date);
+    todayHtml = unlogged.slice(0,3).map(s => {
       return `<div class="home-today-card" onclick="openSessionModal(PLAN.find(p=>p.id==='${s.id}'))">
         <div class="home-today-dot" style="background:${getSessionDotColor(s.type)}"></div>
         <div style="flex:1;min-width:0">
           <div style="font-size:16px;font-weight:700">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${s.duration}${s.zone!=='N/A'?' · Zone '+s.zone:''}${s.targetElevation>0?' · ↑ '+s.targetElevation+'m':''}${s.required===false?' · <span style="color:var(--text-muted);font-weight:700">optional</span>':''}</div>
         </div>
-        ${logged
-          ? '<span style="color:var(--olive);font-size:13px;font-weight:700;flex-shrink:0">✓ Done</span>'
-          : '<span style="color:var(--ochre);font-size:22px;flex-shrink:0">›</span>'}
+        <span style="color:var(--ochre);font-size:22px;flex-shrink:0">›</span>
       </div>`;
     }).join('');
   }
 
-  // Week session rows
+  // Week session rows (use session ID for done check)
   const weekRowsHtml = weekSessions.map(s => {
-    const done = weekLogs.some(l => l.date === s.date);
-    const isToday = s.date === todayStr;
-    const dotBg = done ? 'var(--olive)' : isToday ? 'var(--ochre)' : 'var(--border-bright)';
-    const textColor = isToday ? 'var(--text)' : 'var(--text-muted)';
-    const fontWeight = isToday ? 700 : 500;
-    return `<div class="home-week-row" style="opacity:${done||isToday?1:0.65}">
+    const done = isSessionLoggedById(s.id);
+    const dotBg = done ? 'var(--olive)' : 'var(--border-bright)';
+    const textColor = done ? 'var(--text-muted)' : 'var(--text)';
+    const fontWeight = done ? 500 : 600;
+    return `<div class="home-week-row" style="opacity:${done?0.55:1}">
       <div class="home-week-dot" style="background:${dotBg}"></div>
-      <div style="flex:1;font-size:13px;font-weight:${fontWeight};color:${textColor}">${s.day.slice(0,3)} · ${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
-      ${done ? '<span style="font-size:11px;color:var(--olive);font-weight:700">✓</span>'
-              : isToday ? '<span style="font-size:9px;color:var(--ochre);font-weight:800;text-transform:uppercase;letter-spacing:0.5px">TODAY</span>'
-              : ''}
+      <div style="flex:1;font-size:13px;font-weight:${fontWeight};color:${textColor};${done?'text-decoration:line-through':''}">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
+      ${done ? '<span style="font-size:11px;color:var(--olive);font-weight:700">✓</span>' : ''}
     </div>`;
   }).join('');
 
@@ -1854,22 +1846,21 @@ function renderCalendar() {
   banner.style.border = `1px solid ${phase.color}55`;
   banner.innerHTML = `<span style="color:${phase.color};font-weight:800">${phase.name}</span><span style="color:var(--text-muted);font-size:12px;font-weight:500">${getWeekRange(selectedWeek)}</span>`;
 
-  // Day list
+  // Day list — weekly checklist (no day labels, log any session any day)
   const sessions = getWeekSessions(selectedWeek);
   const dayList = document.getElementById('day-list');
   dayList.innerHTML = '';
   sessions.forEach(s => {
+    const done = isSessionLoggedById(s.id);
     const card = document.createElement('div');
-    const isToday = s.date === isoDate(TODAY);
-    card.className = 'day-card' + (isToday ? ' today' : '');
+    card.className = 'day-card' + (done ? ' done' : '');
     card.innerHTML = `
-      <div class="day-dot" style="background:${getSessionDotColor(s.type)}"></div>
+      <div class="day-dot ${done ? 'done-dot' : ''}" style="${done ? '' : `background:${getSessionDotColor(s.type)}`}">${done ? '✓' : ''}</div>
       <div class="day-info">
-        <div class="day-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${s.day}${isToday ? ' — TODAY' : ''} · ${new Date(s.date+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}${s.required===false ? ' <span class="optional-badge">optional</span>' : ''}</div>
-        <div class="day-session">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
+        <div class="day-session">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}${s.required===false ? ' <span class="optional-badge">optional</span>' : ''}</div>
         <div class="day-meta">${s.duration}${s.zone !== 'N/A' ? ` · Zone ${s.zone}` : ''}${s.targetElevation > 0 ? ` · <span class="elev-chip">&#8593; ${s.targetElevation}m</span>` : ''}</div>
       </div>
-      <div class="day-chevron">›</div>`;
+      <div class="day-chevron">${done ? '<span style="color:var(--olive);font-size:13px;font-weight:700">Done</span>' : '›'}</div>`;
     card.onclick = () => openSessionModal(s);
     dayList.appendChild(card);
   });
@@ -1881,16 +1872,18 @@ function renderCalendar() {
 function isSessionLogged(date) {
   return getLogs().some(l => l.date === date);
 }
+function isSessionLoggedById(sessionId) {
+  return getLogs().some(l => l.session_id === sessionId);
+}
 
 function openSessionModal(s) {
   const phase = getPhase(s.week);
-  const logged = isSessionLogged(s.date);
+  const logged = isSessionLoggedById(s.id);
   document.getElementById('modal-content').innerHTML = `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <span class="phase-banner" style="background:${phase.color}22;color:${phase.color};border:1px solid ${phase.color}44">${phase.name} · Week ${s.week}</span>
       ${logged ? `<span style="background:#2a4a2a;color:#6fcf6f;border:1px solid #4a7a4a;border-radius:20px;font-size:11px;font-weight:700;padding:4px 10px">✓ LOGGED</span>` : ''}
     </div>
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:600">${s.day} · ${new Date(s.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
     <div style="font-size:22px;font-weight:800;margin-bottom:12px">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
     <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <div style="background:var(--bg-card-2);border-radius:8px;padding:8px 14px">
@@ -1916,7 +1909,7 @@ function openSessionModal(s) {
     </div>
     ${logged
       ? `<div style="text-align:center;padding:14px;background:#1a2e1a;border-radius:10px;border:1px solid #4a7a4a;margin-bottom:12px;font-size:14px;color:#6fcf6f;font-weight:600">✓ Session logged</div>`
-      : `<button onclick="quickLogSession('${s.date}','${s.type}','${s.duration}')" style="width:100%;background:var(--ochre);border:none;border-radius:12px;color:#fff;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">✓ Log this session</button>`
+      : `<button onclick="quickLogSession('${isoDate(TODAY)}','${s.type}','${s.duration}','${s.id}')" style="width:100%;background:var(--ochre);border:none;border-radius:12px;color:#fff;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">✓ Log this session</button>`
     }
     <div style="text-align:center">
       <button onclick="closeModal()" style="background:var(--bg-card-2);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Close</button>
@@ -1924,12 +1917,12 @@ function openSessionModal(s) {
   document.getElementById('modal-overlay').classList.add('open');
 }
 
-function quickLogSession(date, type, durationStr) {
+function quickLogSession(date, type, durationStr, sessionId='') {
   closeModal();
-  // Switch to Log tab and pre-fill
   showTab('log', null);
   setTimeout(() => {
     document.getElementById('log-date').value = date;
+    document.getElementById('log-session-id').value = sessionId;
     renderLogDropdown(type);
     // Parse duration string e.g. "1.5hr", "45min", "2hr"
     const hrMatch = durationStr.match(/(\d+\.?\d*)hr/);
@@ -2004,19 +1997,26 @@ function saveLog() {
   const elev = parseFloat(document.getElementById('log-elev').value)||0;
   const rpe = parseInt(document.getElementById('log-rpe').value)||5;
   const notes = document.getElementById('log-notes').value.trim();
+  const sessionId = document.getElementById('log-session-id').value || '';
 
   if (!date) { alert('Please select a date'); return; }
   if (hours === 0 && mins === 0) { alert('Please enter a duration'); return; }
 
   const logs = getLogs();
-  if (logs.some(l => l.date === date && l.type === type)) {
+  // Duplicate check: by session ID (from calendar) or by date+type (manual log)
+  if (sessionId && logs.some(l => l.session_id === sessionId)) {
+    alert('You already logged this session.');
+    return;
+  }
+  if (!sessionId && logs.some(l => l.date === date && l.type === type)) {
     alert(`You already logged a ${type} on this date. Delete the existing entry first if you want to re-log it.`);
     return;
   }
-  logs.push({ id: Date.now(), date, type, hours, mins, dist, elev, rpe, notes });
+  logs.push({ id: Date.now(), session_id: sessionId, date, type, hours, mins, dist, elev, rpe, notes });
   saveLogs(logs);
 
   // Reset form
+  document.getElementById('log-session-id').value = '';
   document.getElementById('log-hours').value = '';
   document.getElementById('log-mins').value = '';
   document.getElementById('log-dist').value = '';
@@ -2026,6 +2026,7 @@ function saveLog() {
   document.getElementById('log-notes').value = '';
 
   renderLogList();
+  renderCalendar();
   showLogToast(type, hours, mins);
 }
 

@@ -2704,14 +2704,21 @@ function init() {
       localStorage.setItem(profileKey('strava_auth_error'), 'Strava declined: ' + stravaError);
       renderHome();
     } else {
+      // Show that we received the code
+      localStorage.setItem(profileKey('strava_auth_error'), 'Got code from Strava — exchanging for token…');
+      renderHome();
       stravaExchangeCode(stravaCode).then(result => {
-        renderHome();
-        if (result.ok) stravaSyncActivities();
+        if (!result.ok) {
+          // Error is already stored in localStorage by stravaExchangeCode
+          renderHome();
+        } else {
+          renderHome();
+          stravaSyncActivities();
+        }
       });
     }
   } else {
     renderHome();
-    // Auto-sync in background if already connected
     if (getStravaTokens()) stravaSyncActivities();
   }
 }

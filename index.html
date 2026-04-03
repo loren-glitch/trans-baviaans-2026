@@ -2776,19 +2776,36 @@ function updateHeader() {
 // INIT
 // =============================================
 async function init() {
-  // Handle Strava OAuth callback FIRST — before any rendering that could throw
+  selectedWeek = getCurrentWeek();
+  document.getElementById('btn-loren').classList.toggle('active', activeProfile === 'Loren');
+  document.getElementById('btn-kevin').classList.toggle('active', activeProfile === 'Kevin');
+  updateHeader();
+
+  // Render home immediately so the page is never blank
+  renderHome();
+
+  // Render other tabs in background
+  try { renderCalendar(); } catch(e) {}
+  try { initLog(); } catch(e) {}
+  try { renderLogList(); } catch(e) {}
+  try { showNutrTab('on-bike', document.querySelector('.sub-nav-btn')); } catch(e) {}
+  try { renderPrep('gear'); } catch(e) {}
+  try { renderRoutes(); } catch(e) {}
+
+  // Handle Strava OAuth callback
+  localStorage.removeItem('mtb_strava_debug');
   const urlParams = new URLSearchParams(window.location.search);
   const stravaCode = urlParams.get('code');
   const stravaError = urlParams.get('error');
-
-  localStorage.removeItem('mtb_strava_debug');
 
   if (stravaCode || stravaError) {
     window.history.replaceState({}, '', window.location.pathname);
     if (stravaError) {
       localStorage.setItem(profileKey('strava_auth_error'), 'Strava declined: ' + stravaError);
+      renderHome();
     } else {
       localStorage.setItem(profileKey('strava_auth_error'), 'Connecting…');
+      renderHome();
       stravaExchangeCode(stravaCode).then(result => {
         if (!result.ok) {
           localStorage.setItem(profileKey('strava_auth_error'), 'Token exchange failed: ' + (result.error || 'unknown'));
@@ -2799,25 +2816,14 @@ async function init() {
         renderHome();
       });
     }
+  } else if (getStravaTokens()) {
+    stravaSyncActivities();
   }
 
-  selectedWeek = getCurrentWeek();
-  document.getElementById('btn-loren').classList.toggle('active', activeProfile === 'Loren');
-  document.getElementById('btn-kevin').classList.toggle('active', activeProfile === 'Kevin');
-  updateHeader();
-  renderCalendar();
-  initLog();
-  renderLogList();
-  showNutrTab('on-bike', document.querySelector('.sub-nav-btn'));
-  renderPrep('gear');
-  renderRoutes();
-  renderHome();
-  if (!stravaCode && !stravaError && getStravaTokens()) stravaSyncActivities();
-
-  // Migrate existing local logs to Supabase (first run only), then sync
-  await migrateLocalLogsToSupabase();
-  await syncFromSupabase();
-  setInterval(syncFromSupabase, 60000); // refresh every 60s
+  // Supabase sync
+  try { await migrateLocalLogsToSupabase(); } catch(e) {}
+  try { await syncFromSupabase(); } catch(e) {}
+  setInterval(() => { try { syncFromSupabase(); } catch(e) {} }, 60000);
 }
 
 document.addEventListener('DOMContentLoaded', init);

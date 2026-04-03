@@ -1,0 +1,2237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E0F11">
+<title>Trans Baviaans 2026</title>
+<style>
+:root {
+  --bg: #0E0F11;
+  --bg-card: #181A1D;
+  --bg-card-2: #212428;
+  --ochre: #E8921E;
+  --ochre-light: #F5A832;
+  --olive: #7A8F3E;
+  --slate: #2E343C;
+  --slate-blue: #4A6E96;
+  --red-burnt: #C4581C;
+  --gold: #F0C040;
+  --text: #F5F2EC;
+  --text-muted: #7A7670;
+  --border: #252930;
+  --border-bright: #363C46;
+  --phase-base: #7A8F3E;
+  --phase-build: #E8921E;
+  --phase-peak: #C4581C;
+  --phase-taper: #4A6E96;
+  --phase-race: #F0C040;
+  --nav-height: 72px;
+  --header-height: 60px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: #060708;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+#app {
+  width: 100%;
+  max-width: 430px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+/* HEADER */
+#app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #0E0F11 0%, rgba(14,15,17,0.96) 100%);
+  border-bottom: 1px solid var(--border);
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  flex-shrink: 0;
+}
+#app-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+/* PROFILE SWITCHER */
+#profile-switcher {
+  display: flex;
+  gap: 3px;
+  background: var(--bg-card-2);
+  border-radius: 6px;
+  padding: 3px;
+  border: 1px solid var(--border);
+}
+.profile-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.profile-btn.active {
+  background: var(--ochre);
+  color: #fff;
+}
+/* COMPARISON CARD */
+.compare-card {
+  margin: 0 16px 16px;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.compare-header {
+  padding: 12px 16px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.compare-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+.compare-cell {
+  padding: 12px 16px;
+  text-align: center;
+}
+.compare-cell:first-child { border-right: 1px solid var(--border); }
+.compare-name {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.compare-val {
+  font-size: 22px;
+  font-weight: 800;
+}
+.compare-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.compare-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 4px 16px 12px;
+  border-top: 1px solid var(--border);
+}
+.optional-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  flex-shrink: 0;
+}
+.elev-chip {
+  color: var(--olive);
+  font-weight: 600;
+}
+#phase-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+/* TAB CONTENT */
+#tab-container {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.tab-panel {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom));
+}
+.tab-panel.active { opacity: 1; pointer-events: all; }
+/* BOTTOM NAV */
+#bottom-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(14,15,17,0.97);
+  border-top: 1px solid var(--border);
+  height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s;
+  min-height: 44px;
+  border: none;
+  background: none;
+  padding: 8px 2px;
+  position: relative;
+}
+.nav-item.active { color: var(--ochre); }
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--ochre);
+  border-radius: 0 0 2px 2px;
+}
+.nav-icon { font-size: 19px; line-height: 1; }
+.nav-label { font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 0 16px 12px;
+}
+.card-2 { background: var(--bg-card-2); }
+/* SECTION HEADERS */
+.section-label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  padding: 20px 18px 8px;
+}
+/* MODAL */
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+#modal-overlay.open { opacity: 1; pointer-events: all; }
+#modal-sheet {
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  border-top: 1px solid var(--border-bright);
+  width: 100%;
+  max-width: 430px;
+  max-height: 88vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+#modal-overlay.open #modal-sheet { transform: translateY(0); }
+#modal-handle {
+  width: 36px; height: 3px;
+  background: var(--border-bright);
+  border-radius: 2px;
+  margin: 14px auto 0;
+}
+#modal-content { padding: 16px 20px 28px; }
+/* PHASE BANNER */
+.phase-banner {
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: inline-block;
+}
+/* CALENDAR */
+#week-scroller {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  padding: 12px 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#week-scroller::-webkit-scrollbar { display: none; }
+.week-chip {
+  flex-shrink: 0;
+  padding: 6px 13px;
+  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.week-chip.active { border-color: var(--ochre); color: var(--ochre); background: rgba(232,146,30,0.12); }
+.week-chip.current { font-weight: 800; }
+#phase-week-banner {
+  margin: 0 16px 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.day-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 16px;
+  margin: 0 16px 6px;
+  cursor: pointer;
+  transition: all 0.12s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.day-card:active { background: var(--bg-card-2); transform: scale(0.99); }
+.day-card.today {
+  border-color: var(--ochre);
+  background: linear-gradient(135deg, rgba(232,146,30,0.08), rgba(14,15,17,0));
+}
+.day-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.day-info { flex: 1; min-width: 0; }
+.day-name { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.day-session { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 3px; }
+.day-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.day-chevron { color: var(--border-bright); font-size: 18px; font-weight: 300; }
+/* LOG TAB */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 10px; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 7px; letter-spacing: 1.5px; text-transform: uppercase; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 15px;
+  padding: 11px 13px;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--ochre);
+  box-shadow: 0 0 0 3px rgba(232,146,30,0.08);
+}
+.form-textarea { min-height: 80px; resize: vertical; }
+.duration-row { display: flex; gap: 8px; }
+.duration-row .form-group { flex: 1; }
+.rpe-row { display: flex; align-items: center; gap: 12px; }
+.rpe-slider { flex: 1; accent-color: var(--ochre); }
+.rpe-label { font-size: 12px; font-weight: 700; color: var(--ochre); min-width: 80px; text-align: right; }
+.btn-primary {
+  width: 100%;
+  background: var(--ochre);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 15px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.btn-primary:active { background: var(--ochre-light); transform: scale(0.99); }
+.log-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 16px;
+  margin: 0 16px 6px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.log-card:active { border-color: var(--border-bright); }
+.log-card-header { display: flex; align-items: center; justify-content: space-between; }
+.log-type-badge {
+  font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 4px;
+  background: rgba(232,146,30,0.15); color: var(--ochre); letter-spacing: 0.5px; text-transform: uppercase;
+}
+.log-date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+.log-title { font-size: 15px; font-weight: 700; margin: 6px 0 4px; }
+.log-stats { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); }
+.log-expanded { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.log-expanded p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.btn-delete {
+  background: rgba(196,88,28,0.12); color: var(--red-burnt);
+  border: 1px solid rgba(196,88,28,0.25); border-radius: 6px;
+  padding: 7px 14px; font-size: 11px; font-weight: 700;
+  cursor: pointer; margin-top: 10px; font-family: inherit;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+/* PROGRESS */
+.countdown-card {
+  background: linear-gradient(160deg, #141618 0%, #0E0F11 100%);
+  border: 1px solid rgba(232,146,30,0.4);
+  border-radius: 16px;
+  padding: 28px 20px 24px;
+  margin: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.countdown-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(232,146,30,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.countdown-num {
+  font-size: 80px;
+  font-weight: 900;
+  color: var(--ochre);
+  line-height: 1;
+  letter-spacing: -2px;
+  text-shadow: 0 0 40px rgba(232,146,30,0.3);
+}
+.countdown-unit { font-size: 13px; color: var(--text-muted); margin-top: 6px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+.countdown-sub { font-size: 12px; color: var(--text-muted); margin-top: 10px; letter-spacing: 0.5px; }
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 16px 16px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--ochre), transparent);
+}
+.stat-value { font-size: 26px; font-weight: 900; color: var(--ochre); letter-spacing: -0.5px; }
+.stat-label { font-size: 9px; color: var(--text-muted); margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; }
+.chart-container { margin: 0 16px 16px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.chart-title { font-size: 10px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px; }
+#progress-chart { width: 100%; height: 120px; }
+.chart-legend { display: flex; gap: 16px; margin-top: 8px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+.next-session-card { margin: 0 16px 16px; }
+.quote-card {
+  background: linear-gradient(135deg, rgba(122,143,62,0.12), rgba(232,146,30,0.06));
+  border: 1px solid rgba(122,143,62,0.25);
+  border-left: 3px solid var(--olive);
+  border-radius: 12px;
+  padding: 18px 16px;
+  margin: 0 16px 16px;
+}
+.quote-text { font-size: 14px; font-style: italic; line-height: 1.7; color: var(--text); }
+.quote-attr { font-size: 10px; color: var(--olive); margin-top: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+/* NUTRITION */
+.sub-nav {
+  display: flex;
+  overflow-x: auto;
+  gap: 5px;
+  padding: 10px 16px;
+  scrollbar-width: none;
+}
+.sub-nav::-webkit-scrollbar { display: none; }
+.sub-nav-btn {
+  flex-shrink: 0;
+  padding: 6px 13px;
+  border-radius: 5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.sub-nav-btn.active { background: rgba(232,146,30,0.12); border-color: var(--ochre); color: var(--ochre); }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+.callout {
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-left: 3px solid;
+}
+.callout-base { background: rgba(107,124,68,0.15); border-color: var(--olive); }
+.callout-build { background: rgba(200,131,42,0.15); border-color: var(--ochre); }
+.callout-peak { background: rgba(160,82,45,0.15); border-color: var(--red-burnt); }
+.callout h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.callout p { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
+h3.nutr-heading { font-size: 15px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margin-bottom: 10px; }
+.cp-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.cp-card h4 { font-size: 14px; font-weight: 700; color: var(--ochre); margin-bottom: 6px; }
+.cp-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+/* RACE PREP */
+.gear-category { font-size: 13px; font-weight: 700; color: var(--text); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+.gear-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.gear-item:active { background: var(--bg-card-2); }
+.gear-checkbox {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  font-size: 13px;
+}
+.gear-checkbox.checked { background: var(--olive); border-color: var(--olive); }
+.gear-item-text { font-size: 14px; }
+.gear-item.checked .gear-item-text { color: var(--text-muted); text-decoration: line-through; }
+.progress-bar-wrap { background: var(--bg-card-2); border-radius: 6px; height: 8px; margin: 0 16px 16px; }
+.progress-bar-fill { height: 8px; border-radius: 6px; background: var(--olive); transition: width 0.3s; }
+.progress-pct { font-size: 12px; color: var(--text-muted); text-align: right; padding: 4px 16px 0; }
+/* DROP BOX */
+.dropbox-tabs { display: flex; gap: 6px; padding: 12px 16px; }
+.dropbox-tab {
+  flex: 1; padding: 8px; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 13px; font-weight: 600;
+  cursor: pointer; text-align: center; font-family: inherit;
+  transition: all 0.15s;
+}
+.dropbox-tab.active { background: rgba(200,131,42,0.15); border-color: var(--ochre); color: var(--ochre); }
+.dropbox-panel { display: none; padding: 0 16px; }
+.dropbox-panel.active { display: block; }
+.box-size-banner {
+  background: rgba(91,127,166,0.15); border: 1px solid rgba(91,127,166,0.3);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; color: var(--slate-blue);
+}
+.warning-banner {
+  background: rgba(160,82,45,0.15); border: 1px solid rgba(160,82,45,0.3);
+  border-radius: 8px; padding: 10px 12px; margin-bottom: 12px;
+  font-size: 12px; color: var(--red-burnt); font-weight: 600; line-height: 1.5;
+}
+.dropbox-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.dropbox-add-row input {
+  flex: 1; background: var(--bg-card-2); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 10px 12px; font-size: 14px;
+  outline: none; font-family: inherit;
+}
+.dropbox-add-row input:focus { border-color: var(--ochre); }
+.btn-add {
+  background: var(--ochre); color: #fff; border: none; border-radius: 8px;
+  padding: 10px 16px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.dropbox-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 6px; font-size: 14px;
+}
+.btn-remove { background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 0 4px; }
+/* CLIMBS */
+.climb-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 10px; margin: 0 16px 8px; overflow: hidden;
+}
+.climb-header {
+  padding: 14px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+  transition: background 0.12s;
+}
+.climb-header:active { background: var(--bg-card-2); }
+.climb-name { font-size: 14px; font-weight: 800; color: var(--text); letter-spacing: 0.3px; }
+.climb-sub { font-size: 11px; color: var(--ochre); margin-top: 3px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.climb-body { padding: 0 16px 14px; border-top: 1px solid var(--border); display: none; }
+.climb-body.open { display: block; }
+.climb-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.climb-stat:last-of-type { border-bottom: none; }
+.climb-stat-label { color: var(--text-muted); text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
+.climb-stat-val { color: var(--text); font-weight: 700; }
+.climb-tip { background: rgba(232,146,30,0.08); border-left: 2px solid var(--ochre); padding: 10px 12px; margin-top: 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; border-radius: 0 6px 6px 0; }
+/* TEAM RULES */
+.rule-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px; margin: 0 16px 6px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.rule-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.rule-text { font-size: 13px; line-height: 1.55; color: var(--text-muted); }
+.rule-text strong { color: var(--text); }
+/* TIMELINE */
+.timeline { padding: 0 16px; }
+.tl-item { display: flex; gap: 14px; padding-bottom: 4px; }
+.tl-line-col { display: flex; flex-direction: column; align-items: center; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-bright); flex-shrink: 0; margin-top: 5px; }
+.tl-dot.big { width: 14px; height: 14px; margin-top: 3px; border: 2px solid var(--ochre); background: var(--bg); }
+.tl-dot.race { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px rgba(240,192,64,0.4); }
+.tl-dot.finish { background: var(--olive); border-color: var(--olive); }
+.tl-dot.cp { background: var(--slate-blue); }
+.tl-connector { width: 1px; flex: 1; background: var(--border); margin: 4px 0; min-height: 20px; }
+.tl-content { flex: 1; padding-bottom: 18px; }
+.tl-time { font-size: 10px; font-weight: 800; color: var(--ochre); text-transform: uppercase; letter-spacing: 1.5px; }
+.tl-event { font-size: 14px; font-weight: 700; color: var(--text); margin-top: 3px; }
+.tl-note { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.45; }
+/* ROUTES */
+.route-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; margin: 0 16px 10px; overflow: hidden; cursor: pointer;
+}
+.route-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: flex-start; }
+.route-name { font-size: 15px; font-weight: 700; }
+.route-location { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.route-phase-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.route-body { padding: 0 16px 14px; border-top: 1px solid var(--border); display: none; }
+.route-body.open { display: block; }
+.route-stat { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(58,63,71,0.4); font-size: 13px; }
+.route-stat:last-of-type { border-bottom: none; }
+.route-warning { background: rgba(160,82,45,0.15); border: 1px solid rgba(160,82,45,0.3); border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: 12px; color: #e07045; line-height: 1.5; }
+.route-tip { background: rgba(107,124,68,0.15); border-left: 3px solid var(--olive); border-radius: 0 8px 8px 0; padding: 10px 12px; margin-top: 8px; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+/* PREP SUB NAV */
+.prep-sub-nav { display: flex; overflow-x: auto; gap: 6px; padding: 10px 16px; scrollbar-width: none; }
+.prep-sub-nav::-webkit-scrollbar { display: none; }
+.prep-tab-btn {
+  flex-shrink: 0; padding: 7px 14px; border-radius: 20px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.prep-tab-btn.active { background: rgba(200,131,42,0.15); border-color: var(--ochre); color: var(--ochre); }
+.prep-panel { display: none; }
+.prep-panel.active { display: block; }
+/* MISC */
+.empty-state { text-align: center; padding: 48px 24px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state p { font-size: 14px; line-height: 1.6; }
+.divider { height: 1px; background: var(--border); margin: 8px 16px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header id="app-header">
+    <div id="app-title">Trans Baviaans 2026</div>
+    <div id="profile-switcher">
+      <button class="profile-btn active" id="btn-loren" onclick="switchProfile('Loren')">Loren</button>
+      <button class="profile-btn" id="btn-kevin" onclick="switchProfile('Kevin')">Kevin</button>
+    </div>
+  </header>
+
+  <div id="tab-container">
+    <!-- TAB 1: CALENDAR -->
+    <div class="tab-panel active" id="tab-calendar">
+      <div id="week-scroller"></div>
+      <div id="phase-week-banner"></div>
+      <div id="day-list"></div>
+    </div>
+
+    <!-- TAB 2: LOG -->
+    <div class="tab-panel" id="tab-log">
+      <div class="section-label">Log a Session</div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input" id="log-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select class="form-select" id="log-type" onchange="updateLogFields()">
+            <option>LSD</option>
+            <option>Threshold Ride</option>
+            <option>Night Ride</option>
+            <option>Zone 2 Ride</option>
+            <option>Recovery Spin</option>
+            <option>Barre Class</option>
+            <option>Strength Class</option>
+            <option>Hot Pilates</option>
+            <option>Yoga</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="duration-row">
+          <div class="form-group">
+            <label class="form-label">Hours</label>
+            <input type="number" class="form-input" id="log-hours" min="0" max="24" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Minutes</label>
+            <input type="number" class="form-input" id="log-mins" min="0" max="59" placeholder="0">
+          </div>
+        </div>
+        <div class="duration-row" id="ride-fields">
+          <div class="form-group">
+            <label class="form-label">Distance (km)</label>
+            <input type="number" class="form-input" id="log-dist" min="0" placeholder="—">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Elevation (m)</label>
+            <input type="number" class="form-input" id="log-elev" min="0" placeholder="—">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">RPE (Rate of Perceived Exertion)</label>
+          <div class="rpe-row">
+            <input type="range" class="rpe-slider" id="log-rpe" min="1" max="10" value="5">
+            <div class="rpe-label" id="rpe-display">5 — Hard</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="log-notes" placeholder="How did it feel? Any issues?"></textarea>
+        </div>
+        <button class="btn-primary" onclick="saveLog()">Save Session</button>
+      </div>
+      <div class="section-label">Recent Sessions</div>
+      <div id="log-list"></div>
+    </div>
+
+    <!-- TAB 3: PROGRESS -->
+    <div class="tab-panel" id="tab-progress">
+      <div class="countdown-card">
+        <div class="countdown-num" id="days-to-race">—</div>
+        <div class="countdown-unit">days to race</div>
+        <div class="countdown-sub">Trans Baviaans · 8 August 2026 · 10:00</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-sessions-week">0/0</div>
+          <div class="stat-label">Sessions This Week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total-hrs">0</div>
+          <div class="stat-label">Total Hours Logged</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total-elev" style="font-size:16px">0</div>
+          <div class="stat-label">Elevation This Week vs Target</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-longest">0hr</div>
+          <div class="stat-label">Longest Ride</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Weekly Load — Last 6 Weeks</div>
+        <canvas id="progress-chart" height="120"></canvas>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--text-muted);opacity:0.4"></div>Planned</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--ochre)"></div>Logged</div>
+        </div>
+      </div>
+      <div class="section-label">Next Session</div>
+      <div id="next-session-container" class="next-session-card"></div>
+      <div class="section-label">Team Readiness</div>
+      <div class="compare-card" id="compare-card"></div>
+      <div class="section-label">Race Motivation</div>
+      <div class="quote-card">
+        <div class="quote-text" id="quote-text"></div>
+        <div class="quote-attr">— Trans Baviaans 2026</div>
+      </div>
+    </div>
+
+    <!-- TAB 4: NUTRITION -->
+    <div class="tab-panel" id="tab-nutrition">
+      <div class="sub-nav">
+        <button class="sub-nav-btn active" onclick="showNutrTab('on-bike',this)">On-Bike</button>
+        <button class="sub-nav-btn" onclick="showNutrTab('checkpoints',this)">Checkpoints</button>
+        <button class="sub-nav-btn" onclick="showNutrTab('night',this)">Night Fuel</button>
+        <button class="sub-nav-btn" onclick="showNutrTab('hydration',this)">Hydration</button>
+        <button class="sub-nav-btn" onclick="showNutrTab('dropboxes-nutr',this)">Drop Boxes</button>
+      </div>
+      <div id="nutr-content" style="padding:0 16px 16px"></div>
+    </div>
+
+    <!-- TAB 5: RACE PREP -->
+    <div class="tab-panel" id="tab-prep">
+      <div class="prep-sub-nav">
+        <button class="prep-tab-btn active" onclick="showPrepTab('gear',this)">Gear</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('dropboxes',this)">Drop Boxes</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('climbs',this)">Climbs</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('team',this)">Team Rules</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('timeline',this)">Timeline</button>
+      </div>
+      <div id="prep-content"></div>
+    </div>
+
+    <!-- TAB 6: ROUTES -->
+    <div class="tab-panel" id="tab-routes">
+      <div class="section-label">Cape Town Training Routes</div>
+      <div id="routes-list"></div>
+    </div>
+  </div>
+
+  <nav id="bottom-nav">
+    <button class="nav-item active" onclick="showTab('calendar',this)">
+      <div class="nav-icon">📅</div><div class="nav-label">Calendar</div>
+    </button>
+    <button class="nav-item" onclick="showTab('log',this)">
+      <div class="nav-icon">✏️</div><div class="nav-label">Log</div>
+    </button>
+    <button class="nav-item" onclick="showTab('progress',this)">
+      <div class="nav-icon">📊</div><div class="nav-label">Progress</div>
+    </button>
+    <button class="nav-item" onclick="showTab('nutrition',this)">
+      <div class="nav-icon">🍌</div><div class="nav-label">Nutrition</div>
+    </button>
+    <button class="nav-item" onclick="showTab('prep',this)">
+      <div class="nav-icon">🎒</div><div class="nav-label">Race Prep</div>
+    </button>
+    <button class="nav-item" onclick="showTab('routes',this)">
+      <div class="nav-icon">🗺️</div><div class="nav-label">Routes</div>
+    </button>
+  </nav>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal-sheet">
+    <div id="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- LOG SUCCESS TOAST -->
+<div id="log-toast" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:32px">
+  <div style="background:var(--bg-card);border-radius:20px;padding:32px 24px;text-align:center;max-width:320px;width:100%;border:1px solid var(--border)">
+    <div id="toast-emoji" style="font-size:52px;margin-bottom:12px"></div>
+    <div id="toast-msg" style="font-size:18px;font-weight:800;color:var(--text);line-height:1.4;margin-bottom:8px"></div>
+    <div id="toast-sub" style="font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:24px"></div>
+    <button onclick="closeToast()" style="background:var(--ochre);border:none;border-radius:12px;color:#fff;padding:14px 32px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;width:100%">Let's go! 💪</button>
+  </div>
+</div>
+
+<script>
+// =============================================
+// DATA — 19 WEEK TRAINING PLAN
+// =============================================
+const RACE_DATE = new Date('2026-08-08T10:00:00');
+const PLAN_START = new Date('2026-03-30'); // Monday Week 1
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+function isoDate(d) {
+  return d.toISOString().split('T')[0];
+}
+
+// Phase definitions
+const PHASES = [
+  { name: 'BASE',      weeks: [1,2,3,4,5],           color: '#6B7C44' },
+  { name: 'BUILD',     weeks: [6,7,8,9,10],           color: '#C8832A' },
+  { name: 'PEAK',      weeks: [11,12,13,14,15],       color: '#A0522D' },
+  { name: 'TAPER',     weeks: [16,17,18],             color: '#5B7FA6' },
+  { name: 'RACE WEEK', weeks: [19],                   color: '#D4A017' }
+];
+
+function getPhase(weekNum) {
+  return PHASES.find(p => p.weeks.includes(weekNum)) || PHASES[0];
+}
+
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+// Build full plan
+const PLAN = [];
+
+function addSession(week, dayIndex, type, duration, zone, description, required=true, targetElevation=0) {
+  const weekStart = addDays(PLAN_START, (week - 1) * 7);
+  const date = addDays(weekStart, dayIndex); // dayIndex 0=Mon
+  PLAN.push({
+    id: `w${week}d${dayIndex+1}`,
+    week,
+    day: DAYS[dayIndex],
+    date: isoDate(date),
+    type,
+    duration,
+    zone,
+    phase: getPhase(week).name,
+    description,
+    required,
+    targetElevation
+  });
+}
+
+// ---- BASE WEEKS 1-5 ----
+const baseLSD = ['3hr','3.5hr','4hr','3hr','4.5hr'];
+const baseTueDur = ['1.5hr','1.5hr','2hr','1.5hr','2hr'];
+const baseThuDur = ['1.5hr','1.5hr','1.5hr','1hr','2hr'];
+
+for (let w = 1; w <= 5; w++) {
+  const baseTueElev = [250,300,350,200,400][w-1];
+  const baseThuElev = [250,300,350,0,400][w-1];
+  const baseSatElev = [500,600,700,400,800][w-1];
+  addSession(w,0,'Strength Class','45min','N/A',`Strength class. Weighted lunges, deadlifts, single-leg presses, hip stability work. Off-bike strength is your insurance policy against breakdown at the 150km mark. Strong glutes protect your knees on Nuwekloofpas.`, false, 0);
+  addSession(w,1,'Zone 2 Ride',baseTueDur[w-1],'2',
+    w===4?`Recovery week — rest or very easy spin only. Let the adaptations from Weeks 1–3 consolidate.`:`Easy aerobic ride. Keep HR in Zone 2 — hold a full conversation throughout. ${w===3?'Focus on smooth cadence (85–95rpm). ':w===5?'Add some rolling terrain to start building climbing legs. ':''}Practice eating while riding every 30min. Target \u2191${baseTueElev}m elevation this session.`, true, baseTueElev);
+  addSession(w,2,'Hot Pilates','45min','N/A',`Hot Pilates. Spinal mobility, hip flexor release, deep core activation. The heat accelerates recovery and flushes the legs after Tuesday's ride. Arrive hydrated.`, false, 0);
+  addSession(w,3, w===4?'Rest':'Zone 2 Ride', w===4?'—':baseThuDur[w-1], w===4?'N/A':'2',
+    w===4?`Recovery week — full rest. Eat well, sleep well, let adaptations consolidate.`:`Second ride of the week. Zone 2 throughout. Use a different route to Tuesday — explore terrain, keep it easy. ${w>=3?'Add a short climb to start building climbing confidence. ':''}Target \u2191${baseThuElev}m elevation this session.`, true, baseThuElev);
+  addSession(w,4,'Barre Class','45min','N/A',`Barre class. Single-leg balance, posterior chain activation, hip stability. Friday barre primes your body for Saturday's LSD — you'll ride better for it. Strong hips = strong climbing.`, false, 0);
+  addSession(w,5,'LSD',baseLSD[w-1],'2',
+    w===4?`Recovery week LSD — keep it short and easy. Zone 2 throughout, no pressure. Your body is consolidating ${w-1} weeks of base training. Target \u2191${baseSatElev}m.`:
+    `Long Slow Distance — the cornerstone of your week. Zone 2 the entire time. Simulate race fuelling: eat every 20–30min. This ${baseLSD[w-1]} builds the aerobic engine for 230km. Target \u2191${baseSatElev}m elevation.${w===5?' This is your longest BASE ride — a real milestone.':''}`, true, baseSatElev);
+  addSession(w,6,'Recovery Spin', w===4?'—':'1hr', w===4?'N/A':'1',
+    w===4?`Rest. Recovery week complete — prepare mentally for the BUILD phase ahead.`:`Easy 1hr flush ride. Keep it very light to clear Saturday's LSD from the legs. Optional: skip if genuinely fatigued — sleep beats spinning.`, true, 0);
+}
+
+// ---- BUILD WEEKS 6-10 ----
+const buildLSDSat = ['4hr','4.5hr','5hr','4hr','5.5hr'];
+const buildSunDur = ['3hr','3hr','3.5hr','3hr','3.5hr'];
+
+for (let w = 6; w <= 10; w++) {
+  const wi = w - 6;
+  const buildTueElev = [400,450,500,350,500][wi];
+  const buildThuElev = [400,450,500,350,500][wi];
+  const buildSatElev = [700,800,900,650,1000][wi];
+  const buildSunElev = [500,600,700,500,700][wi];
+  addSession(w,0,'Strength Class','60min','N/A',`Strength class — BUILD phase loading. Increase weights from BASE. Weighted deadlifts, Bulgarian split squats, single-leg press, heavy core. The strength you build now carries you through the final 80km.`, false, 0);
+  addSession(w,1,'Threshold Ride','2hr','4',
+    w===9?`Recovery week — Zone 2 only today, 1.5hr. No threshold. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildTueElev}m elevation.`:
+    `Sustained threshold effort — Zone 4. Warm up 20min, 2\xd720min threshold blocks, cool down. This builds the power to push through the MAC and The Neverender. Target \u2191${buildTueElev}m elevation.`, true, buildTueElev);
+  addSession(w,2,'Hot Pilates','60min','N/A',`Hot Pilates. The heat session after a hard Tuesday ride accelerates recovery. Hip flexor release, spinal rotation, deep core. Keep mobility high as training load builds.`, false, 0);
+  addSession(w,3, w>=7?'Night Ride':'Zone 2 + Climbing', w===9?'1.5hr':w>=7?'2.5hr':'2.5hr', w>=7?'2':'2-3',
+    w>=7?(w===9?`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. Recovery week: 1.5hr easy, low effort — maintain the habit without loading the body. Target \u2191${buildThuElev}m.`:`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. The race has 8+ hours of darkness. Your comfort at night is built here, not on race day. Target \u2191${buildThuElev}m elevation.`):
+    `Zone 2 with climbing focus. Find a climb and repeat 3–4 ascents at steady pace. Simulates Nuwekloofpas effort management. Practice eating on the climb. Target \u2191${buildThuElev}m elevation.`, true, buildThuElev);
+  addSession(w,4,'Barre Class','60min','N/A',`Barre class. Single-leg stability, glute activation, hip hinge patterns. Friday barre before Saturday's big ride — fire up the posterior chain and arrive at the LSD ready to climb.`, false, 0);
+  addSession(w,5,'LSD',buildLSDSat[wi],'2',
+    w===9?`Recovery week Saturday — shorter LSD. Stay aerobic, no heroics. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildSatElev}m.`:
+    `BUILD LSD with climbing. Race-simulation workhorse. Include 600–800m of climbing if possible. Practice checkpoint protocols — stop at intervals, eat, hydrate, restart. Target \u2191${buildSatElev}m elevation.${w===10?' Peak BUILD ride — a major confidence milestone.':''}`, true, buildSatElev);
+  addSession(w,6,'Back-to-Back LSD',buildSunDur[wi],'2',
+    w===9?`Recovery week Sunday — gentle back-to-back, 3hr easy Zone 2. Keep legs moving without adding stress. Target \u2191${buildSunElev}m.`:
+    `Back-to-back day 2. After yesterday's long ride, you go again. Riding fatigued teaches your body to sustain output — exactly what hours 15–24 of Baviaans demand. Zone 2 only. Target \u2191${buildSunElev}m elevation.`, true, buildSunElev);
+}
+
+// ---- PEAK WEEKS 11-15 ----
+const peakLSDSat = ['5hr','8hr','10hr','4hr','6hr'];
+const peakLSDSatLabel = ['5hr','8hr','Event Sim (10hr)','4hr','6hr'];
+const peakSunDur = ['4hr','5hr','','4hr','5hr'];
+
+for (let w = 11; w <= 15; w++) {
+  const wi = w - 11;
+  const peakTueElev = [500,550,500,300,550][wi];
+  const peakThuElev = [500,550,500,300,550][wi];
+  const peakSatElev = [900,1100,1400,600,1100][wi];
+  const peakSunElev = [700,900,0,500,900][wi];
+  addSession(w,0,'Strength Class','60min','N/A',
+    w===14?`Strength class — lighter PEAK recovery week. Bodyweight or 50% reduced load only. Keep the pattern, lose the fatigue. Your body is rebuilding from Week 13's event simulation.`:
+    `Strength class — PEAK phase. Full load. Fatigue-resistant strength is what keeps your form intact at the 200km mark. Show up and do the work.`, false, 0);
+  addSession(w,1,'Threshold Ride', w===14?'1.5hr':'2.5hr','4',
+    w===14?`Recovery week — cut to 1.5hr, Zone 2 only. Keep the engine ticking, don't dig deep. Rebuild after the event simulation. Target \u2191${peakTueElev}m.`:
+    `Threshold session — PEAK intensity. 3\xd715min threshold blocks or one long sustained effort. Uncomfortable but controlled. This builds the fitness that gets your team to CP4 by 19:00. Target \u2191${peakTueElev}m elevation.`, true, peakTueElev);
+  addSession(w,2,'Hot Pilates','60min','N/A',
+    w===14?`Hot Pilates — recovery week. Lean into the mobility and restoration side. Nervous system reset after Week 13's simulation.`:
+    `Hot Pilates. Spinal decompression, hip opening, deep breathing. PEAK training is hard on the body — this session is your weekly reset. Don't skip it.`, false, 0);
+  addSession(w,3,'Night Ride', w===14?'1.5hr':'2.5-3hr','2-3',
+    w===14?`Recovery week — shorter night ride, 1.5hr easy. Keep the darkness habit alive without loading the body. Target \u2191${peakThuElev}m.`:
+    `Night ride. Full darkness, 2.5–3hr. Practice eating, navigating, and holding effort when you can't see the road. Test caffeine at the 2hr mark — simulate race night fuelling. Target \u2191${peakThuElev}m elevation.`, true, peakThuElev);
+  addSession(w,4,'Barre Class','60min','N/A',
+    `Barre class — the day before your biggest ride of the week. Hip activation, glute firing, single-leg stability. This is your pre-ignition for Saturday's big day. Arrive mobile and fired up.`, false, 0);
+  addSession(w,5,'LSD',peakLSDSatLabel[wi],'2',
+    w===13?`FULL RACE SIMULATION. 10 hours riding. Exact race nutrition, lights, and kit. Ride Karoo-like terrain (Bottelary Hills or Oak Valley). Simulate checkpoint stops every ~40km. This is the most important training day of the entire plan. Do not skip. Target \u2191${peakSatElev}m elevation.`:
+    w===14?`Recovery week Saturday — 4hr easy Zone 2. Your body rebuilds stronger after Week 13. Trust the process. Target \u2191${peakSatElev}m.`:
+    `PEAK Big Day — ${peakLSDSat[wi]} of sustained riding. Maximum elevation if possible. If you can do this, you can finish Baviaans. Fuel exactly as race day — no experimenting. Target \u2191${peakSatElev}m elevation.`, true, peakSatElev);
+  if (w !== 13) {
+    addSession(w,6,'Back-to-Back LSD',w===14?'3hr':peakSunDur[wi],'2',
+      w===14?`Recovery back-to-back — easy 3hr. Sunday after event sim week is about moving, not training stress. Target \u2191${peakSunElev}m.`:
+      `Back-to-back day 2. Heavy legs from Saturday — that is exactly the point. Zone 2 only. Sustained output on fatigued legs is the core PEAK adaptation. Target \u2191${peakSunElev}m elevation.`, true, peakSunElev);
+  } else {
+    addSession(w,6,'Rest','—','N/A',`Rest after the 10hr event simulation. Eat big, sleep long, recover completely. You have done the hardest training day of the plan.`, true, 0);
+  }
+}
+
+// ---- TAPER WEEKS 16-18 ----
+const taperSat = ['3hr','2.5hr','1.5hr'];
+
+for (let w = 16; w <= 18; w++) {
+  const wi = w - 16;
+  const taperTueElev = [300,250,200][wi];
+  const taperThuElev = [200,150,100][wi];
+  const taperSatElev = [400,350,200][wi];
+  const taperSunElev = [150,100,0][wi];
+  addSession(w,0,'Strength Class','45min','N/A',`Strength class — TAPER. Reduce weights by 40%. Movement quality over load. Keep the pattern going — but you are sharpening now, not building. More training will not make you faster. Rest will.`, false, 0);
+  addSession(w,1,'Threshold Ride','1.5hr','4',`Short sharp threshold. Warm up well, 2x10min blocks, cool down. Intensity stays — volume drops. Keep the engine sharp without digging a hole. Target up ${taperTueElev}m elevation.`, true, taperTueElev);
+  addSession(w,2,'Hot Pilates','45min','N/A',`Hot Pilates — TAPER. Focus on hip opening, spinal mobility, nervous system calming. ${w===18?'Second to last class before race day. You are ready. Lean into restoration.':'Arrive at race day loose, supple, and mobile — this is part of your preparation.'}`, false, 0);
+  addSession(w,3,'Zone 2 Ride','1hr','2',`Easy Zone 2 ride — 1hr only. Keep HR low. Use this ride to check race kit and run through your mental race plan: Nuwekloofpas, the MAC, the night section, CP4 at 19:00. See yourself riding it strong. Target up ${taperThuElev}m elevation.`, true, taperThuElev);
+  addSession(w,4,'Barre Class','45min','N/A',`Barre class — ${w===18?'last class before race week. Light intensity, focus on hip activation and nervous system priming. You have done the work. This is the final tune-up.':'TAPER load. Reduce intensity by 30%. Hip stability and glute activation without fatigue.'}`, false, 0);
+  addSession(w,5,'LSD',taperSat[wi],'2',`Taper LSD — ${taperSat[wi]}. Aerobic, relaxed, no heroics. ${w===18?"Your last proper ride before race day. Enjoy every kilometre. Trust what you have built over 18 weeks.":"Keep it easy and enjoyable. This is the last long ride before race day."} Target up ${taperSatElev}m elevation.`, true, taperSatElev);
+  addSession(w,6,'Recovery Spin','1hr','1',`Easy Sunday flush. Light legs, short session, nothing more. Race week is ${w===18?'here':'almost here'}.`, true, taperSunElev);
+}
+
+// ---- RACE WEEK 19 ----
+addSession(19,0,'Rest','—','N/A','Full rest. Skip strength class this week. Travel to Willowmore if needed. Arrive relaxed and rested. Eat well, hydrate, sleep 8hrs.', true, 0);
+addSession(19,1,'Zone 2 Spin','45min','1','Easy 45min spin to keep legs loose. No intensity, no pressure — just movement. Ride near the venue if possible.', true, 0);
+addSession(19,2,'Rest','—','N/A','Skip Hot Pilates this week. Complete rest. Final kit check, pack drop boxes if not done yet. Mental preparation and visualisation.', true, 0);
+addSession(19,3,'Shake-out','30min','1','Very easy 30min pedal. Test bike gears and brakes. Not training — just confirming everything works. Then rest the remainder of the day.', true, 0);
+addSession(19,4,'Race Admin','—','N/A','Skip Barre — race admin day. Drop boxes depart. Registration opens 12:00 Willowmore. Collect race number. Team pasta dinner in the evening. Bed by 21:00.', true, 0);
+addSession(19,5,'RACE','24hr','1-5','RACE DAY — Trans Baviaans MTB Marathon. Start 10:00 from Willowmore. 230km to Jeffreys Bay. 2840m elevation. 24hr cutoff. Trust your training.', true, 0);
+addSession(19,6,'Recovery','—','N/A','Race finish. Prize giving in Jeffreys Bay 10:00 Sunday. Rest, eat everything, celebrate with your team.', true, 0);
+
+// =============================================
+// QUOTES
+// =============================================
+const QUOTES = [
+  'The MAC has 50 switchbacks. Your legs will know every one.',
+  'Nuwekloofpas is 26km of sustained climbing. Bank the miles now.',
+  'You\'ll ride through the night. Your headlight will be your best friend at 2am.',
+  'At 20hr pace you hit CP4 at 19:00 — 3hrs before the cutoff. Train for that buffer.',
+  'The Baviaanskloof has buffalo. Stay together, keep moving.',
+  '230km. 2840m. 24 hours. One team. Build the base now.',
+  'The Neverender has false summits. So does training. Keep pushing.',
+  'The Big Dipper drops 330m in 5.5km. Your descending is your reward.',
+  'No support crew until CP5 at 172km. Train self-sufficient.',
+  'The route is unmarked. Train your navigation as hard as your legs.',
+  'Jeffreys Bay is 230km away. Every Zone 2 hour gets you closer.'
+];
+
+// =============================================
+// GEAR CHECKLIST DATA
+// =============================================
+const GEAR_ITEMS = [
+  { id: 'nav1', cat: 'Navigation', text: 'Printed route map (waterproof)' },
+  { id: 'nav2', cat: 'Navigation', text: 'GPS device or phone with offline map' },
+  { id: 'nav3', cat: 'Navigation', text: 'Backup battery pack' },
+  { id: 'light1', cat: 'Lighting', text: 'Front light (min 500 lumens, 10hr battery)' },
+  { id: 'light2', cat: 'Lighting', text: 'Rear light' },
+  { id: 'light3', cat: 'Lighting', text: 'Spare batteries / charger' },
+  { id: 'light4', cat: 'Lighting', text: 'Emergency headtorch' },
+  { id: 'safe1', cat: 'Safety', text: 'First aid kit' },
+  { id: 'safe2', cat: 'Safety', text: 'Space blanket' },
+  { id: 'safe3', cat: 'Safety', text: 'Whistle' },
+  { id: 'safe4', cat: 'Safety', text: 'Mobile phone (fully charged)' },
+  { id: 'safe5', cat: 'Safety', text: 'Emergency contacts written on body/jersey' },
+  { id: 'cloth1', cat: 'Clothing', text: 'Helmet' },
+  { id: 'cloth2', cat: 'Clothing', text: 'Cycling gloves' },
+  { id: 'cloth3', cat: 'Clothing', text: 'Arm warmers' },
+  { id: 'cloth4', cat: 'Clothing', text: 'Wind jacket' },
+  { id: 'cloth5', cat: 'Clothing', text: 'Leg warmers' },
+  { id: 'cloth6', cat: 'Clothing', text: 'Rain jacket' },
+  { id: 'cloth7', cat: 'Clothing', text: 'Warm layer for night section' },
+  { id: 'bike1', cat: 'Bike & Tools', text: 'Spare inner tubes (x2)' },
+  { id: 'bike2', cat: 'Bike & Tools', text: 'Tyre levers' },
+  { id: 'bike3', cat: 'Bike & Tools', text: 'CO₂ or pump' },
+  { id: 'bike4', cat: 'Bike & Tools', text: 'Multi-tool' },
+  { id: 'bike5', cat: 'Bike & Tools', text: 'Chain lube' },
+  { id: 'bike6', cat: 'Bike & Tools', text: 'Duct tape (wrapped on seatpost)' },
+  { id: 'nutr1', cat: 'Nutrition', text: 'Race food supply to CP2 (93km)' },
+  { id: 'nutr2', cat: 'Nutrition', text: 'Hydration (min 2L carrying capacity)' },
+  { id: 'nutr3', cat: 'Nutrition', text: 'Electrolyte tablets' },
+];
+
+const DROP_PRESETS = {
+  cp2: ['Energy bars x6','Electrolyte tablets x4','Spare gels x4','Chamois cream','Small real food snack','Spare batteries for lights'],
+  cp3: ['Hot food packet (add hot water)','Caffeine gels x3','Blister plasters','Morale snack (something you love)','Extra electrolytes'],
+  cp4: ['Night-specific fuel x4','Extra warm layer','Fresh gloves','Caffeine gel x2','Pain relief if needed','Fresh batteries']
+};
+
+// =============================================
+// ROUTES DATA
+// =============================================
+const ROUTES = [
+  {
+    name: 'Contermanskloof',
+    location: 'Durbanville',
+    phase: 'BASE',
+    phaseCss: 'var(--phase-base)',
+    distCT: '25km from CT',
+    terrain: 'Easy undulating farmland singletrack, well-marked',
+    trains: 'Zone 2 aerobic base, comfortable saddle time',
+    open: '7 days a week — coffee shop on site',
+    warning: null,
+    tip: 'Perfect for back-to-back days. Do Saturday + Sunday here in base phase. The coffee shop makes recovery easier.'
+  },
+  {
+    name: 'Tokai MTB',
+    location: 'Southern Suburbs',
+    phase: 'BUILD',
+    phaseCss: 'var(--phase-build)',
+    distCT: '20km from CT',
+    terrain: 'Forest trail with access to Constantiaberg mast climb',
+    trains: 'Sustained climbing (5.4km at 7% avg gradient)',
+    open: 'Check trail status before visiting',
+    warning: '⚠️ Check SANParks / TokaiMTB social media for current trail status — some trails affected by 2025 fires.',
+    tip: 'The Constantiaberg mast climb mimics the relentless gradient you\'ll face on Nuwekloofpas.'
+  },
+  {
+    name: 'Jonkershoek Nature Reserve',
+    location: 'Stellenbosch',
+    phase: 'BUILD / PEAK',
+    phaseCss: 'var(--phase-peak)',
+    distCT: '50km from CT',
+    terrain: 'Technical switchback climbing, rocky singletrack',
+    trains: 'Technical climbing, MAC simulation, mental toughness',
+    open: 'Permit required — book in advance',
+    warning: null,
+    tip: 'This is the closest Cape Town has to the MAC experience. Regular Cape Epic venue. Book your permit in advance.'
+  },
+  {
+    name: 'Bottelary Hills / Polkadraai',
+    location: 'Stellenbosch area',
+    phase: 'PEAK',
+    phaseCss: 'var(--phase-peak)',
+    distCT: '40km from CT',
+    terrain: '130km+ of dusty gravel farm roads',
+    trains: 'Ultra-endurance LSD, self-sufficiency, Karoo-like conditions',
+    open: 'Open access gravel roads',
+    warning: null,
+    tip: 'The closest terrain to Baviaanskloof conditions in the Cape. Dust, heat, long straights. Ride here for your 4-6hr peak sessions.'
+  },
+  {
+    name: 'Oak Valley Estate',
+    location: 'Grabouw',
+    phase: 'PEAK',
+    phaseCss: 'var(--phase-peak)',
+    distCT: '65km from CT',
+    terrain: '50km of forested trails, sustained climbs',
+    trains: 'Full event simulation, technical riding, endurance',
+    open: 'Paid trail access — check website',
+    warning: null,
+    tip: 'Best single venue for a race-simulation day. ~1hr from Cape Town. Combine with an overnight stay for back-to-back riding.'
+  },
+  {
+    name: 'Hemel en Aarde MTB',
+    location: 'Hermanus',
+    phase: 'PEAK',
+    phaseCss: 'var(--phase-peak)',
+    distCT: '115km from CT',
+    terrain: 'Mixed fynbos trails, some gravel road linking',
+    trains: 'Long mixed-terrain days, mental preparation',
+    open: 'Check trail access / conditions',
+    warning: null,
+    tip: 'Combine the MTB trails with road riding for a full 5-6hr day. Beautiful setting — great for mental as well as physical preparation.'
+  }
+];
+
+// =============================================
+// APP STATE
+// =============================================
+let currentTab = 'calendar';
+let selectedWeek = 1;
+let currentNutrTab = 'on-bike';
+let currentPrepTab = 'gear';
+let expandedLogId = null;
+
+// =============================================
+// LOCALSTORAGE HELPERS
+// =============================================
+// ---- PROFILE ----
+let activeProfile = localStorage.getItem('mtb_active_profile') || 'Loren';
+
+function switchProfile(name) {
+  activeProfile = name;
+  localStorage.setItem('mtb_active_profile', name);
+  document.getElementById('btn-loren').classList.toggle('active', name === 'Loren');
+  document.getElementById('btn-kevin').classList.toggle('active', name === 'Kevin');
+  renderLogList();
+  renderLogDropdown();
+  renderCalendar();
+  const ct = document.querySelector('#bottom-nav .nav-item.active');
+  if (ct) {
+    const tab = ct.getAttribute('onclick').match(/'(\w+)'/)[1];
+    if (tab === 'progress') renderProgress();
+    if (tab === 'prep') renderPrep(currentPrepTab);
+  }
+}
+
+function profileKey(key) { return `${key}_${activeProfile}`; }
+
+function getLogs() { try { return JSON.parse(localStorage.getItem(profileKey('mtb_logs'))||'[]'); } catch(e) { return []; } }
+function saveLogs(logs) { localStorage.setItem(profileKey('mtb_logs'), JSON.stringify(logs)); }
+function getGear() { try { return JSON.parse(localStorage.getItem(profileKey('mtb_gear'))||'{}'); } catch(e) { return {}; } }
+function saveGear(g) { localStorage.setItem(profileKey('mtb_gear'), JSON.stringify(g)); }
+function getDropboxes() {
+  try {
+    const d = JSON.parse(localStorage.getItem(profileKey('mtb_dropboxes'))||'{}');
+    if (!d.cp2) d.cp2 = [...DROP_PRESETS.cp2];
+    if (!d.cp3) d.cp3 = [...DROP_PRESETS.cp3];
+    if (!d.cp4) d.cp4 = [...DROP_PRESETS.cp4];
+    return d;
+  } catch(e) {
+    return { cp2: [...DROP_PRESETS.cp2], cp3: [...DROP_PRESETS.cp3], cp4: [...DROP_PRESETS.cp4] };
+  }
+}
+function saveDropboxes(d) { localStorage.setItem(profileKey('mtb_dropboxes'), JSON.stringify(d)); }
+
+// =============================================
+// DATE / WEEK HELPERS
+// =============================================
+const TODAY = new Date();
+TODAY.setHours(12,0,0,0); // Use midday to avoid timezone edge cases
+
+function getCurrentWeek() {
+  const diff = Math.floor((TODAY - PLAN_START) / (7*24*60*60*1000));
+  return Math.max(1, Math.min(19, diff + 1));
+}
+
+function getWeekSessions(week) {
+  return PLAN.filter(s => s.week === week);
+}
+
+function getWeekElevationTarget(week) {
+  return PLAN.filter(s => s.week === week).reduce((sum, s) => sum + (s.targetElevation || 0), 0);
+}
+
+function durationToHours(dur) {
+  if (!dur || dur === '—') return 0;
+  const hrMatch = dur.match(/(\d+(?:\.\d+)?)hr/);
+  const minMatch = dur.match(/(\d+)min/);
+  let h = hrMatch ? parseFloat(hrMatch[1]) : 0;
+  let m = minMatch ? parseInt(minMatch[1]) : 0;
+  return h + m/60;
+}
+
+function getPlannedHoursForWeek(week) {
+  return getWeekSessions(week).reduce((sum, s) => sum + durationToHours(s.duration), 0);
+}
+
+function getWeekRange(week) {
+  const start = addDays(PLAN_START, (week-1)*7);
+  const end = addDays(start, 6);
+  const fmt = d => d.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
+  return `${fmt(start)} – ${fmt(end)}`;
+}
+
+function getLoggedHoursForWeek(week) {
+  const start = addDays(PLAN_START, (week-1)*7);
+  const end = addDays(start, 7);
+  const logs = getLogs();
+  return logs.filter(l => {
+    const d = new Date(l.date);
+    return d >= start && d < end;
+  }).reduce((sum, l) => sum + (l.hours||0) + (l.mins||0)/60, 0);
+}
+
+function getSessionTypeIcon(type) {
+  const icons = {
+    'LSD': '🚵','Threshold Ride': '🔥','Threshold': '🔥','Night Ride': '🌙',
+    'Barre Class': '🩰','Strength Class': '🏋️','Pilates': '🧘','Hot Pilates': '❤️‍🔥','Yoga': '🧘',
+    'Recovery Spin': '🔄','Rest': '😴','Zone 2 Ride': '🚵','Zone 2 Spin': '🚵',
+    'Zone 2 + Climbing': '⛰️','Zone 2 + Night Check': '🌙','Back-to-Back LSD': '🚵',
+    'Shake-out': '🚵','Race Admin': '📋','RACE': '🏁','Recovery': '😴',
+    'Zone 2': '🚵','Other': '⭐'
+  };
+  return icons[type] || '🚵';
+}
+
+function getSessionDotColor(type) {
+  const colors = {
+    'LSD': '#C8832A','Threshold Ride': '#A0522D','Threshold': '#A0522D',
+    'Night Ride': '#5B7FA6',
+    'Barre Class': '#7B6DAA','Strength Class': '#6B7C44','Pilates': '#4A7C6F','Hot Pilates': '#4A7C6F','Yoga': '#4A8A7C',
+    'Recovery Spin': '#4A7C6F','Rest': '#3A3F47',
+    'Zone 2 Ride': '#C8832A','Zone 2 Spin': '#C8832A','Zone 2 + Climbing': '#A0522D',
+    'Zone 2 + Night Check': '#5B7FA6','Back-to-Back LSD': '#C8832A',
+    'Shake-out': '#6B7C44','Race Admin': '#D4A017','RACE': '#D4A017','Recovery': '#3A3F47',
+    'Zone 2': '#C8832A','Other': '#9A968F'
+  };
+  return colors[type] || '#9A968F';
+}
+
+const RPE_LABELS = ['','Very Easy','Easy','Moderate','Somewhat Hard','Hard','Hard','Very Hard','Very Hard','Maximum','Maximum'];
+
+// =============================================
+// TAB NAVIGATION
+// =============================================
+function showTab(tab, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (el) el.classList.add('active');
+  currentTab = tab;
+  if (tab === 'progress') renderProgress();
+  if (tab === 'log') renderLogList();
+  if (tab === 'prep') renderPrep(currentPrepTab);
+  if (tab === 'routes') renderRoutes();
+  if (tab === 'nutrition') renderNutrition(currentNutrTab);
+}
+
+// =============================================
+// CALENDAR RENDERING
+// =============================================
+function renderCalendar() {
+  const curWeek = getCurrentWeek();
+  if (selectedWeek < 1 || selectedWeek > 19) selectedWeek = curWeek;
+
+  // Week scroller
+  const scroller = document.getElementById('week-scroller');
+  scroller.innerHTML = '';
+  for (let w = 1; w <= 19; w++) {
+    const phase = getPhase(w);
+    const chip = document.createElement('div');
+    chip.className = 'week-chip' + (w === selectedWeek ? ' active' : '') + (w === curWeek ? ' current' : '');
+    chip.textContent = `W${w}${w === curWeek ? ' ●' : ''}`;
+    chip.title = phase.name;
+    chip.onclick = () => { selectedWeek = w; renderCalendar(); };
+    scroller.appendChild(chip);
+  }
+
+  // Scroll active chip into view
+  setTimeout(() => {
+    const active = scroller.querySelector('.week-chip.active');
+    if (active) active.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+  }, 50);
+
+  // Phase banner
+  const phase = getPhase(selectedWeek);
+  const banner = document.getElementById('phase-week-banner');
+  banner.style.background = phase.color + '22';
+  banner.style.border = `1px solid ${phase.color}55`;
+  banner.innerHTML = `<span style="color:${phase.color};font-weight:800">${phase.name}</span><span style="color:var(--text-muted);font-size:12px;font-weight:500">${getWeekRange(selectedWeek)}</span>`;
+
+  // Day list
+  const sessions = getWeekSessions(selectedWeek);
+  const dayList = document.getElementById('day-list');
+  dayList.innerHTML = '';
+  sessions.forEach(s => {
+    const card = document.createElement('div');
+    const isToday = s.date === isoDate(TODAY);
+    card.className = 'day-card' + (isToday ? ' today' : '');
+    card.innerHTML = `
+      <div class="day-dot" style="background:${getSessionDotColor(s.type)}"></div>
+      <div class="day-info">
+        <div class="day-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${s.day}${isToday ? ' — TODAY' : ''} · ${new Date(s.date+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}${s.required===false ? ' <span class="optional-badge">optional</span>' : ''}</div>
+        <div class="day-session">${getSessionTypeIcon(s.type)} ${s.type}</div>
+        <div class="day-meta">${s.duration}${s.zone !== 'N/A' ? ` · Zone ${s.zone}` : ''}${s.targetElevation > 0 ? ` · <span class="elev-chip">&#8593; ${s.targetElevation}m</span>` : ''}</div>
+      </div>
+      <div class="day-chevron">›</div>`;
+    card.onclick = () => openSessionModal(s);
+    dayList.appendChild(card);
+  });
+}
+
+// =============================================
+// SESSION MODAL
+// =============================================
+function isSessionLogged(date) {
+  return getLogs().some(l => l.date === date);
+}
+
+function openSessionModal(s) {
+  const phase = getPhase(s.week);
+  const logged = isSessionLogged(s.date);
+  document.getElementById('modal-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+      <span class="phase-banner" style="background:${phase.color}22;color:${phase.color};border:1px solid ${phase.color}44">${phase.name} · Week ${s.week}</span>
+      ${logged ? `<span style="background:#2a4a2a;color:#6fcf6f;border:1px solid #4a7a4a;border-radius:20px;font-size:11px;font-weight:700;padding:4px 10px">✓ LOGGED</span>` : ''}
+    </div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:600">${s.day} · ${new Date(s.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+    <div style="font-size:22px;font-weight:800;margin-bottom:12px">${getSessionTypeIcon(s.type)} ${s.type}</div>
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="background:var(--bg-card-2);border-radius:8px;padding:8px 14px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">DURATION</div>
+        <div style="font-size:16px;font-weight:700;margin-top:2px">${s.duration}</div>
+      </div>
+      ${s.zone !== 'N/A' ? `<div style="background:var(--bg-card-2);border-radius:8px;padding:8px 14px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">ZONE</div>
+        <div style="font-size:16px;font-weight:700;margin-top:2px">${s.zone}</div>
+      </div>` : ''}
+      ${s.targetElevation > 0 ? `<div style="background:var(--bg-card-2);border-radius:8px;padding:8px 14px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">ELEV TARGET</div>
+        <div style="font-size:16px;font-weight:700;margin-top:2px;color:var(--olive)">&#8593; ${s.targetElevation}m</div>
+      </div>` : ''}
+      <div style="background:var(--bg-card-2);border-radius:8px;padding:8px 14px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600">SESSION</div>
+        <div style="font-size:13px;font-weight:700;margin-top:2px;color:${s.required===false?'var(--text-muted)':'var(--ochre)'}">${s.required===false?'&#9898; Optional':'&#128992; Required'}</div>
+      </div>
+    </div>
+    ${s.required===false ? `<div style="background:var(--bg-card-2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--text-muted);line-height:1.5"><strong style="color:var(--text)">Choose your preferred class:</strong> Strength · Yoga · Pilates · Barre · Hot Pilates — log whatever you actually did.</div>` : ''}
+    <div style="background:var(--bg-card-2);border-radius:10px;padding:14px;font-size:14px;line-height:1.65;color:var(--text-muted);margin-bottom:16px">
+      ${s.description}
+    </div>
+    ${logged
+      ? `<div style="text-align:center;padding:14px;background:#1a2e1a;border-radius:10px;border:1px solid #4a7a4a;margin-bottom:12px;font-size:14px;color:#6fcf6f;font-weight:600">✓ Session logged</div>`
+      : `<button onclick="quickLogSession('${s.date}','${s.type}','${s.duration}')" style="width:100%;background:var(--ochre);border:none;border-radius:12px;color:#fff;padding:15px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px">✓ Log this session</button>`
+    }
+    <div style="text-align:center">
+      <button onclick="closeModal()" style="background:var(--bg-card-2);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);padding:12px 32px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Close</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function quickLogSession(date, type, durationStr) {
+  closeModal();
+  // Switch to Log tab and pre-fill
+  showTab('log', null);
+  setTimeout(() => {
+    document.getElementById('log-date').value = date;
+    renderLogDropdown(type);
+    // Parse duration string e.g. "1.5hr", "45min", "2hr"
+    const hrMatch = durationStr.match(/(\d+\.?\d*)hr/);
+    const minMatch = durationStr.match(/(\d+)min/);
+    if (hrMatch) {
+      const total = parseFloat(hrMatch[1]);
+      document.getElementById('log-hours').value = Math.floor(total);
+      document.getElementById('log-mins').value = Math.round((total % 1) * 60) || '';
+    } else if (minMatch) {
+      document.getElementById('log-hours').value = 0;
+      document.getElementById('log-mins').value = minMatch[1];
+    }
+    // Scroll to top of log form
+    document.getElementById('tab-log').scrollTo({ top: 0, behavior: 'smooth' });
+  }, 150);
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+// =============================================
+// LOG TAB
+// =============================================
+const CLASS_TYPES = ['Barre Class','Strength Class','Hot Pilates','Yoga'];
+
+function isClassType(type) {
+  return CLASS_TYPES.includes(type);
+}
+
+function updateLogFields() {
+  const type = document.getElementById('log-type').value;
+  const rideFields = document.getElementById('ride-fields');
+  if (isClassType(type)) {
+    rideFields.style.display = 'none';
+    document.getElementById('log-dist').value = '';
+    document.getElementById('log-elev').value = '';
+  } else {
+    rideFields.style.display = '';
+  }
+}
+
+function renderLogDropdown(preserveValue) {
+  const sel = document.getElementById('log-type');
+  const current = preserveValue || sel.value;
+  const rideTypes = ['LSD','Threshold Ride','Night Ride','Zone 2 Ride','Recovery Spin'];
+  const lorenClasses = ['Barre Class','Strength Class','Hot Pilates','Yoga'];
+  const kevinClasses = ['Yoga','Strength Class','Barre Class','Hot Pilates'];
+  const classes = activeProfile === 'Kevin' ? kevinClasses : lorenClasses;
+  const allTypes = [...rideTypes, ...classes, 'Other'];
+  sel.innerHTML = allTypes.map(t => `<option${t===current?' selected':''}>${t}</option>`).join('');
+  updateLogFields();
+}
+
+function initLog() {
+  const today = isoDate(TODAY);
+  document.getElementById('log-date').value = today;
+  const rpe = document.getElementById('log-rpe');
+  const rpeDisplay = document.getElementById('rpe-display');
+  rpe.oninput = () => { rpeDisplay.textContent = `${rpe.value} — ${RPE_LABELS[rpe.value]}`; };
+  renderLogDropdown();
+}
+
+function saveLog() {
+  const date = document.getElementById('log-date').value;
+  const type = document.getElementById('log-type').value;
+  const hours = parseInt(document.getElementById('log-hours').value)||0;
+  const mins = parseInt(document.getElementById('log-mins').value)||0;
+  const dist = parseFloat(document.getElementById('log-dist').value)||0;
+  const elev = parseFloat(document.getElementById('log-elev').value)||0;
+  const rpe = parseInt(document.getElementById('log-rpe').value)||5;
+  const notes = document.getElementById('log-notes').value.trim();
+
+  if (!date) { alert('Please select a date'); return; }
+  if (hours === 0 && mins === 0) { alert('Please enter a duration'); return; }
+
+  const logs = getLogs();
+  if (logs.some(l => l.date === date && l.type === type)) {
+    alert(`You already logged a ${type} on this date. Delete the existing entry first if you want to re-log it.`);
+    return;
+  }
+  logs.push({ id: Date.now(), date, type, hours, mins, dist, elev, rpe, notes });
+  saveLogs(logs);
+
+  // Reset form
+  document.getElementById('log-hours').value = '';
+  document.getElementById('log-mins').value = '';
+  document.getElementById('log-dist').value = '';
+  document.getElementById('log-elev').value = '';
+  document.getElementById('log-rpe').value = 5;
+  document.getElementById('rpe-display').textContent = '5 — Hard';
+  document.getElementById('log-notes').value = '';
+
+  renderLogList();
+  showLogToast(type, hours, mins);
+}
+
+const LOG_ENCOURAGEMENT = {
+  'LSD': [
+    { emoji: '🚵', msg: 'Long ride banked.', sub: 'Every kilometre logged is a kilometre closer to Jeffreys Bay. The Karoo won\'t know what hit it.' },
+    { emoji: '🏔️', msg: 'The engine is building.', sub: 'Zone 2 riding is where champions are made. You\'re laying the foundation for 230km.' },
+    { emoji: '⏱️', msg: 'Time in the saddle.', sub: 'This is what separates finishers from DNFs. You showed up. Keep showing up.' }
+  ],
+  'Threshold Ride': [
+    { emoji: '🔥', msg: 'Threshold done.', sub: 'That discomfort you felt? That\'s your body getting faster. The MAC won\'t break you.' },
+    { emoji: '💥', msg: 'You pushed hard.', sub: 'Threshold work builds the power to tackle Nuwekloofpas without blowing up. Filed away.' }
+  ],
+  'Night Ride': [
+    { emoji: '🌙', msg: 'Darkness conquered.', sub: 'You just trained for the hardest part of the race. 2am in the Baviaans will feel familiar now.' },
+    { emoji: '🔦', msg: 'Night miles banked.', sub: 'Most riders fear the dark. You just rode it. That\'s your edge on race night.' }
+  ],
+  'Barre Class': [
+    { emoji: '🩰', msg: 'Barre done.', sub: 'Those hip stability drills are your secret weapon on the MAC\'s 50 switchbacks. Strong hips, strong rider.' },
+    { emoji: '💪', msg: 'Off-bike work counts.', sub: 'The best riders train everything. You\'re building a complete athlete.' }
+  ],
+  'Strength Class': [
+    { emoji: '🏋️', msg: 'Strength session done.', sub: 'The strength you build today carries you through the final 80km when everyone else is falling apart.' },
+    { emoji: '💪', msg: 'Strong body, strong ride.', sub: 'Off-bike work is your insurance policy. You\'re investing in Jeffreys Bay.' }
+  ],
+  'Hot Pilates': [
+    { emoji: '❤️‍🔥', msg: 'Hot Pilates in the bag.', sub: 'Core, mobility, recovery — all done. Your body will thank you on those long Karoo climbs.' },
+    { emoji: '🧘', msg: 'Body maintenance done.', sub: 'Staying mobile and injury-free is half the battle in an ultra. You\'re doing it right.' }
+  ],
+  'Yoga': [
+    { emoji: '🧘', msg: 'Yoga done.', sub: 'Flexibility and mindset — both crucial for 20 hours in the saddle. Every session counts.' },
+    { emoji: '🌿', msg: 'Body and mind tended.', sub: 'The MAC requires patience as much as power. Yoga builds both.' }
+  ],
+  'Recovery Spin': [
+    { emoji: '🔄', msg: 'Active recovery done.', sub: 'Smart athletes recover smart. You\'ll be fresher for the next session because of this.' }
+  ],
+  'Zone 2 Ride': [
+    { emoji: '🚵', msg: 'Zone 2 in the bank.', sub: 'Aerobic base is everything for a 20hr event. This session just made your engine bigger.' },
+    { emoji: '🫀', msg: 'Heart rate controlled, fitness built.', sub: 'Zone 2 riding is the foundation of every ultra-endurance finish. Keep stacking it.' }
+  ]
+};
+
+const DEFAULT_ENCOURAGEMENT = [
+  { emoji: '✅', msg: 'Session logged.', sub: 'Every session is a deposit in the race-day bank. Jeffreys Bay is getting closer.' },
+  { emoji: '🏁', msg: 'Another one done.', sub: '230km won\'t train itself. You\'re doing the work.' }
+];
+
+function showLogToast(type, hours, mins) {
+  const options = LOG_ENCOURAGEMENT[type] || DEFAULT_ENCOURAGEMENT;
+  const pick = options[Math.floor(Math.random() * options.length)];
+  const totalMins = (hours||0)*60 + (mins||0);
+  const daysToRace = Math.ceil((RACE_DATE - new Date()) / (1000*60*60*24));
+  document.getElementById('toast-emoji').textContent = pick.emoji;
+  document.getElementById('toast-msg').textContent = pick.msg;
+  document.getElementById('toast-sub').textContent = pick.sub + (daysToRace > 0 ? ` ${daysToRace} days to race.` : '');
+  const toast = document.getElementById('log-toast');
+  toast.style.display = 'flex';
+}
+
+function closeToast() {
+  document.getElementById('log-toast').style.display = 'none';
+}
+
+function renderLogList() {
+  const logs = getLogs().sort((a,b) => b.date.localeCompare(a.date));
+  const container = document.getElementById('log-list');
+  if (!logs.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">✏️</div><p>No sessions logged yet.<br>Log your first ride above!</p></div>`;
+    return;
+  }
+  container.innerHTML = '';
+  logs.forEach(log => {
+    const dur = `${log.hours}h ${log.mins}m`;
+    const isExpanded = expandedLogId === log.id;
+    const card = document.createElement('div');
+    card.className = 'log-card';
+    card.innerHTML = `
+      <div class="log-card-header">
+        <span class="log-type-badge">${log.type}</span>
+        <span class="log-date">${new Date(log.date+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})}</span>
+      </div>
+      <div class="log-title">${getSessionTypeIcon(log.type)} ${log.type}</div>
+      <div class="log-stats">
+        <span>⏱ ${dur}</span>
+        ${log.dist ? `<span>📍 ${log.dist}km</span>` : ''}
+        ${log.elev ? `<span>⛰ ${log.elev}m</span>` : ''}
+        <span>RPE ${log.rpe}</span>
+      </div>
+      ${isExpanded ? `<div class="log-expanded">
+        ${log.notes ? `<p>${log.notes}</p>` : '<p style="font-style:italic">No notes</p>'}
+        <button class="btn-delete" onclick="deleteLog(${log.id},event)">Delete</button>
+      </div>` : ''}`;
+    card.onclick = () => {
+      expandedLogId = isExpanded ? null : log.id;
+      renderLogList();
+    };
+    container.appendChild(card);
+  });
+}
+
+function deleteLog(id, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this session?')) return;
+  const logs = getLogs().filter(l => l.id !== id);
+  saveLogs(logs);
+  expandedLogId = null;
+  renderLogList();
+}
+
+// =============================================
+// PROGRESS TAB
+// =============================================
+function renderProgress() {
+  // Countdown
+  const now = new Date();
+  const diff = Math.ceil((RACE_DATE - now) / (1000*60*60*24));
+  document.getElementById('days-to-race').textContent = Math.max(0, diff);
+
+  // Stats
+  const logs = getLogs();
+  const curWeek = getCurrentWeek();
+  const weekStart = addDays(PLAN_START, (curWeek-1)*7);
+  const weekEnd = addDays(weekStart, 7);
+
+  const weekLogs = logs.filter(l => { const d = new Date(l.date); return d >= weekStart && d < weekEnd; });
+  const plannedSessions = getWeekSessions(curWeek).filter(s => s.type !== 'Rest').length;
+  document.getElementById('stat-sessions-week').textContent = `${weekLogs.length}/${plannedSessions}`;
+
+  const totalMins = logs.reduce((s,l) => s + (l.hours||0)*60 + (l.mins||0), 0);
+  document.getElementById('stat-total-hrs').textContent = Math.round(totalMins/60*10)/10;
+
+  const weekElev = weekLogs.reduce((s,l) => s + (l.elev||0), 0);
+  const weekElevTarget = getWeekElevationTarget(curWeek);
+  document.getElementById('stat-total-elev').textContent = weekElevTarget > 0 ? `${weekElev.toLocaleString()}m / ${weekElevTarget.toLocaleString()}m` : `${weekElev.toLocaleString()}m`;
+
+  let longest = 0;
+  logs.forEach(l => { const h = (l.hours||0) + (l.mins||0)/60; if (h > longest) longest = h; });
+  document.getElementById('stat-longest').textContent = longest > 0 ? `${Math.round(longest*10)/10}hr` : '0hr';
+
+  // Chart
+  renderChart(curWeek);
+
+  // Next session
+  const todayStr = isoDate(TODAY);
+  const upcoming = PLAN.filter(s => s.date >= todayStr && s.type !== 'Rest').sort((a,b) => a.date.localeCompare(b.date));
+  const next = upcoming[0];
+  const container = document.getElementById('next-session-container');
+  if (next) {
+    const phase = getPhase(next.week);
+    container.innerHTML = `<div class="card" style="margin:0 16px">
+      <div style="font-size:11px;color:${phase.color};font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">${phase.name} · Week ${next.week}</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${getSessionTypeIcon(next.type)} ${next.type}</div>
+      <div style="font-size:13px;color:var(--text-muted)">${new Date(next.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'short'})} · ${next.duration}${next.zone!=='N/A'?' · Zone '+next.zone:''}</div>
+    </div>`;
+  } else {
+    container.innerHTML = `<div class="card" style="margin:0 16px;text-align:center;color:var(--gold)">🏁 Race complete!</div>`;
+  }
+
+  // Team comparison
+  renderComparison();
+
+  // Quote
+  let qi = parseInt(localStorage.getItem('mtb_quote_index')||'0');
+  qi = (qi + 1) % QUOTES.length;
+  localStorage.setItem('mtb_quote_index', String(qi));
+  document.getElementById('quote-text').textContent = `"${QUOTES[qi]}"`;
+}
+
+function getStatsForProfile(profile) {
+  try {
+    const logs = JSON.parse(localStorage.getItem(`mtb_logs_${profile}`) || '[]');
+    const curWeek = getCurrentWeek();
+    const weekStart = addDays(PLAN_START, (curWeek-1)*7);
+    const weekEnd = addDays(weekStart, 7);
+    const weekLogs = logs.filter(l => { const d = new Date(l.date); return d >= weekStart && d < weekEnd; });
+    const totalMins = logs.reduce((s,l) => s + (l.hours||0)*60 + (l.mins||0), 0);
+    const totalSessions = logs.length;
+    const plannedSessions = getWeekSessions(curWeek).filter(s => s.type !== 'Rest').length;
+    return { weekDone: weekLogs.length, weekPlanned: plannedSessions, totalHrs: Math.round(totalMins/60*10)/10, totalSessions };
+  } catch(e) { return { weekDone: 0, weekPlanned: 0, totalHrs: 0, totalSessions: 0 }; }
+}
+
+function renderComparison() {
+  const card = document.getElementById('compare-card');
+  if (!card) return;
+  const l = getStatsForProfile('Loren');
+  const k = getStatsForProfile('Kevin');
+  const lorenPct = l.weekPlanned > 0 ? Math.round(l.weekDone / l.weekPlanned * 100) : 0;
+  const kevinPct = k.weekPlanned > 0 ? Math.round(k.weekDone / k.weekPlanned * 100) : 0;
+  const lorenColor = '#C8832A';
+  const kevinColor = '#5B7FA6';
+  card.innerHTML = `
+    <div class="compare-header">This Week's Sessions</div>
+    <div class="compare-row">
+      <div class="compare-cell">
+        <div class="compare-name" style="color:${lorenColor}">Loren</div>
+        <div class="compare-val" style="color:${lorenColor}">${l.weekDone}/${l.weekPlanned}</div>
+        <div class="compare-sub">${lorenPct}% complete</div>
+      </div>
+      <div class="compare-cell">
+        <div class="compare-name" style="color:${kevinColor}">Kevin</div>
+        <div class="compare-val" style="color:${kevinColor}">${k.weekDone}/${k.weekPlanned}</div>
+        <div class="compare-sub">${kevinPct}% complete</div>
+      </div>
+    </div>
+    <div class="compare-header" style="border-top:1px solid var(--border)">Total Hours Logged</div>
+    <div class="compare-row">
+      <div class="compare-cell">
+        <div class="compare-name" style="color:${lorenColor}">Loren</div>
+        <div class="compare-val" style="color:${lorenColor}">${l.totalHrs}</div>
+        <div class="compare-sub">hrs banked</div>
+      </div>
+      <div class="compare-cell">
+        <div class="compare-name" style="color:${kevinColor}">Kevin</div>
+        <div class="compare-val" style="color:${kevinColor}">${k.totalHrs}</div>
+        <div class="compare-sub">hrs banked</div>
+      </div>
+    </div>
+    <div class="compare-label">${
+      l.totalHrs === k.totalHrs ? "Dead even — the team is in sync 🤝" :
+      l.totalHrs > k.totalHrs ? `Loren leads by ${Math.round((l.totalHrs - k.totalHrs)*10)/10}hrs — keep it up 💪` :
+      `Kevin leads by ${Math.round((k.totalHrs - l.totalHrs)*10)/10}hrs — time to catch up 🚵`
+    }</div>`;
+}
+
+function renderChart(curWeek) {
+  const canvas = document.getElementById('progress-chart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width - 32;
+  const H = 120;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+
+  const weeks = [];
+  for (let w = Math.max(1, curWeek - 5); w <= curWeek; w++) weeks.push(w);
+
+  const maxPlanned = Math.max(...weeks.map(w => getPlannedHoursForWeek(w)), 1);
+  const maxLogged = Math.max(...weeks.map(w => getLoggedHoursForWeek(w)), 0.1);
+  const maxHrs = Math.max(maxPlanned, maxLogged, 1);
+
+  const barW = Math.floor((W - 20) / weeks.length / 2 - 2);
+  const chartH = H - 20;
+
+  ctx.clearRect(0, 0, W, H);
+
+  weeks.forEach((w, i) => {
+    const planned = getPlannedHoursForWeek(w);
+    const logged = getLoggedHoursForWeek(w);
+    const x = 10 + i * ((W-20)/weeks.length);
+
+    // Planned bar
+    const ph = Math.max(2, (planned / maxHrs) * chartH);
+    ctx.fillStyle = 'rgba(154,150,143,0.25)';
+    ctx.beginPath();
+    ctx.roundRect(x, chartH - ph, barW, ph, 3);
+    ctx.fill();
+
+    // Logged bar
+    if (logged > 0) {
+      const lh = Math.max(2, (logged / maxHrs) * chartH);
+      ctx.fillStyle = '#C8832A';
+      ctx.beginPath();
+      ctx.roundRect(x + barW + 2, chartH - lh, barW, lh, 3);
+      ctx.fill();
+    }
+
+    // Week label
+    ctx.fillStyle = w === curWeek ? '#C8832A' : '#9A968F';
+    ctx.font = `${w === curWeek ? 700 : 500} 10px -apple-system,sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(`W${w}`, x + barW, H - 4);
+  });
+}
+
+// =============================================
+// NUTRITION TAB
+// =============================================
+function renderNutrition(tab) {
+  currentNutrTab = tab;
+  const content = document.getElementById('nutr-content');
+  const curPhase = getPhase(getCurrentWeek()).name;
+
+  const phaseCallout = (base, build, peak) => {
+    const map = { 'BASE': ['callout-base','BASE',base], 'BUILD': ['callout-build','BUILD',build], 'PEAK': ['callout-peak','PEAK',peak], 'TAPER': ['callout-peak','TAPER',peak], 'RACE WEEK': ['callout-peak','RACE WEEK',peak] };
+    const [cls, name, msg] = map[curPhase] || map['BASE'];
+    return `<div class="callout ${cls}"><h4>In ${name} phase</h4><p>${msg}</p></div>`;
+  };
+
+  if (tab === 'on-bike') {
+    content.innerHTML = `
+      <h3 class="nutr-heading">On-Bike Fuelling</h3>
+      <p class="nutr-body">Target <strong style="color:var(--ochre)">60–90g carbohydrates per hour</strong> during the race. Eat every 20–30 minutes — set a timer if needed. Never let your energy tank run empty; it's far harder to recover than to maintain.</p>
+      <p class="nutr-body">Mix real food with gels and bars: dates, rice balls, banana bread, and peanut butter sandwiches sit alongside gels in your jersey pockets. Real food keeps your gut happy over 24hrs; gels alone cause GI issues.</p>
+      ${phaseCallout(
+        'Practice eating while riding on every Zone 2 session. Set a timer for every 20min and eat something — even if not hungry.',
+        'Start testing your exact race-day foods. Ride with the same bars, gels, and real food you plan to race with.',
+        'Lock in your race nutrition now. No experimenting. Use exactly what you\'ve tested. Simulate checkpoint stops on your long rides.'
+      )}
+      <div class="cp-card">
+        <h4>Fuelling Timeline (Race Day)</h4>
+        <p>Hours 0–4: Eat consistently, stomach is fresh. Target 80g carbs/hr.<br>
+        Hours 4–8: Appetite may dip. Force yourself to eat. Real food now.<br>
+        Hours 8–12: Night approaches. Liquid calories easier. Warm drinks if available.<br>
+        Hours 12–18: Night section. Appetite suppressed — high focus on eating.<br>
+        Hours 18–24: Dig deep. Every 20min eating is non-negotiable.</p>
+      </div>`;
+  } else if (tab === 'checkpoints') {
+    content.innerHTML = `
+      <h3 class="nutr-heading">Checkpoint Strategy</h3>
+      <p class="nutr-body">Checkpoints are not social stops — they are pit stops. Arrive with a plan, execute it, leave within your target time.</p>
+      <div class="cp-card">
+        <h4>CP1 (~40km) — No Drop Box · Target: 12:30 (2.5hrs in)</h4>
+        <p>Refill bottles if needed. Quick snack. Keep moving — you're well-fuelled from the start. Don't linger. 3 minutes maximum.</p>
+      </div>
+      <div class="cp-card">
+        <h4>CP2 (93km) — DROP BOX ✅ · Target: 15:30 (5.5hrs in)</h4>
+        <p>You've survived Nuwekloofpas. The MAC is approaching. Refill all bottles. Eat real food — hot if available. Open your drop box: top up gels, swap batteries. <strong style="color:var(--ochre)">Eat before you feel hungry.</strong> 5 minutes maximum. The MAC awaits — fuel for it now.</p>
+      </div>
+      <div class="cp-card">
+        <h4>CP3 (123km) — DROP BOX ✅ — NIGHT BEGINS · Target: 17:30 (7.5hrs in)</h4>
+        <p>You've done the MAC. You're in the Baviaanskloof. Night is falling or has fallen. Eat hot food if available. Swap to night configuration. Open drop box: caffeine gels, morale snack. Lights on. <strong style="color:var(--ochre)">Mental reset: you're halfway.</strong></p>
+      </div>
+      <div class="cp-card" style="border-color:var(--red-burnt)">
+        <h4>CP4 (140km) — DROP BOX ✅ — ⚠️ MIDNIGHT CUTOFF · Target: 19:00 (9hrs in)</h4>
+        <p><strong style="color:var(--olive)">At 20hr pace you arrive 3 hours before the midnight cutoff</strong> — a huge buffer. First caffeine dose now (10pm race time = 12hrs in). Fresh gloves from drop box. Mental reset: 90km remaining, you are well on track. Keep the pace, don't celebrate too early.</p>
+      </div>
+      <div class="cp-card">
+        <h4>CP5 (172km) — SUPPORT CREW! 🙌 · Target: 22:00 (12hrs in)</h4>
+        <p>Support crew is here — midnight, halfway through the night. Change socks. Eat real food. Brief sit if needed — but <strong style="color:var(--ochre)">don't linger.</strong> 58km to Jeffreys Bay. You are in the final quarter and well on pace for a 20hr finish. Fuel up, fix up, and go.</p>
+      </div>`;
+  } else if (tab === 'night') {
+    content.innerHTML = `
+      <h3 class="nutr-heading">Night Riding Fuel</h3>
+      <p class="nutr-body">Night changes everything. Appetite drops, decisions slow, and motivation crumbles without the right fuel strategy. Plan this section as carefully as any physical training.</p>
+      <div class="cp-card">
+        <h4>☕ Caffeine Strategy</h4>
+        <p>First caffeine dose at approximately <strong style="color:var(--ochre)">10:00pm (12hrs in)</strong>.<br>
+        Maximum 200mg per dose. Space doses 3–4 hours apart.<br>
+        Cut caffeine 4 hours before your target finish window.<br>
+        Combine with food — caffeine on empty stomach causes nausea.</p>
+      </div>
+      <p class="nutr-body">Real food appetite drops significantly at night. Switch to <strong style="color:var(--ochre)">liquid calories</strong>: sports drink, warm soup at checkpoints, hot chocolate. Keep sugar coming — your brain runs on glucose.</p>
+      <div class="cp-card">
+        <h4>🌙 Night Fuelling Tips</h4>
+        <p>• Warm drinks at checkpoints — request them.<br>
+        • Your 20min eating alarm matters more at night than day.<br>
+        • Salty snacks help — prevents hyponatremia.<br>
+        • If nauseous: stop riding, small sip of water, dry cracker.<br>
+        • Mental clarity = fuelled brain. Confusion = low blood sugar.</p>
+      </div>
+      ${phaseCallout(
+        'Night riding is not yet in your plan. But start practicing eating in low-light conditions on evening rides.',
+        'From Week 7, you have night rides. Use these to test your caffeine timing and night food preferences.',
+        'Your PEAK night rides (Thursdays) are your lab. Test exactly what you\'ll eat during the race night section.'
+      )}`;
+  } else if (tab === 'hydration') {
+    content.innerHTML = `
+      <h3 class="nutr-heading">Karoo Hydration</h3>
+      <p class="nutr-body">The Baviaanskloof in August can exceed <strong style="color:var(--ochre)">35°C during the day</strong>. Dehydration will end your race before a mechanical does.</p>
+      <div class="cp-card">
+        <h4>☀️ Day Section (10am–8pm)</h4>
+        <p>Target 750ml–1L per hour in heat. More if sweating heavily.<br>
+        Electrolytes in every bottle — not just plain water.<br>
+        Drink before thirst. Thirst = already behind.</p>
+      </div>
+      <div class="cp-card">
+        <h4>🌙 Night Section (8pm–finish)</h4>
+        <p>Temperature drops fast in the Karoo — can fall to 5–10°C. Insulate your bottles or switch to a hydration pack. Cold suppresses thirst — drink to schedule. Warm drinks at checkpoints count toward fluid intake.</p>
+      </div>
+      <div class="cp-card">
+        <h4>⚠️ Dehydration Signs</h4>
+        <p>• Dark urine (aim for pale yellow)<br>
+        • Headache or dizziness<br>
+        • Muscle cramps (also electrolyte deficiency)<br>
+        • Confusion or irritability — tell your team<br>
+        • Extreme thirst — you're already 2% dehydrated</p>
+      </div>
+      <div class="cp-card">
+        <h4>🧂 Electrolytes</h4>
+        <p>Sodium, potassium, magnesium. At ultra distances, water alone causes hyponatremia — dangerous low sodium. Use electrolyte tabs in every bottle. Take a salt tablet or electrolyte gel every 2 hours minimum.</p>
+      </div>`;
+  } else if (tab === 'dropboxes-nutr') {
+    content.innerHTML = `
+      <h3 class="nutr-heading">Drop Box Nutrition Guide</h3>
+      <div class="warning-banner">⚠️ Boxes depart Friday night. Pack Thursday. You cannot add items Saturday morning.</div>
+      <p class="nutr-body" style="font-size:12px;color:var(--text-muted)">Box size: 22L / 34×23×28cm</p>
+      <div class="cp-card">
+        <h4>CP2 Box (93km) — Day</h4>
+        <p>Energy bars x6 · Electrolyte tablets x4 · Spare gels x4 · Chamois cream · Small real food snack · Spare batteries for lights</p>
+      </div>
+      <div class="cp-card">
+        <h4>CP3 Box (123km) — Nightfall</h4>
+        <p>Hot food packet (add hot water if available) · Caffeine gels x3 · Blister plasters · Morale snack (your favourite) · Extra electrolytes</p>
+      </div>
+      <div class="cp-card" style="border-color:var(--red-burnt)">
+        <h4>CP4 Box (140km) — Night / Midnight Cutoff</h4>
+        <p>Night-specific fuel x4 · Extra warm layer · Fresh gloves · Caffeine gel x2 · Pain relief if needed · Fresh batteries</p>
+      </div>`;
+  }
+}
+
+function showNutrTab(tab, el) {
+  document.querySelectorAll('.sub-nav-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderNutrition(tab);
+}
+
+// =============================================
+// RACE PREP TAB
+// =============================================
+function renderPrep(tab) {
+  currentPrepTab = tab;
+  const content = document.getElementById('prep-content');
+
+  if (tab === 'gear') {
+    renderGear(content);
+  } else if (tab === 'dropboxes') {
+    renderDropboxes(content);
+  } else if (tab === 'climbs') {
+    renderClimbs(content);
+  } else if (tab === 'team') {
+    renderTeam(content);
+  } else if (tab === 'timeline') {
+    renderTimeline(content);
+  }
+}
+
+function showPrepTab(tab, el) {
+  document.querySelectorAll('.prep-tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderPrep(tab);
+}
+
+function renderGear(container) {
+  const gear = getGear();
+  const checkedCount = GEAR_ITEMS.filter(i => gear[i.id]).length;
+  const pct = Math.round(checkedCount / GEAR_ITEMS.length * 100);
+
+  let html = `<div class="section-label">Gear Checklist</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px 4px">
+      <span style="font-size:13px;color:var(--text-muted)">${checkedCount} / ${GEAR_ITEMS.length} items packed</span>
+      <span style="font-size:13px;font-weight:700;color:${pct===100?'var(--olive)':'var(--ochre)}'}">${pct}%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`;
+
+  let lastCat = '';
+  GEAR_ITEMS.forEach(item => {
+    const checked = !!gear[item.id];
+    if (item.cat !== lastCat) {
+      html += `<div class="gear-category" style="padding-left:16px">${item.cat}</div>`;
+      lastCat = item.cat;
+    }
+    html += `<div class="gear-item ${checked?'checked':''}" style="margin:0 16px 6px" onclick="toggleGear('${item.id}')">
+      <div class="gear-checkbox ${checked?'checked':''}">${checked?'✓':''}</div>
+      <div class="gear-item-text">${item.text}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleGear(id) {
+  const gear = getGear();
+  gear[id] = !gear[id];
+  saveGear(gear);
+  renderPrep('gear');
+}
+
+function renderDropboxes(container) {
+  const db = getDropboxes();
+  container.innerHTML = `
+    <div class="section-label">Drop Box Planner</div>
+    <div class="dropbox-tabs">
+      <button class="dropbox-tab ${currentDbTab==='cp2'?'active':''}" onclick="switchDbTab('cp2')">CP2 · 93km</button>
+      <button class="dropbox-tab ${currentDbTab==='cp3'?'active':''}" onclick="switchDbTab('cp3')">CP3 · 123km</button>
+      <button class="dropbox-tab ${currentDbTab==='cp4'?'active':''}" onclick="switchDbTab('cp4')">CP4 · 140km</button>
+    </div>
+    <div class="dropbox-panel active" id="db-panel" style="padding:0 16px">
+      <div class="box-size-banner">📦 Box size: 22L / 34×23×28cm</div>
+      <div class="warning-banner">⚠️ Boxes depart Friday night. Pack by Thursday 6 August — you cannot add items on Saturday morning.</div>
+      <div class="dropbox-add-row">
+        <input type="text" id="db-new-item" placeholder="Add item to ${currentDbTab.toUpperCase()}...">
+        <button class="btn-add" onclick="addDbItem()">Add</button>
+      </div>
+      <div id="db-items-list"></div>
+    </div>`;
+  renderDbItems(db);
+}
+
+let currentDbTab = 'cp2';
+
+function switchDbTab(tab) {
+  currentDbTab = tab;
+  renderPrep('dropboxes');
+}
+
+function renderDbItems(db) {
+  const items = db[currentDbTab] || [];
+  const list = document.getElementById('db-items-list');
+  if (!list) return;
+  list.innerHTML = items.map((item, i) => `
+    <div class="dropbox-item">
+      <span>${item}</span>
+      <button class="btn-remove" onclick="removeDbItem(${i})">×</button>
+    </div>`).join('');
+  // Update tab header
+  document.querySelectorAll('.dropbox-tab').forEach((t,i) => {
+    const tabs = ['cp2','cp3','cp4'];
+    t.className = 'dropbox-tab' + (tabs[i]===currentDbTab?' active':'');
+  });
+  // Update input placeholder
+  const inp = document.getElementById('db-new-item');
+  if (inp) inp.placeholder = `Add item to ${currentDbTab.toUpperCase()}...`;
+}
+
+function addDbItem() {
+  const inp = document.getElementById('db-new-item');
+  const val = inp.value.trim();
+  if (!val) return;
+  const db = getDropboxes();
+  db[currentDbTab].push(val);
+  saveDropboxes(db);
+  inp.value = '';
+  renderDbItems(db);
+}
+
+function removeDbItem(index) {
+  const db = getDropboxes();
+  db[currentDbTab].splice(index, 1);
+  saveDropboxes(db);
+  renderDbItems(db);
+}
+
+function renderClimbs(container) {
+  const climbs = [
+    { name: 'Nuwekloofpas', sub: '~26km from start', stats: [['Distance from start','26km'],['Character','Sustained opening climb'],['Elevation','~600m'],['Length','Approx. 15km']], tip: 'Resist the adrenaline of the start. Ride this at 60% effort. Save your legs for what comes later. Your whole race pace is set here.' },
+    { name: 'MAC (Mother of All Climbs)', sub: '~90km mark', stats: [['Distance from start','~90km'],['Character','50+ switchbacks, brutal gradient'],['Elevation','~450m'],['Length','~5km']], tip: 'Sit and spin. Don\'t stand and mash. Fuel up at CP2 before attacking this. Your team must stay together — this is where groups split. Take it one switchback at a time.' },
+    { name: 'The Neverender', sub: '~110–130km', stats: [['Distance from start','~110–130km'],['Character','Multiple false summits'],['Elevation','Variable'],['Section length','~20km']], tip: 'Break it into sections. Each switchback is one less to go. Celebrate small wins. You think you\'re done, then there\'s more — it\'s in the name. Expect it. Embrace it.' },
+    { name: 'The Big Dipper', sub: '~155km', stats: [['Distance from start','~155km'],['Character','330m descent in 5.5km'],['Drop','330m'],['Type','Reward descent']], tip: 'You\'ll be tired here. Stay alert on descents — most accidents happen on downhills. Check your brakes at CP4 (140km). This descent is your reward for surviving the Baviaans.' },
+    { name: 'Mini Mac', sub: '~170km', stats: [['Distance from start','~170km'],['Character','Smaller but cruel after 170km'],['Elevation','~200m'],['Context','After CP5 support']], tip: 'You\'ve conquered the MAC. This one is smaller but your legs have 170km in them. Fuel well at CP5 (172km). Spin, don\'t smash. Home stretch starts here.' }
+  ];
+
+  let html = `<div class="section-label">Key Race Climbs</div>`;
+  climbs.forEach((c, i) => {
+    html += `<div class="climb-card">
+      <div class="climb-header" onclick="toggleClimb(${i})">
+        <div><div class="climb-name">⛰️ ${c.name}</div><div class="climb-sub">${c.sub}</div></div>
+        <span id="climb-chevron-${i}" style="color:var(--text-muted);font-size:18px">›</span>
+      </div>
+      <div class="climb-body" id="climb-body-${i}">
+        ${c.stats.map(([l,v]) => `<div class="climb-stat"><span class="climb-stat-label">${l}</span><span class="climb-stat-val">${v}</span></div>`).join('')}
+        <div class="climb-tip">${c.tip}</div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function toggleClimb(i) {
+  const body = document.getElementById(`climb-body-${i}`);
+  const chev = document.getElementById(`climb-chevron-${i}`);
+  const open = body.classList.toggle('open');
+  chev.textContent = open ? '⌄' : '›';
+}
+
+function renderTeam(container) {
+  const rules = [
+    { icon: '⏱️', text: '<strong>Stay within 2 minutes of each other at ALL times.</strong> This is a race rule — any violation results in disqualification. Know your team\'s pace.' },
+    { icon: '📋', text: '<strong>Check in AND out at every checkpoint</strong>, even unmanned ones. All team members must sign in together.' },
+    { icon: '💡', text: '<strong>Lights on by dusk — simultaneously.</strong> All team members switch on lights at the same time. No exceptions.' },
+    { icon: '🚫', text: '<strong>No outside assistance except at CP5 (172km).</strong> No feeding through fences, no meeting family on route. Disqualification risk.' },
+    { icon: '🗺️', text: '<strong>The route is completely unmarked.</strong> Navigate together — never split up to scout ahead. One team, one direction.' },
+    { icon: '🔧', text: '<strong>If a rider mechanicals, the team waits.</strong> No exceptions. A team finishes together or not at all.' },
+    { icon: '🐢', text: '<strong>Agree on a team pace before the start.</strong> The slowest rider sets the pace for the first 100km. Ego kills teams.' },
+    { icon: '📣', text: '<strong>Night section communication protocol:</strong> call out hazards verbally, maintain verbal contact at all times. If you can\'t hear your teammate, something is wrong.' },
+    { icon: '🚑', text: '<strong>Emergency extraction plan:</strong> know the nearest road access points before the race. If someone cannot continue, know how to get them out safely.' }
+  ];
+  let html = `<div class="section-label">Team Rules</div>`;
+  rules.forEach(r => {
+    html += `<div class="rule-card"><div class="rule-icon">${r.icon}</div><div class="rule-text">${r.text}</div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderTimeline(container) {
+  const events = [
+    { time: 'Thu 6 Aug', event: 'Pack drop boxes', note: 'Final deadline to pack. Boxes depart Friday night.', type: '' },
+    { time: 'Fri 7 Aug · 12:00', event: 'Registration opens', note: 'Willowmore. Collect race number and timing chip.', type: '' },
+    { time: 'Fri 7 Aug · 18:00', event: 'Drop boxes submitted', note: 'Hard deadline. Boxes transported to checkpoints overnight.', type: 'cp' },
+    { time: 'Fri 7 Aug · 19:00', event: 'Team pasta dinner', note: 'Carb load. Keep it simple — tested foods only. No new foods night before race.', type: '' },
+    { time: 'Fri 7 Aug · 21:00', event: 'Early bedtime', note: 'Target 7–8 hours sleep. You\'ll be anxious — that\'s normal. Trust the training.', type: '' },
+    { time: 'Sat 8 Aug · 04:00', event: 'Wake up + breakfast', note: 'Oats, banana, coffee. Eat 2–3hrs before start for digestion.', type: '' },
+    { time: 'Sat 8 Aug · 06:00', event: 'Final bike + kit check', note: 'Check tyres, brakes, lights, GPS, food in jersey pockets.', type: '' },
+    { time: 'Sat 8 Aug · 09:00', event: 'Warm-up + team briefing', note: 'Easy spin. Confirm team plan, pace, fuelling strategy.', type: '' },
+    { time: 'Sat 8 Aug · 10:00', event: '🚀 RACE START — Willowmore', note: 'The journey begins. 230km to Jeffreys Bay. Ride your race.', type: 'race' },
+    { time: 'Sat 8 Aug · ~12:30', event: 'CP1 — ~40km', note: '2.5hr in. Pace check — are you riding at ~16km/hr? Quick stop, refill, keep moving.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~15:30', event: 'CP2 — 93km · DROP BOX', note: '5.5hr in. On target for 20hr finish. Fuel hard — the MAC is next. 10 min max stop.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~17:30', event: 'CP3 — 123km · DROP BOX', note: '7.5hr in. Sun is setting. Lights on. Night section begins. Strong riding — you\'re well ahead of cutoff.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~19:00', event: 'CP4 — 140km · DROP BOX', note: '9hr in. ✅ 3hrs ahead of midnight cutoff. Night fuelling: first caffeine dose now. 90km to go.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~22:00', event: 'CP5 — 172km · SUPPORT CREW', note: '12hr in. Halfway through the night. Change socks, eat real food, brief sit. Don\'t linger — you have a 20hr goal to protect.', type: 'cp' },
+    { time: 'Sun 9 Aug · ~00:30', event: 'CP6 — 195km', note: '14.5hr in. 35km to go. Dawn in ~5hrs. Second caffeine dose if needed. Dig deep.', type: 'cp' },
+    { time: 'Sun 9 Aug · ~02:30', event: 'CP7 — 215km', note: '16.5hr in. 15km to Jeffreys Bay. Everything you have left. The ocean is waiting.', type: 'cp' },
+    { time: 'Sun 9 Aug · ~06:00', event: '🏁 FINISH — Jeffreys Bay', note: 'Target: 20hrs. 06:00 Sunday morning. Jeffreys Bay. You did it — 4hrs before cutoff.', type: 'finish' },
+    { time: 'Sun 9 Aug · 10:00', event: 'Prize Giving', note: 'Jeffreys Bay. 4hrs of sleep, then celebrate with your team.', type: 'finish' }
+  ];
+
+  let html = `<div class="section-label">Race Day Timeline</div><div class="timeline">`;
+  events.forEach((e, i) => {
+    const isLast = i === events.length - 1;
+    html += `<div class="tl-item">
+      <div class="tl-line-col">
+        <div class="tl-dot ${e.type}"></div>
+        ${!isLast ? '<div class="tl-connector"></div>' : ''}
+      </div>
+      <div class="tl-content">
+        <div class="tl-time">${e.time}</div>
+        <div class="tl-event">${e.event}</div>
+        <div class="tl-note">${e.note}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// =============================================
+// ROUTES TAB
+// =============================================
+function renderRoutes() {
+  const container = document.getElementById('routes-list');
+  container.innerHTML = '';
+  ROUTES.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'route-card';
+    card.innerHTML = `
+      <div class="route-header" onclick="toggleRoute(${i})">
+        <div>
+          <div class="route-name">${r.name}</div>
+          <div class="route-location">📍 ${r.location} · ${r.distCT}</div>
+        </div>
+        <span class="route-phase-badge" style="background:${r.phaseCss}22;color:${r.phaseCss};border:1px solid ${r.phaseCss}44">${r.phase}</span>
+      </div>
+      <div class="route-body" id="route-body-${i}">
+        <div class="route-stat"><span style="color:var(--text-muted)">Terrain</span><span style="color:var(--text);font-weight:600;text-align:right;max-width:60%">${r.terrain}</span></div>
+        <div class="route-stat"><span style="color:var(--text-muted)">Trains</span><span style="color:var(--text);font-weight:600;text-align:right;max-width:60%">${r.trains}</span></div>
+        <div class="route-stat"><span style="color:var(--text-muted)">Access</span><span style="color:var(--text);font-weight:600;text-align:right;max-width:60%">${r.open}</span></div>
+        ${r.warning ? `<div class="route-warning">${r.warning}</div>` : ''}
+        <div class="route-tip">💡 ${r.tip}</div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+function toggleRoute(i) {
+  const body = document.getElementById(`route-body-${i}`);
+  body.classList.toggle('open');
+}
+
+// =============================================
+// HEADER PHASE BADGE
+// =============================================
+function updateHeader() {
+  const curWeek = getCurrentWeek();
+  const phase = getPhase(curWeek);
+  const badge = document.getElementById('phase-badge');
+  badge.textContent = `${phase.name} · W${curWeek}`;
+  badge.style.background = phase.color + '22';
+  badge.style.color = phase.color;
+  badge.style.border = `1px solid ${phase.color}44`;
+}
+
+// =============================================
+// INIT
+// =============================================
+function init() {
+  selectedWeek = getCurrentWeek();
+  // Restore active profile button
+  document.getElementById('btn-loren').classList.toggle('active', activeProfile === 'Loren');
+  document.getElementById('btn-kevin').classList.toggle('active', activeProfile === 'Kevin');
+  updateHeader();
+  renderCalendar();
+  initLog();
+  renderLogList();
+  showNutrTab('on-bike', document.querySelector('.sub-nav-btn'));
+  renderPrep('gear');
+  renderRoutes();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

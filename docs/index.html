@@ -1934,6 +1934,9 @@ function quickLogSession(date, type, durationStr, sessionId='') {
     } else if (minMatch) {
       document.getElementById('log-hours').value = 0;
       document.getElementById('log-mins').value = minMatch[1];
+    } else if (isClassType(type)) {
+      document.getElementById('log-hours').value = 1;
+      document.getElementById('log-mins').value = '';
     }
     // Scroll to top of log form
     document.getElementById('tab-log').scrollTo({ top: 0, behavior: 'smooth' });
@@ -1962,6 +1965,9 @@ function updateLogFields() {
     rideFields.style.display = 'none';
     document.getElementById('log-dist').value = '';
     document.getElementById('log-elev').value = '';
+    const h = document.getElementById('log-hours').value;
+    const m = document.getElementById('log-mins').value;
+    if (!h && !m) { document.getElementById('log-hours').value = 1; }
   } else {
     rideFields.style.display = '';
   }
@@ -2163,7 +2169,7 @@ function renderProgress() {
   document.getElementById('stat-total-elev').textContent = weekElevTarget > 0 ? `${weekElev.toLocaleString()}m / ${weekElevTarget.toLocaleString()}m` : `${weekElev.toLocaleString()}m`;
 
   let longest = 0;
-  logs.forEach(l => { const h = (l.hours||0) + (l.mins||0)/60; if (h > longest) longest = h; });
+  logs.filter(l => !isClassType(l.type)).forEach(l => { const h = (l.hours||0) + (l.mins||0)/60; if (h > longest) longest = h; });
   document.getElementById('stat-longest').textContent = longest > 0 ? `${Math.round(longest*10)/10}hr` : '0hr';
 
   // Chart

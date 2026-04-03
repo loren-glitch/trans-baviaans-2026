@@ -1013,29 +1013,48 @@ const PLAN_START = new Date('2026-03-30'); // Monday Week 1
 // =============================================
 // STRAVA INTEGRATION
 // =============================================
-const STRAVA_CLIENT_ID = '219863';
-const STRAVA_CLIENT_SECRET = 'f627057a020e4941e933d2fa71be76152e9129c7';
 // Dynamic redirect URI — keep trailing slash so GitHub Pages doesn't strip the ?code= param
 const STRAVA_REDIRECT_URI = window.location.origin + window.location.pathname;
+
+// Per-profile Strava credentials (each person uses their own Strava API app)
+function getStravaClientId()     { return localStorage.getItem(profileKey('strava_client_id'))     || ''; }
+function getStravaClientSecret() { return localStorage.getItem(profileKey('strava_client_secret')) || ''; }
+function saveStravaCredentials(id, secret) {
+  localStorage.setItem(profileKey('strava_client_id'), id.trim());
+  localStorage.setItem(profileKey('strava_client_secret'), secret.trim());
+}
 
 function getStravaTokens() {
   try { return JSON.parse(localStorage.getItem(profileKey('strava_tokens')) || 'null'); } catch(e) { return null; }
 }
 function saveStravaTokens(t) { localStorage.setItem(profileKey('strava_tokens'), JSON.stringify(t)); }
-function clearStravaTokens() { localStorage.removeItem(profileKey('strava_tokens')); }
+function clearStravaTokens() {
+  localStorage.removeItem(profileKey('strava_tokens'));
+  localStorage.removeItem(profileKey('strava_client_id'));
+  localStorage.removeItem(profileKey('strava_client_secret'));
+}
 
 function stravaConnect() {
-  // Clear any previous auth error
+  const clientId = getStravaClientId();
+  if (!clientId) { alert('Please enter your Strava Client ID first.'); return; }
   localStorage.removeItem(profileKey('strava_auth_error'));
-  const url = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}` +
+  const url = `https://www.strava.com/oauth/authorize?client_id=${clientId}` +
     `&redirect_uri=${encodeURIComponent(STRAVA_REDIRECT_URI)}&response_type=code` +
     `&scope=read,activity:read_all&approval_prompt=force`;
   window.location.href = url;
 }
 
+function stravaSaveAndConnect() {
+  const id = document.getElementById('strava-client-id').value.trim();
+  const secret = document.getElementById('strava-client-secret').value.trim();
+  if (!id || !secret) { alert('Please enter both your Client ID and Client Secret.'); return; }
+  saveStravaCredentials(id, secret);
+  stravaConnect();
+}
+
 function stravaDisconnect() {
   if (!confirm('Disconnect Strava? Your logged sessions will not be deleted.')) return;
-  clearStravaTokens();
+  localStorage.removeItem(profileKey('strava_tokens'));
   localStorage.removeItem(profileKey('strava_auth_error'));
   renderHome();
 }
@@ -1045,7 +1064,7 @@ async function stravaExchangeCode(code) {
     const r = await fetch('https://www.strava.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET, code, grant_type: 'authorization_code' })
+      body: JSON.stringify({ client_id: getStravaClientId(), client_secret: getStravaClientSecret(), code, grant_type: 'authorization_code' })
     });
     const d = await r.json();
     if (d.access_token) {
@@ -1070,7 +1089,7 @@ async function stravaRefreshToken() {
     const r = await fetch('https://www.strava.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_id: STRAVA_CLIENT_ID, client_secret: STRAVA_CLIENT_SECRET, refresh_token: t.refresh_token, grant_type: 'refresh_token' })
+      body: JSON.stringify({ client_id: getStravaClientId(), client_secret: getStravaClientSecret(), refresh_token: t.refresh_token, grant_type: 'refresh_token' })
     });
     const d = await r.json();
     if (d.access_token) {
@@ -1765,14 +1784,18 @@ function renderHome() {
             <div id="strava-sync-status" style="font-size:12px;color:var(--text-muted);margin-top:8px;text-align:center"></div>
           </div>`;
       } else {
+        const clientId = getStravaClientId();
         return `<div class="home-section-label">Strava</div>
           <div class="home-tip-card" style="border-left-color:#FC4C02">
-            ${authErr ? `<div style="background:rgba(196,88,28,0.15);border:1px solid rgba(196,88,28,0.4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e07045;line-height:1.5">
-              <strong>Connection failed:</strong> ${authErr}<br>
-              <span style="opacity:0.7">Redirect URI used: ${STRAVA_REDIRECT_URI}</span>
-            </div>` : ''}
-            <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">Connect Strava to automatically import your rides and workouts. Each profile connects separately.</div>
-            <button onclick="stravaConnect()" style="width:100%;background:#FC4C02;border:none;border-radius:10px;color:#fff;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🟠 Connect with Strava</button>
+            ${authErr ? `<div style="background:rgba(196,88,28,0.15);border:1px solid rgba(196,88,28,0.4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e07045;line-height:1.5"><strong>Error:</strong> ${authErr}</div>` : ''}
+            <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">Each profile needs their own Strava API app. <strong style="color:var(--text)">Create one free at strava.com/settings/api</strong> — takes 2 minutes.</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+              <input id="strava-client-id" type="text" placeholder="Client ID (e.g. 219863)" value="${clientId}"
+                style="background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:inherit;outline:none">
+              <input id="strava-client-secret" type="password" placeholder="Client Secret"
+                style="background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:14px;font-family:inherit;outline:none">
+            </div>
+            <button onclick="stravaSaveAndConnect()" style="width:100%;background:#FC4C02;border:none;border-radius:10px;color:#fff;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🟠 Connect with Strava</button>
           </div>`;
       }
     })()}

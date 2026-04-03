@@ -693,6 +693,105 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
 .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; line-height: 1.6; }
 .divider { height: 1px; background: var(--border); margin: 8px 16px; }
+
+/* =============================================
+   HOME TAB
+   ============================================= */
+.home-hero {
+  margin: 16px 16px 0;
+  background: linear-gradient(135deg, #181A1D 0%, #1E2026 100%);
+  border: 1px solid var(--border-bright);
+  border-radius: 18px;
+  padding: 24px 20px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232,146,30,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.home-hero-label {
+  font-size: 9px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
+}
+.home-countdown {
+  display: flex; align-items: baseline; justify-content: center; gap: 6px;
+  margin-bottom: 8px;
+}
+.home-countdown-num {
+  font-size: 72px; font-weight: 900; color: var(--ochre);
+  line-height: 1; letter-spacing: -3px;
+}
+.home-countdown-unit {
+  font-size: 18px; font-weight: 700; color: var(--text-muted);
+}
+.home-hero-date {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 14px;
+  font-weight: 500;
+}
+.home-phase-pill {
+  display: inline-block; font-size: 10px; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase;
+  border-radius: 20px; padding: 5px 14px;
+}
+.home-section-label {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-muted);
+  padding: 16px 16px 8px;
+}
+.home-today-card {
+  margin: 0 16px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.home-today-card:active { border-color: var(--ochre); }
+.home-today-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.home-rest-card {
+  margin: 0 16px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex; align-items: center; gap: 14px;
+}
+.home-week-bar-wrap {
+  height: 7px; background: var(--bg-card-2); border-radius: 4px; overflow: hidden;
+  margin-bottom: 12px;
+}
+.home-week-bar-fill {
+  height: 100%; border-radius: 4px; transition: width 0.6s ease;
+}
+.home-week-row {
+  display: flex; align-items: center; gap: 8px; padding: 5px 0;
+}
+.home-week-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.home-tip-card {
+  margin: 0 16px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  border-left-width: 3px;
+}
+.home-quote {
+  font-size: 13px; font-style: italic; color: var(--text-muted);
+  line-height: 1.65;
+}
 </style>
 </head>
 <body>
@@ -706,8 +805,13 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
   </header>
 
   <div id="tab-container">
+    <!-- TAB 0: HOME -->
+    <div class="tab-panel active" id="tab-home">
+      <div id="home-content"></div>
+    </div>
+
     <!-- TAB 1: CALENDAR -->
-    <div class="tab-panel active" id="tab-calendar">
+    <div class="tab-panel" id="tab-calendar">
       <div id="week-scroller"></div>
       <div id="phase-week-banner"></div>
       <div id="day-list"></div>
@@ -849,7 +953,10 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
   </div>
 
   <nav id="bottom-nav">
-    <button class="nav-item active" onclick="showTab('calendar',this)">
+    <button class="nav-item active" onclick="showTab('home',this)">
+      <div class="nav-icon">🏠</div><div class="nav-label">Home</div>
+    </button>
+    <button class="nav-item" onclick="showTab('calendar',this)">
       <div class="nav-icon">📅</div><div class="nav-label">Calendar</div>
     </button>
     <button class="nav-item" onclick="showTab('log',this)">
@@ -859,10 +966,10 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
       <div class="nav-icon">📊</div><div class="nav-label">Progress</div>
     </button>
     <button class="nav-item" onclick="showTab('nutrition',this)">
-      <div class="nav-icon">🍌</div><div class="nav-label">Nutrition</div>
+      <div class="nav-icon">🍌</div><div class="nav-label">Fuel</div>
     </button>
     <button class="nav-item" onclick="showTab('prep',this)">
-      <div class="nav-icon">🎒</div><div class="nav-label">Race Prep</div>
+      <div class="nav-icon">🎒</div><div class="nav-label">Prep</div>
     </button>
     <button class="nav-item" onclick="showTab('routes',this)">
       <div class="nav-icon">🗺️</div><div class="nav-label">Routes</div>
@@ -1216,6 +1323,7 @@ function switchProfile(name) {
   const ct = document.querySelector('#bottom-nav .nav-item.active');
   if (ct) {
     const tab = ct.getAttribute('onclick').match(/'(\w+)'/)[1];
+    if (tab === 'home') renderHome();
     if (tab === 'progress') renderProgress();
     if (tab === 'prep') renderPrep(currentPrepTab);
   }
@@ -1318,14 +1426,169 @@ function getSessionDotColor(type) {
 const RPE_LABELS = ['','Very Easy','Easy','Moderate','Somewhat Hard','Hard','Hard','Very Hard','Very Hard','Maximum','Maximum'];
 
 // =============================================
+// HOME TAB
+// =============================================
+const PHASE_TIPS = {
+  'BASE': [
+    'Easy feels too easy — that\'s exactly right. Base miles build the aerobic engine that carries you 230km. Resist the urge to push the pace.',
+    'Zone 2 is where endurance champions are made. If you can\'t hold a full conversation, you\'re going too hard.',
+    'Every Zone 2 hour is a brick in your engine. The Karoo demands a big one — keep building.'
+  ],
+  'BUILD': [
+    'You\'re in the build now. Embrace the discomfort — this is where fitness is forged and the MAC stops being scary.',
+    'Night rides start here. Your comfort in the dark is built in training, not on race day.',
+    'Threshold work means Nuwekloofpas won\'t break you in August. Stay consistent and trust the loading.'
+  ],
+  'PEAK': [
+    'Maximum load. Fatigued legs are normal — they\'re getting stronger. Eat, sleep, recover between sessions.',
+    'Every long ride now is a deposit in the Jeffreys Bay bank. You\'re doing the work most riders won\'t.',
+    'This is the hardest phase. Don\'t panic at tired legs. The taper is coming — finish strong first.'
+  ],
+  'TAPER': [
+    'Trust the taper. Your body is consolidating everything you\'ve built over 15 weeks. Less is more now.',
+    'Fitness is built. You\'re not getting fitter in taper — you\'re getting fresher. Stay patient and stay off the legs.',
+    'Resist the urge to do more. Race day is won by riders who taper smart, not by riders who train through it.'
+  ],
+  'RACE WEEK': [
+    'The work is done. Your only job now is to arrive at Willowmore rested, fuelled, and ready to ride your race.',
+    'Eat well, sleep well, hydrate. You\'ve put in the miles. Trust what you\'ve built over 18 weeks.',
+    '230km awaits. You\'ve done the training. Believe in every early morning, every long ride, every class. It\'s all in the bank.'
+  ]
+};
+
+function renderHome() {
+  const container = document.getElementById('home-content');
+  if (!container) return;
+  const curWeek = getCurrentWeek();
+  const phase = getPhase(curWeek);
+  const todayStr = isoDate(TODAY);
+  const logs = getLogs();
+
+  // Countdown
+  const daysToRace = Math.max(0, Math.ceil((RACE_DATE - new Date()) / (1000*60*60*24)));
+
+  // Today's sessions
+  const todaySessions = PLAN.filter(s => s.date === todayStr);
+
+  // Weekly progress
+  const weekSessions = getWeekSessions(curWeek).filter(s => s.type !== 'Rest');
+  const weekStart = addDays(PLAN_START, (curWeek-1)*7);
+  const weekEnd = addDays(weekStart, 7);
+  const weekLogs = logs.filter(l => { const d = new Date(l.date); return d >= weekStart && d < weekEnd; });
+  const weekDone = weekLogs.length;
+  const weekPlanned = weekSessions.length;
+  const weekPct = weekPlanned > 0 ? Math.round(weekDone / weekPlanned * 100) : 0;
+  const barColor = weekPct === 100 ? 'var(--olive)' : 'var(--ochre)';
+  const pctColor = weekPct === 100 ? 'var(--olive)' : weekPct >= 50 ? 'var(--ochre)' : 'var(--text-muted)';
+
+  // Phase tip — rotate by week within phase
+  const tips = PHASE_TIPS[phase.name] || PHASE_TIPS['BASE'];
+  const tip = tips[(curWeek - 1) % tips.length];
+
+  // Quote — pick by day of year
+  const dayOfYear = Math.floor((TODAY - new Date(TODAY.getFullYear(),0,0)) / 86400000);
+  const quote = QUOTES[dayOfYear % QUOTES.length];
+
+  // Today cards HTML
+  let todayHtml;
+  if (todaySessions.length === 0) {
+    todayHtml = `<div class="home-rest-card">
+      <span style="font-size:28px">😴</span>
+      <div>
+        <div style="font-weight:700;font-size:16px">Rest Day</div>
+        <div style="color:var(--text-muted);font-size:13px;margin-top:2px">Recovery is training too. Eat well, sleep well.</div>
+      </div>
+    </div>`;
+  } else {
+    todayHtml = todaySessions.map(s => {
+      const logged = logs.some(l => l.date === s.date);
+      return `<div class="home-today-card" onclick="openSessionModal(PLAN.find(p=>p.id==='${s.id}'))">
+        <div class="home-today-dot" style="background:${getSessionDotColor(s.type)}"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:16px;font-weight:700">${getSessionTypeIcon(s.type)} ${s.type}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${s.duration}${s.zone!=='N/A'?' · Zone '+s.zone:''}${s.targetElevation>0?' · ↑ '+s.targetElevation+'m':''}${s.required===false?' · <span style="color:var(--text-muted);font-weight:700">optional</span>':''}</div>
+        </div>
+        ${logged
+          ? '<span style="color:var(--olive);font-size:13px;font-weight:700;flex-shrink:0">✓ Done</span>'
+          : '<span style="color:var(--ochre);font-size:22px;flex-shrink:0">›</span>'}
+      </div>`;
+    }).join('');
+  }
+
+  // Week session rows
+  const weekRowsHtml = weekSessions.map(s => {
+    const done = weekLogs.some(l => l.date === s.date);
+    const isToday = s.date === todayStr;
+    const dotBg = done ? 'var(--olive)' : isToday ? 'var(--ochre)' : 'var(--border-bright)';
+    const textColor = isToday ? 'var(--text)' : 'var(--text-muted)';
+    const fontWeight = isToday ? 700 : 500;
+    return `<div class="home-week-row" style="opacity:${done||isToday?1:0.65}">
+      <div class="home-week-dot" style="background:${dotBg}"></div>
+      <div style="flex:1;font-size:13px;font-weight:${fontWeight};color:${textColor}">${s.day.slice(0,3)} · ${getSessionTypeIcon(s.type)} ${s.type}</div>
+      ${done ? '<span style="font-size:11px;color:var(--olive);font-weight:700">✓</span>'
+              : isToday ? '<span style="font-size:9px;color:var(--ochre);font-weight:800;text-transform:uppercase;letter-spacing:0.5px">TODAY</span>'
+              : ''}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="home-hero">
+      <div class="home-hero-label">Trans Baviaans MTB Marathon</div>
+      <div class="home-countdown">
+        <span class="home-countdown-num">${daysToRace}</span>
+        <span class="home-countdown-unit">days</span>
+      </div>
+      <div class="home-hero-date">8 August 2026 · Willowmore → Jeffreys Bay</div>
+      <div class="home-phase-pill" style="background:${phase.color}22;color:${phase.color};border:1px solid ${phase.color}44">
+        Week ${curWeek} · ${phase.name} Phase
+      </div>
+    </div>
+
+    <div class="home-section-label">Today · ${new Date(todayStr+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long'})}</div>
+    ${todayHtml}
+
+    <div class="home-section-label">This Week — ${getWeekRange(curWeek)}</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:14px;font-weight:600">${weekDone} of ${weekPlanned} sessions done</div>
+        <div style="font-size:14px;font-weight:700;color:${pctColor}">${weekPct}%</div>
+      </div>
+      <div class="home-week-bar-wrap">
+        <div class="home-week-bar-fill" style="width:${weekPct}%;background:${barColor}"></div>
+      </div>
+      ${weekRowsHtml}
+    </div>
+
+    <div class="home-section-label">Phase Focus</div>
+    <div class="home-tip-card" style="border-left-color:${phase.color}">
+      <div style="font-size:10px;font-weight:800;color:${phase.color};text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px">${phase.name} Phase · Week ${curWeek}</div>
+      <div class="home-quote">${tip}</div>
+    </div>
+
+    <div class="home-section-label">Race Insight</div>
+    <div class="home-tip-card" style="border-left-color:var(--slate-blue)">
+      <div class="home-quote">"${quote}"</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:8px;font-weight:600">— Trans Baviaans 2026</div>
+    </div>
+
+    <div style="padding:4px 16px 8px">
+      <button class="btn-primary" style="width:100%;padding:16px;font-size:16px" onclick="showTab('log',null)">✏️ Log Today's Session</button>
+    </div>
+  `;
+}
+
+// =============================================
 // TAB NAVIGATION
 // =============================================
 function showTab(tab, el) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
-  if (el) el.classList.add('active');
+  // Auto-find the nav button if not supplied
+  const navEl = el || document.querySelector(`.nav-item[onclick*="'${tab}'"]`);
+  if (navEl) navEl.classList.add('active');
   currentTab = tab;
+  if (tab === 'home') renderHome();
   if (tab === 'progress') renderProgress();
   if (tab === 'log') renderLogList();
   if (tab === 'prep') renderPrep(currentPrepTab);
@@ -2223,6 +2486,7 @@ function init() {
   document.getElementById('btn-loren').classList.toggle('active', activeProfile === 'Loren');
   document.getElementById('btn-kevin').classList.toggle('active', activeProfile === 'Kevin');
   updateHeader();
+  renderHome();
   renderCalendar();
   initLog();
   renderLogList();

@@ -2767,6 +2767,7 @@ function updateHeader() {
   const curWeek = getCurrentWeek();
   const phase = getPhase(curWeek);
   const badge = document.getElementById('phase-badge');
+  if (!badge) return;
   badge.textContent = `${phase.name} · W${curWeek}`;
   badge.style.background = phase.color + '22';
   badge.style.color = phase.color;

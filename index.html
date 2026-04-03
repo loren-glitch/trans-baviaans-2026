@@ -1015,7 +1015,8 @@ const PLAN_START = new Date('2026-03-30'); // Monday Week 1
 // =============================================
 const STRAVA_CLIENT_ID = '219863';
 const STRAVA_CLIENT_SECRET = 'f627057a020e4941e933d2fa71be76152e9129c7';
-const STRAVA_REDIRECT_URI = 'https://loren-glitch.github.io/trans-baviaans-2026';
+// Dynamic redirect URI — always matches the exact URL the app is running on
+const STRAVA_REDIRECT_URI = window.location.origin + window.location.pathname.replace(/\/+$/, '');
 
 function getStravaTokens() {
   try { return JSON.parse(localStorage.getItem(profileKey('strava_tokens')) || 'null'); } catch(e) { return null; }
@@ -1024,15 +1025,18 @@ function saveStravaTokens(t) { localStorage.setItem(profileKey('strava_tokens'),
 function clearStravaTokens() { localStorage.removeItem(profileKey('strava_tokens')); }
 
 function stravaConnect() {
+  // Clear any previous auth error
+  localStorage.removeItem(profileKey('strava_auth_error'));
   const url = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}` +
     `&redirect_uri=${encodeURIComponent(STRAVA_REDIRECT_URI)}&response_type=code` +
-    `&scope=activity:read_all&approval_prompt=auto`;
+    `&scope=read,activity:read_all&approval_prompt=force`;
   window.location.href = url;
 }
 
 function stravaDisconnect() {
   if (!confirm('Disconnect Strava? Your logged sessions will not be deleted.')) return;
   clearStravaTokens();
+  localStorage.removeItem(profileKey('strava_auth_error'));
   renderHome();
 }
 
@@ -1046,10 +1050,17 @@ async function stravaExchangeCode(code) {
     const d = await r.json();
     if (d.access_token) {
       saveStravaTokens({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at, athlete: d.athlete });
-      return true;
+      localStorage.removeItem(profileKey('strava_auth_error'));
+      return { ok: true };
     }
-    return false;
-  } catch(e) { return false; }
+    // Strava returned an error object
+    const errMsg = d.message || d.error_description || d.error || JSON.stringify(d);
+    localStorage.setItem(profileKey('strava_auth_error'), errMsg);
+    return { ok: false, error: errMsg };
+  } catch(e) {
+    localStorage.setItem(profileKey('strava_auth_error'), 'Network error: ' + e.message);
+    return { ok: false, error: e.message };
+  }
 }
 
 async function stravaRefreshToken() {
@@ -1734,6 +1745,7 @@ function renderHome() {
 
     ${(function() {
       const tokens = getStravaTokens();
+      const authErr = localStorage.getItem(profileKey('strava_auth_error'));
       const lastSync = localStorage.getItem(profileKey('strava_last_sync'));
       const lastSyncStr = lastSync ? new Date(lastSync).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'}) + ' · ' + new Date(lastSync).toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) : null;
       if (tokens && tokens.athlete) {
@@ -1755,6 +1767,10 @@ function renderHome() {
       } else {
         return `<div class="home-section-label">Strava</div>
           <div class="home-tip-card" style="border-left-color:#FC4C02">
+            ${authErr ? `<div style="background:rgba(196,88,28,0.15);border:1px solid rgba(196,88,28,0.4);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#e07045;line-height:1.5">
+              <strong>Connection failed:</strong> ${authErr}<br>
+              <span style="opacity:0.7">Redirect URI used: ${STRAVA_REDIRECT_URI}</span>
+            </div>` : ''}
             <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.5">Connect Strava to automatically import your rides and workouts. Each profile connects separately.</div>
             <button onclick="stravaConnect()" style="width:100%;background:#FC4C02;border:none;border-radius:10px;color:#fff;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">🟠 Connect with Strava</button>
           </div>`;
@@ -2678,15 +2694,21 @@ function init() {
   renderPrep('gear');
   renderRoutes();
 
-  // Handle Strava OAuth callback (code in URL after redirect)
+  // Handle Strava OAuth callback (code or error in URL after redirect)
   const urlParams = new URLSearchParams(window.location.search);
   const stravaCode = urlParams.get('code');
-  if (stravaCode) {
+  const stravaError = urlParams.get('error');
+  if (stravaCode || stravaError) {
     window.history.replaceState({}, '', window.location.pathname);
-    stravaExchangeCode(stravaCode).then(ok => {
+    if (stravaError) {
+      localStorage.setItem(profileKey('strava_auth_error'), 'Strava declined: ' + stravaError);
       renderHome();
-      if (ok) stravaSyncActivities();
-    });
+    } else {
+      stravaExchangeCode(stravaCode).then(result => {
+        renderHome();
+        if (result.ok) stravaSyncActivities();
+      });
+    }
   } else {
     renderHome();
     // Auto-sync in background if already connected

@@ -1015,8 +1015,8 @@ const PLAN_START = new Date('2026-03-30'); // Monday Week 1
 // =============================================
 const STRAVA_CLIENT_ID = '219863';
 const STRAVA_CLIENT_SECRET = 'f627057a020e4941e933d2fa71be76152e9129c7';
-// Dynamic redirect URI — always matches the exact URL the app is running on
-const STRAVA_REDIRECT_URI = window.location.origin + window.location.pathname.replace(/\/+$/, '');
+// Dynamic redirect URI — keep trailing slash so GitHub Pages doesn't strip the ?code= param
+const STRAVA_REDIRECT_URI = window.location.origin + window.location.pathname;
 
 function getStravaTokens() {
   try { return JSON.parse(localStorage.getItem(profileKey('strava_tokens')) || 'null'); } catch(e) { return null; }

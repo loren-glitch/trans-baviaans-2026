@@ -1147,6 +1147,7 @@ async function stravaSyncActivities() {
   const syncEl = document.getElementById('strava-sync-status');
   if (syncEl) syncEl.textContent = 'Syncing…';
 
+
   try {
     const since = Math.floor(PLAN_START.getTime() / 1000);
     const r = await fetch(`https://www.strava.com/api/v3/athlete/activities?after=${since}&per_page=100`, {
@@ -1181,7 +1182,9 @@ async function stravaSyncActivities() {
     }
 
     localStorage.setItem(profileKey('strava_last_sync'), new Date().toISOString());
-    if (syncEl) syncEl.textContent = newCount > 0 ? `✓ ${newCount} new session${newCount>1?'s':''} synced` : '✓ Up to date';
+    renderHome();
+    const syncEl2 = document.getElementById('strava-sync-status');
+    if (syncEl2) syncEl2.textContent = newCount > 0 ? `✓ ${newCount} new session${newCount>1?'s':''} synced` : '✓ Up to date';
     return { synced: newCount, total: activities.length };
   } catch(e) {
     if (syncEl) syncEl.textContent = '⚠ Sync failed — try again';

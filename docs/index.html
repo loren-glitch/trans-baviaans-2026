@@ -926,10 +926,21 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
           <div class="legend-item"><div class="legend-dot" style="background:var(--ochre)"></div>Logged</div>
         </div>
       </div>
+      <div class="section-label">Personal Bests</div>
+      <div id="personal-bests-card"></div>
+      <div class="section-label">Consistency</div>
+      <div id="consistency-card"></div>
+      <div class="section-label">RPE Trend</div>
+      <div id="rpe-trend-card"></div>
+      <div class="section-label">Time in Zones</div>
+      <div id="zones-card"></div>
       <div class="section-label">Next Session</div>
       <div id="next-session-container" class="next-session-card"></div>
       <div class="section-label">Team Readiness</div>
       <div class="compare-card" id="compare-card"></div>
+      <div id="kevin-logs-card"></div>
+      <div class="section-label">Weekly Notes</div>
+      <div id="weekly-notes-card"></div>
       <div class="section-label">Race Motivation</div>
       <div class="quote-card">
         <div class="quote-text" id="quote-text"></div>
@@ -945,6 +956,7 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
         <button class="sub-nav-btn" onclick="showNutrTab('night',this)">Night Fuel</button>
         <button class="sub-nav-btn" onclick="showNutrTab('hydration',this)">Hydration</button>
         <button class="sub-nav-btn" onclick="showNutrTab('dropboxes-nutr',this)">Drop Boxes</button>
+        <button class="sub-nav-btn" onclick="showNutrTab('calculator',this)">Calculator</button>
       </div>
       <div id="nutr-content" style="padding:0 16px 16px"></div>
     </div>
@@ -2255,6 +2267,14 @@ function renderProgress() {
     container.innerHTML = `<div class="card" style="margin:0 16px;text-align:center;color:var(--gold)">🏁 Race complete!</div>`;
   }
 
+  // New stat sections
+  renderPersonalBests();
+  renderConsistency();
+  renderRpeTrend();
+  renderZones();
+  renderWeeklyNotes();
+  renderKevinLogs();
+
   // Team comparison
   renderComparison();
 
@@ -2277,6 +2297,170 @@ function getStatsForProfile(profile) {
     const plannedSessions = getWeekSessions(curWeek).filter(s => s.type !== 'Rest').length;
     return { weekDone: weekLogs.length, weekPlanned: plannedSessions, totalHrs: Math.round(totalMins/60*10)/10, totalSessions };
   } catch(e) { return { weekDone: 0, weekPlanned: 0, totalHrs: 0, totalSessions: 0 }; }
+}
+
+function renderPersonalBests() {
+  const card = document.getElementById('personal-bests-card');
+  if (!card) return;
+  const logs = getLogs();
+  const rides = logs.filter(l => !isClassType(l.type));
+  let longestRide = 0, biggestElev = 0, bestWeekHrs = 0, bestWeekSessions = 0;
+  rides.forEach(l => {
+    const h = (l.hours||0) + (l.mins||0)/60;
+    if (h > longestRide) longestRide = h;
+    if ((l.elev||0) > biggestElev) biggestElev = l.elev||0;
+  });
+  for (let w = 1; w <= 19; w++) {
+    const ws = addDays(PLAN_START, (w-1)*7);
+    const we = addDays(ws, 7);
+    const wl = logs.filter(l => { const d = new Date(l.date); return d >= ws && d < we; });
+    const hrs = wl.reduce((s,l) => s + (l.hours||0) + (l.mins||0)/60, 0);
+    if (hrs > bestWeekHrs) bestWeekHrs = hrs;
+    if (wl.length > bestWeekSessions) bestWeekSessions = wl.length;
+  }
+  const items = [
+    { label: 'Longest Ride', value: longestRide > 0 ? `${Math.round(longestRide*10)/10}hr` : '—' },
+    { label: 'Most Elevation', value: biggestElev > 0 ? `${biggestElev.toLocaleString()}m` : '—' },
+    { label: 'Best Week (hrs)', value: bestWeekHrs > 0 ? `${Math.round(bestWeekHrs*10)/10}hr` : '—' },
+    { label: 'Best Week (sessions)', value: bestWeekSessions > 0 ? `${bestWeekSessions}` : '—' },
+  ];
+  card.innerHTML = `<div class="card" style="margin:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+    ${items.map(i => `<div style="text-align:center">
+      <div style="font-size:22px;font-weight:800;color:var(--gold)">${i.value}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px">${i.label}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderConsistency() {
+  const card = document.getElementById('consistency-card');
+  if (!card) return;
+  const curWeek = getCurrentWeek();
+  let streak = 0, longestStreak = 0, cur = 0;
+  for (let w = 1; w <= curWeek; w++) {
+    const planned = getWeekSessions(w).filter(s => s.type !== 'Rest');
+    const done = planned.filter(s => isSessionLoggedById(s.id)).length;
+    const hit = planned.length > 0 && done >= Math.ceil(planned.length * 0.6);
+    if (hit) { cur++; if (cur > longestStreak) longestStreak = cur; }
+    else cur = 0;
+  }
+  streak = cur;
+  const dots = Array.from({length: Math.min(curWeek,10)}, (_,i) => {
+    const w = curWeek - 9 + i;
+    if (w < 1) return '<div style="width:24px;height:24px"></div>';
+    const planned = getWeekSessions(w).filter(s => s.type !== 'Rest');
+    const done = planned.filter(s => isSessionLoggedById(s.id)).length;
+    const pct = planned.length > 0 ? done/planned.length : 0;
+    const color = pct >= 0.8 ? 'var(--olive)' : pct >= 0.5 ? 'var(--ochre)' : 'var(--border-bright)';
+    return `<div title="W${w}: ${done}/${planned.length}" style="width:24px;height:24px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff">${w}</div>`;
+  }).join('');
+  card.innerHTML = `<div class="card" style="margin:0 16px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <div style="text-align:center"><div style="font-size:28px;font-weight:800;color:var(--olive)">${streak}</div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Current Streak</div></div>
+      <div style="text-align:center"><div style="font-size:28px;font-weight:800;color:var(--gold)">${longestStreak}</div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Best Streak</div></div>
+      <div style="text-align:center"><div style="font-size:28px;font-weight:800;color:var(--ochre)">${curWeek}</div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Weeks In</div></div>
+    </div>
+    <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">${dots}</div>
+    <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px">🟢 ≥80% · 🟠 ≥50% · ⚫ &lt;50% · Last 10 weeks</div>
+  </div>`;
+}
+
+function renderRpeTrend() {
+  const card = document.getElementById('rpe-trend-card');
+  if (!card) return;
+  const logs = getLogs().filter(l => !isClassType(l.type) && l.rpe).sort((a,b) => a.date.localeCompare(b.date)).slice(-8);
+  if (logs.length < 2) { card.innerHTML = `<div class="card" style="margin:0 16px;color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Log more rides to see RPE trend</div>`; return; }
+  const avg = Math.round(logs.reduce((s,l) => s + l.rpe, 0) / logs.length * 10) / 10;
+  const trend = logs[logs.length-1].rpe - logs[0].rpe;
+  const trendColor = trend > 1 ? 'var(--red-burnt)' : trend < -1 ? 'var(--olive)' : 'var(--ochre)';
+  const trendLabel = trend > 1 ? '↑ Rising — watch for fatigue' : trend < -1 ? '↓ Dropping — adaptation happening' : '→ Stable';
+  const bars = logs.map(l => {
+    const h = Math.round(l.rpe / 10 * 60);
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1">
+      <div style="font-size:10px;color:var(--text-muted)">${l.rpe}</div>
+      <div style="width:100%;height:${h}px;background:var(--ochre);border-radius:3px 3px 0 0;min-height:4px"></div>
+    </div>`;
+  }).join('');
+  card.innerHTML = `<div class="card" style="margin:0 16px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+      <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Avg RPE (last 8 rides)</div><div style="font-size:22px;font-weight:800;color:var(--ochre)">${avg}/10</div></div>
+      <div style="text-align:right"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Trend</div><div style="font-size:13px;font-weight:700;color:${trendColor}">${trendLabel}</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:4px;height:64px">${bars}</div>
+  </div>`;
+}
+
+function renderZones() {
+  const card = document.getElementById('zones-card');
+  if (!card) return;
+  const logs = getLogs();
+  const rideTypes = { 'Zone 2': 0, 'Threshold': 0, 'Night': 0, 'LSD': 0, 'Recovery': 0, 'Other': 0 };
+  logs.filter(l => !isClassType(l.type)).forEach(l => {
+    const h = (l.hours||0) + (l.mins||0)/60;
+    const t = l.type;
+    if (t.includes('Zone 2') || t.includes('Recovery Spin')) rideTypes['Zone 2'] += h;
+    else if (t.includes('Threshold')) rideTypes['Threshold'] += h;
+    else if (t.includes('Night')) rideTypes['Night'] += h;
+    else if (t.includes('LSD') || t.includes('Back-to-Back')) rideTypes['LSD'] += h;
+    else if (t.includes('Recovery')) rideTypes['Recovery'] += h;
+    else rideTypes['Other'] += h;
+  });
+  const total = Object.values(rideTypes).reduce((s,v) => s+v, 0);
+  if (total === 0) { card.innerHTML = `<div class="card" style="margin:0 16px;color:var(--text-muted);font-size:13px;text-align:center;padding:20px">No rides logged yet</div>`; return; }
+  const colors = { 'Zone 2': '#C8832A', 'LSD': '#E8A030', 'Threshold': '#A0522D', 'Night': '#5B7FA6', 'Recovery': '#4A7C6F', 'Other': '#9A968F' };
+  const rows = Object.entries(rideTypes).filter(([,h]) => h > 0).sort((a,b) => b[1]-a[1]).map(([name, h]) => {
+    const pct = Math.round(h/total*100);
+    return `<div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+        <span style="color:${colors[name]};font-weight:600">${name}</span>
+        <span style="color:var(--text-muted)">${Math.round(h*10)/10}hr · ${pct}%</span>
+      </div>
+      <div style="background:var(--border);border-radius:3px;height:6px"><div style="width:${pct}%;background:${colors[name]};height:6px;border-radius:3px"></div></div>
+    </div>`;
+  }).join('');
+  card.innerHTML = `<div class="card" style="margin:0 16px">${rows}</div>`;
+}
+
+function renderWeeklyNotes() {
+  const card = document.getElementById('weekly-notes-card');
+  if (!card) return;
+  const curWeek = getCurrentWeek();
+  const key = profileKey(`mtb_week_note_w${curWeek}`);
+  const saved = localStorage.getItem(key) || '';
+  card.innerHTML = `<div class="card" style="margin:0 16px">
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Week ${curWeek} Notes</div>
+    <textarea id="week-note-input" placeholder="How's the week going? Any niggles, life stuff, how the legs feel…" style="width:100%;background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;font-size:13px;font-family:inherit;resize:none;min-height:80px;outline:none">${saved}</textarea>
+    <button onclick="saveWeekNote()" style="margin-top:8px;background:var(--ochre);border:none;border-radius:8px;color:#fff;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Save</button>
+  </div>`;
+}
+
+function saveWeekNote() {
+  const curWeek = getCurrentWeek();
+  const key = profileKey(`mtb_week_note_w${curWeek}`);
+  const val = document.getElementById('week-note-input').value;
+  localStorage.setItem(key, val);
+  const btn = document.querySelector('#weekly-notes-card button');
+  if (btn) { btn.textContent = 'Saved ✓'; setTimeout(() => { if (btn) btn.textContent = 'Save'; }, 1500); }
+}
+
+function renderKevinLogs() {
+  const card = document.getElementById('kevin-logs-card');
+  if (!card) return;
+  const kevinLogs = JSON.parse(localStorage.getItem('mtb_logs_Kevin') || '[]')
+    .sort((a,b) => b.date.localeCompare(a.date)).slice(0,5);
+  if (kevinLogs.length === 0) { card.innerHTML = ''; return; }
+  const rows = kevinLogs.map(l => {
+    const h = (l.hours||0) + (l.mins||0)/60;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${getSessionDotColor(l.type)};flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${getSessionTypeIcon(l.type)} ${l.type}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${new Date(l.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'short'})} · ${Math.round(h*10)/10}hr${l.elev>0?' · ↑'+l.elev+'m':''}</div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text-muted)">RPE ${l.rpe||'—'}</div>
+    </div>`;
+  }).join('');
+  card.innerHTML = `<div style="margin:0 16px 8px"><div style="font-size:11px;color:var(--slate-blue);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Kevin's Recent Sessions</div><div class="card" style="padding:0 16px">${rows}</div></div>`;
 }
 
 function renderComparison() {
@@ -2501,7 +2685,76 @@ function renderNutrition(tab) {
         <h4>CP4 Box (140km) — Night / Midnight Cutoff</h4>
         <p>Night-specific fuel x4 · Extra warm layer · Fresh gloves · Caffeine gel x2 · Pain relief if needed · Fresh batteries</p>
       </div>`;
+  } else if (tab === 'calculator') {
+    content.innerHTML = `
+      <h3 class="nutr-heading">Race Nutrition Calculator</h3>
+      <p class="nutr-body">Enter your target race time to calculate exactly what to pack and eat.</p>
+      <div class="card" style="margin-bottom:16px">
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Target Race Time (hours)</label>
+          <input type="number" id="calc-hours" value="20" min="14" max="28" style="width:100%;background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:16px;font-family:inherit;outline:none">
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Carbs per hour (g)</label>
+          <input type="number" id="calc-carbs" value="75" min="50" max="100" style="width:100%;background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:16px;font-family:inherit;outline:none">
+        </div>
+        <button onclick="calcNutrition()" style="width:100%;background:var(--ochre);border:none;border-radius:10px;color:#fff;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Calculate</button>
+      </div>
+      <div id="calc-results"></div>`;
   }
+}
+
+function calcNutrition() {
+  const hrs = parseFloat(document.getElementById('calc-hours').value) || 20;
+  const carbsPerHr = parseFloat(document.getElementById('calc-carbs').value) || 75;
+  const totalCarbs = Math.round(hrs * carbsPerHr);
+  const gels = Math.round(totalCarbs * 0.35 / 25); // 25g carbs per gel, 35% from gels
+  const bars = Math.round(totalCarbs * 0.30 / 40); // 40g carbs per bar
+  const realFood = Math.round(totalCarbs * 0.35 / 30); // 30g carbs per real food item
+  const water = Math.round(hrs * 0.75); // 750ml/hr average
+  const electrolytes = Math.round(hrs / 2); // tablet every 2hrs
+  const caffeine = Math.max(0, Math.round((hrs - 8) / 3)); // start at 8hrs, every 3hrs
+
+  // Checkpoint breakdown
+  const segments = [
+    { name: 'Start → CP1', dist: '40km', time: 2.5 },
+    { name: 'CP1 → CP2', dist: '53km', time: 3 },
+    { name: 'CP2 → CP3', dist: '30km', time: 2 },
+    { name: 'CP3 → CP4', dist: '17km', time: 1.5 },
+    { name: 'CP4 → CP5', dist: '32km', time: 3 },
+    { name: 'CP5 → Finish', dist: '58km', time: Math.max(hrs - 12, 5) },
+  ];
+
+  const segRows = segments.map(s => {
+    const c = Math.round(s.time * carbsPerHr);
+    return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span style="color:var(--text-muted)">${s.name} <span style="font-size:11px">(${s.dist})</span></span>
+      <span style="font-weight:700;color:var(--ochre)">${c}g carbs</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('calc-results').innerHTML = `
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px">Total for ${hrs}hr Race</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px">
+        ${[
+          ['Total Carbs', totalCarbs+'g'],
+          ['Gels', gels+' gels'],
+          ['Bars', bars+' bars'],
+          ['Real Food', realFood+' items'],
+          ['Water', water+'L'],
+          ['Electrolytes', electrolytes+' tabs'],
+          ['Caffeine doses', caffeine > 0 ? caffeine+' doses' : 'Not needed'],
+        ].map(([l,v]) => `<div style="text-align:center;background:var(--bg-card-2);border-radius:8px;padding:10px">
+          <div style="font-size:18px;font-weight:800;color:var(--gold)">${v}</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:0.4px">${l}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">By Segment</div>
+      ${segRows}
+    </div>`;
 }
 
 function showNutrTab(tab, el) {

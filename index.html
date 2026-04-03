@@ -1531,12 +1531,13 @@ const SB_URL = 'https://idkbvimbglzcfoglofpd.supabase.co';
 const SB_KEY = 'sb_publishable_70ilEnrmZ5YYmA5Px-v4Uw_EBG0uPXH';
 
 async function sbFetch(path, options = {}) {
+  const isWrite = options.method && options.method !== 'GET';
   return fetch(`${SB_URL}/rest/v1/${path}`, {
     headers: {
       'apikey': SB_KEY,
       'Authorization': `Bearer ${SB_KEY}`,
       'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
+      ...(isWrite ? { 'Prefer': 'return=minimal' } : {}),
       ...(options.headers || {})
     },
     ...options
@@ -1700,6 +1701,12 @@ const PHASE_TIPS = {
 };
 
 function renderHome() {
+  try { _renderHome(); } catch(e) {
+    const c = document.getElementById('home-content');
+    if (c) c.innerHTML = `<div style="padding:32px 16px;color:var(--text-muted);font-size:13px">Error loading home: ${e.message}</div>`;
+  }
+}
+function _renderHome() {
   const container = document.getElementById('home-content');
   if (!container) return;
   const curWeek = getCurrentWeek();
@@ -1841,7 +1848,7 @@ function renderHome() {
       }
     })()}
   `;
-}
+} // end _renderHome
 
 // =============================================
 // TAB NAVIGATION

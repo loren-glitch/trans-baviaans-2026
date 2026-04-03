@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0E0F11">
+<link rel="manifest" href="manifest.json">
 <title>Trans Baviaans 2026</title>
 <style>
 :root {
@@ -934,6 +935,8 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
       <div id="rpe-trend-card"></div>
       <div class="section-label">Time in Zones</div>
       <div id="zones-card"></div>
+      <div class="section-label">Training Load</div>
+      <div id="training-load-card"></div>
       <div class="section-label">Next Session</div>
       <div id="next-session-container" class="next-session-card"></div>
       <div class="section-label">Team Readiness</div>
@@ -969,6 +972,7 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
         <button class="prep-tab-btn" onclick="showPrepTab('climbs',this)">Climbs</button>
         <button class="prep-tab-btn" onclick="showPrepTab('team',this)">Team Rules</button>
         <button class="prep-tab-btn" onclick="showPrepTab('timeline',this)">Timeline</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('pace',this)">Pace Calc</button>
       </div>
       <div id="prep-content"></div>
     </div>
@@ -2272,6 +2276,7 @@ function renderProgress() {
   renderConsistency();
   renderRpeTrend();
   renderZones();
+  renderTrainingLoad();
   renderWeeklyNotes();
   renderKevinLogs();
 
@@ -2461,6 +2466,70 @@ function renderKevinLogs() {
     </div>`;
   }).join('');
   card.innerHTML = `<div style="margin:0 16px 8px"><div style="font-size:11px;color:var(--slate-blue);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Kevin's Recent Sessions</div><div class="card" style="padding:0 16px">${rows}</div></div>`;
+}
+
+function renderTrainingLoad() {
+  const card = document.getElementById('training-load-card');
+  if (!card) return;
+  const logs = getLogs();
+
+  // Acute load = avg daily hours over last 7 days (x7 to get weekly equivalent)
+  // Chronic load = avg daily hours over last 28 days (x7)
+  const now = TODAY;
+  const day7 = new Date(now); day7.setDate(day7.getDate() - 7);
+  const day28 = new Date(now); day28.setDate(day28.getDate() - 28);
+
+  const acute7 = logs.filter(l => new Date(l.date) >= day7).reduce((s,l) => s + (l.hours||0) + (l.mins||0)/60, 0);
+  const chronic28 = logs.filter(l => new Date(l.date) >= day28).reduce((s,l) => s + (l.hours||0) + (l.mins||0)/60, 0) / 4;
+
+  if (chronic28 === 0) {
+    card.innerHTML = `<div class="card" style="margin:0 16px;color:var(--text-muted);font-size:13px;text-align:center;padding:20px">Log more sessions to see training load</div>`;
+    return;
+  }
+
+  const ratio = Math.round(acute7 / chronic28 * 100) / 100;
+  // Sweet spot: 0.8–1.3. Below = undertraining. Above 1.5 = injury risk.
+  const status = ratio < 0.8 ? { label: 'Undertraining', color: 'var(--slate-blue)', msg: 'Load is low relative to your baseline. Safe to push harder this week.' }
+    : ratio <= 1.3 ? { label: 'Optimal', color: 'var(--olive)', msg: 'Perfect load balance. This is the sweet spot for fitness gains.' }
+    : ratio <= 1.5 ? { label: 'High', color: 'var(--ochre)', msg: 'Load is elevated. Prioritise sleep and nutrition this week.' }
+    : { label: 'Overreaching', color: 'var(--red-burnt)', msg: 'Load is very high. Risk of injury or illness. Consider an easy day.' };
+
+  // Bar: show weeks 1-current, coloured by ratio
+  const curWeek = getCurrentWeek();
+  const weekBars = Array.from({length: Math.min(curWeek, 8)}, (_,i) => {
+    const w = curWeek - 7 + i;
+    if (w < 1) return '';
+    const ws = addDays(PLAN_START, (w-1)*7);
+    const we = addDays(ws, 7);
+    const wHrs = logs.filter(l => { const d = new Date(l.date); return d >= ws && d < we; }).reduce((s,l) => s + (l.hours||0) + (l.mins||0)/60, 0);
+    const planned = getPlannedHoursForWeek(w);
+    const pct = planned > 0 ? Math.min(wHrs / planned, 1.5) : 0;
+    const barH = Math.round(pct * 50);
+    const color = pct >= 0.8 ? 'var(--olive)' : pct >= 0.5 ? 'var(--ochre)' : 'var(--border-bright)';
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1">
+      <div style="font-size:9px;color:var(--text-muted)">${Math.round(wHrs*10)/10}h</div>
+      <div style="width:100%;height:${Math.max(barH,3)}px;background:${color};border-radius:3px 3px 0 0"></div>
+      <div style="font-size:9px;color:var(--text-muted)">W${w}</div>
+    </div>`;
+  }).join('');
+
+  card.innerHTML = `<div class="card" style="margin:0 16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Acute:Chronic Ratio</div>
+        <div style="font-size:32px;font-weight:800;color:${status.color}">${ratio}</div>
+        <div style="font-size:13px;font-weight:700;color:${status.color};margin-top:2px">${status.label}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">Last 7 days</div>
+        <div style="font-size:16px;font-weight:700">${Math.round(acute7*10)/10}hr</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;margin-bottom:2px">Weekly baseline</div>
+        <div style="font-size:16px;font-weight:700">${Math.round(chronic28*10)/10}hr</div>
+      </div>
+    </div>
+    <div style="background:var(--bg-card-2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:14px">${status.msg}</div>
+    <div style="display:flex;align-items:flex-end;gap:3px;height:70px">${weekBars}</div>
+  </div>`;
 }
 
 function renderComparison() {
@@ -2780,7 +2849,100 @@ function renderPrep(tab) {
     renderTeam(content);
   } else if (tab === 'timeline') {
     renderTimeline(content);
+  } else if (tab === 'pace') {
+    renderPaceCalc(content);
   }
+}
+
+function renderPaceCalc(container) {
+  container.innerHTML = `
+    <div style="padding:16px">
+      <div style="font-size:18px;font-weight:800;margin-bottom:4px">Race Pace Calculator</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5">Set your target finish time and see what that means at every checkpoint.</div>
+      <div class="card" style="margin-bottom:16px">
+        <label style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Target Finish Time</label>
+        <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px">
+          <input type="number" id="pace-hrs" value="20" min="14" max="28" style="flex:1;background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;font-size:20px;font-weight:700;font-family:inherit;outline:none;text-align:center">
+          <span style="color:var(--text-muted);font-size:14px">hrs</span>
+          <input type="number" id="pace-mins" value="0" min="0" max="59" style="flex:1;background:var(--bg-card-2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px;font-size:20px;font-weight:700;font-family:inherit;outline:none;text-align:center">
+          <span style="color:var(--text-muted);font-size:14px">min</span>
+        </div>
+        <button onclick="calcPace()" style="width:100%;background:var(--ochre);border:none;border-radius:10px;color:#fff;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Calculate Checkpoints</button>
+      </div>
+      <div id="pace-results"></div>
+    </div>`;
+}
+
+function calcPace() {
+  const totalHrs = (parseInt(document.getElementById('pace-hrs').value)||20) + (parseInt(document.getElementById('pace-mins').value)||0)/60;
+  const raceStart = new Date('2026-08-08T10:00:00');
+
+  // Checkpoints: name, km, % of total distance (230km), estimated % of total time
+  // Time isn't linear — first half is faster (day, fresh legs), second is slower (night, fatigue)
+  const checkpoints = [
+    { name: 'Start', km: 0, timePct: 0, color: 'var(--gold)' },
+    { name: 'CP1', km: 40, timePct: 0.125, terrain: 'Rolling farm roads, fresh legs', color: 'var(--slate-blue)' },
+    { name: 'CP2', km: 93, timePct: 0.275, terrain: 'Before the MAC climb — hardest section ahead', color: 'var(--slate-blue)' },
+    { name: 'CP3', km: 123, timePct: 0.375, terrain: 'Nightfall begins — lights on', color: 'var(--slate-blue)' },
+    { name: 'CP4', km: 140, timePct: 0.455, terrain: 'Midnight cutoff check — you need 3hrs buffer', color: 'var(--red-burnt)' },
+    { name: 'CP5', km: 172, timePct: 0.60, terrain: 'Support crew — last big push', color: 'var(--slate-blue)' },
+    { name: 'CP6', km: 195, timePct: 0.725, terrain: 'Pre-dawn — almost there', color: 'var(--slate-blue)' },
+    { name: 'CP7', km: 215, timePct: 0.84, terrain: 'Final stretch', color: 'var(--slate-blue)' },
+    { name: 'Finish', km: 230, timePct: 1.0, terrain: 'Jeffreys Bay 🏁', color: 'var(--olive)' },
+  ];
+
+  const midnightCutoff = new Date('2026-08-09T00:00:00');
+
+  const rows = checkpoints.map((cp, i) => {
+    const elapsedHrs = totalHrs * cp.timePct;
+    const arrivalTime = new Date(raceStart.getTime() + elapsedHrs * 3600000);
+    const timeStr = arrivalTime.toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit', hour12: false });
+    const dateStr = arrivalTime.getDate() === 8 ? 'Sat' : 'Sun';
+    const elapsedStr = elapsedHrs === 0 ? 'Start' : `+${Math.floor(elapsedHrs)}h${Math.round((elapsedHrs%1)*60).toString().padStart(2,'0')}`;
+
+    // Midnight cutoff warning for CP4
+    let warning = '';
+    if (cp.name === 'CP4') {
+      const bufferMs = midnightCutoff - arrivalTime;
+      const bufferHrs = bufferMs / 3600000;
+      if (bufferHrs < 2) warning = `<div style="font-size:11px;color:var(--red-burnt);margin-top:3px;font-weight:700">⚠ Only ${Math.round(bufferHrs*60)}min before midnight cutoff!</div>`;
+      else warning = `<div style="font-size:11px;color:var(--olive);margin-top:3px">✓ ${Math.floor(bufferHrs)}h${Math.round((bufferHrs%1)*60).toString().padStart(2,'0')} before midnight cutoff</div>`;
+    }
+
+    // Segment pace
+    let segPace = '';
+    if (i > 0) {
+      const prev = checkpoints[i-1];
+      const segDist = cp.km - prev.km;
+      const segHrs = (cp.timePct - prev.timePct) * totalHrs;
+      const kmh = Math.round(segDist / segHrs * 10) / 10;
+      segPace = `<span style="color:var(--text-muted);font-size:11px"> · ${kmh}km/h avg</span>`;
+    }
+
+    return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="text-align:center;min-width:48px">
+        <div style="font-size:15px;font-weight:800;color:${cp.color}">${timeStr}</div>
+        <div style="font-size:10px;color:var(--text-muted)">${dateStr}</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700">${cp.name}${cp.km > 0 ? ` <span style="color:var(--text-muted);font-weight:400;font-size:12px">${cp.km}km</span>` : ''}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:1px">${elapsedStr}${segPace}</div>
+        ${cp.terrain ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;font-style:italic">${cp.terrain}</div>` : ''}
+        ${warning}
+      </div>
+    </div>`;
+  }).join('');
+
+  const avgSpeed = Math.round(230 / totalHrs * 10) / 10;
+  document.getElementById('pace-results').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Target</div><div style="font-size:20px;font-weight:800;color:var(--ochre)">${Math.floor(totalHrs)}h${Math.round((totalHrs%1)*60).toString().padStart(2,'0')}m</div></div>
+        <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Avg Speed</div><div style="font-size:20px;font-weight:800;color:var(--ochre)">${avgSpeed} km/h</div></div>
+        <div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">Distance</div><div style="font-size:20px;font-weight:800;color:var(--text)">230 km</div></div>
+      </div>
+      ${rows}
+    </div>`;
 }
 
 function showPrepTab(tab, el) {
@@ -3082,6 +3244,7 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 </script>
 </body>
 </html>

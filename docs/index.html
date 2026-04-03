@@ -2721,19 +2721,24 @@ function init() {
   const urlParams = new URLSearchParams(window.location.search);
   const stravaCode = urlParams.get('code');
   const stravaError = urlParams.get('error');
+
+  // DEBUG: show exactly what arrived in the URL
+  if (window.location.search) {
+    alert('DEBUG — URL params: ' + window.location.search);
+  }
+
   if (stravaCode || stravaError) {
     window.history.replaceState({}, '', window.location.pathname);
     if (stravaError) {
       localStorage.setItem(profileKey('strava_auth_error'), 'Strava declined: ' + stravaError);
       renderHome();
     } else {
-      // Show that we received the code
-      localStorage.setItem(profileKey('strava_auth_error'), 'Got code from Strava — exchanging for token…');
+      localStorage.setItem(profileKey('strava_auth_error'), 'Got code — exchanging for token…');
       renderHome();
       stravaExchangeCode(stravaCode).then(result => {
         if (!result.ok) {
-          // Error is already stored in localStorage by stravaExchangeCode
           renderHome();
+          alert('DEBUG — Token exchange failed: ' + (result.error || 'unknown'));
         } else {
           renderHome();
           stravaSyncActivities();

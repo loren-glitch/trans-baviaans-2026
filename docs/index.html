@@ -1405,6 +1405,13 @@ function getLoggedHoursForWeek(week) {
   }).reduce((sum, l) => sum + (l.hours||0) + (l.mins||0)/60, 0);
 }
 
+// Returns the display type for a session based on active profile
+// Kevin sees "Yoga" for all optional class slots; Loren sees the real class name
+function getDisplayType(s) {
+  if (activeProfile === 'Kevin' && s.required === false) return 'Yoga';
+  return s.type;
+}
+
 function getSessionTypeIcon(type) {
   const icons = {
     'LSD': '🚵','Threshold Ride': '🔥','Threshold': '🔥','Night Ride': '🌙',
@@ -1513,7 +1520,7 @@ function renderHome() {
       return `<div class="home-today-card" onclick="openSessionModal(PLAN.find(p=>p.id==='${s.id}'))">
         <div class="home-today-dot" style="background:${getSessionDotColor(s.type)}"></div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:16px;font-weight:700">${getSessionTypeIcon(s.type)} ${s.type}</div>
+          <div style="font-size:16px;font-weight:700">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${s.duration}${s.zone!=='N/A'?' · Zone '+s.zone:''}${s.targetElevation>0?' · ↑ '+s.targetElevation+'m':''}${s.required===false?' · <span style="color:var(--text-muted);font-weight:700">optional</span>':''}</div>
         </div>
         ${logged
@@ -1532,7 +1539,7 @@ function renderHome() {
     const fontWeight = isToday ? 700 : 500;
     return `<div class="home-week-row" style="opacity:${done||isToday?1:0.65}">
       <div class="home-week-dot" style="background:${dotBg}"></div>
-      <div style="flex:1;font-size:13px;font-weight:${fontWeight};color:${textColor}">${s.day.slice(0,3)} · ${getSessionTypeIcon(s.type)} ${s.type}</div>
+      <div style="flex:1;font-size:13px;font-weight:${fontWeight};color:${textColor}">${s.day.slice(0,3)} · ${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
       ${done ? '<span style="font-size:11px;color:var(--olive);font-weight:700">✓</span>'
               : isToday ? '<span style="font-size:9px;color:var(--ochre);font-weight:800;text-transform:uppercase;letter-spacing:0.5px">TODAY</span>'
               : ''}
@@ -1649,7 +1656,7 @@ function renderCalendar() {
       <div class="day-dot" style="background:${getSessionDotColor(s.type)}"></div>
       <div class="day-info">
         <div class="day-name" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${s.day}${isToday ? ' — TODAY' : ''} · ${new Date(s.date+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short'})}${s.required===false ? ' <span class="optional-badge">optional</span>' : ''}</div>
-        <div class="day-session">${getSessionTypeIcon(s.type)} ${s.type}</div>
+        <div class="day-session">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
         <div class="day-meta">${s.duration}${s.zone !== 'N/A' ? ` · Zone ${s.zone}` : ''}${s.targetElevation > 0 ? ` · <span class="elev-chip">&#8593; ${s.targetElevation}m</span>` : ''}</div>
       </div>
       <div class="day-chevron">›</div>`;
@@ -1674,7 +1681,7 @@ function openSessionModal(s) {
       ${logged ? `<span style="background:#2a4a2a;color:#6fcf6f;border:1px solid #4a7a4a;border-radius:20px;font-size:11px;font-weight:700;padding:4px 10px">✓ LOGGED</span>` : ''}
     </div>
     <div style="font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:600">${s.day} · ${new Date(s.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
-    <div style="font-size:22px;font-weight:800;margin-bottom:12px">${getSessionTypeIcon(s.type)} ${s.type}</div>
+    <div style="font-size:22px;font-weight:800;margin-bottom:12px">${getSessionTypeIcon(getDisplayType(s))} ${getDisplayType(s)}</div>
     <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
       <div style="background:var(--bg-card-2);border-radius:8px;padding:8px 14px">
         <div style="font-size:11px;color:var(--text-muted);font-weight:600">DURATION</div>

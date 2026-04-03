@@ -1921,8 +1921,28 @@ function renderCalendar() {
 
   // Day list — weekly checklist (no day labels, log any session any day)
   const sessions = getWeekSessions(selectedWeek);
+  const nonRest = sessions.filter(s => s.type !== 'Rest');
+  const doneCount = nonRest.filter(s => isSessionLoggedById(s.id)).length;
   const dayList = document.getElementById('day-list');
   dayList.innerHTML = '';
+
+  // Progress summary bar at top
+  if (nonRest.length > 0) {
+    const pct = Math.round(doneCount / nonRest.length * 100);
+    const barColor = pct === 100 ? 'var(--olive)' : 'var(--ochre)';
+    const summary = document.createElement('div');
+    summary.style.cssText = 'padding:12px 16px 4px';
+    summary.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${doneCount} of ${nonRest.length} done</div>
+        <div style="font-size:13px;font-weight:700;color:${barColor}">${pct}%</div>
+      </div>
+      <div style="background:var(--border);border-radius:4px;height:5px">
+        <div style="width:${pct}%;background:${barColor};height:5px;border-radius:4px;transition:width 0.3s"></div>
+      </div>`;
+    dayList.appendChild(summary);
+  }
+
   sessions.forEach(s => {
     const done = isSessionLoggedById(s.id);
     const card = document.createElement('div');
@@ -1946,7 +1966,12 @@ function isSessionLogged(date) {
   return getLogs().some(l => l.date === date);
 }
 function isSessionLoggedById(sessionId) {
-  return getLogs().some(l => l.session_id === sessionId);
+  const logs = getLogs();
+  if (logs.some(l => l.session_id === sessionId)) return true;
+  // Fallback: match by session date + type (catches Strava-synced entries)
+  const session = PLAN.find(s => s.id === sessionId);
+  if (!session) return false;
+  return logs.some(l => l.date === session.date && (l.type === session.type || l.type === getDisplayType(session)));
 }
 
 function openSessionModal(s) {

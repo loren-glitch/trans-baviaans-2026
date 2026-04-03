@@ -2289,7 +2289,7 @@ function renderProgress() {
     const phase = getPhase(next.week);
     container.innerHTML = `<div class="card" style="margin:0 16px">
       <div style="font-size:11px;color:${phase.color};font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">${phase.name} · Week ${next.week}</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${getSessionTypeIcon(next.type)} ${next.type}</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${getSessionTypeIcon(getDisplayType(next))} ${getDisplayType(next)}</div>
       <div style="font-size:13px;color:var(--text-muted)">${new Date(next.date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'long',day:'numeric',month:'short'})} · ${next.duration}${next.zone!=='N/A'?' · Zone '+next.zone:''}</div>
     </div>`;
   } else {

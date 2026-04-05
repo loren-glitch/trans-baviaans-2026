@@ -1287,13 +1287,13 @@ for (let w = 1; w <= 5; w++) {
   const baseTueElev = [250,300,350,200,400][w-1];
   const baseThuElev = [250,300,350,0,400][w-1];
   const baseSatElev = [500,600,700,400,800][w-1];
-  addSession(w,0,'Strength Class','1hr','N/A',`Strength class. Weighted lunges, deadlifts, single-leg presses, hip stability work. Off-bike strength is your insurance policy against breakdown at the 150km mark. Strong glutes protect your knees on Nuwekloofpas.`, false, 0);
+  addSession(w,0,'Strength Class','1hr','N/A',`BASE Strength — Week ${w}. Focus: glute activation + core foundation. Key exercises: glute bridges 3×15, single-leg deadlifts 3×10 each side, weighted lunges 3×12, plank holds 3×45s, clamshells 3×20. These patterns prevent the knee injuries that affect 53% of ultra-cyclists. Show up every week — this is not optional.`, true, 0);
   addSession(w,1,'Zone 2 Ride',baseTueDur[w-1],'2',
     w===4?`Recovery week — rest or very easy spin only. Let the adaptations from Weeks 1–3 consolidate.`:`Easy aerobic ride. Keep HR in Zone 2 — hold a full conversation throughout. ${w===3?'Focus on smooth cadence (85–95rpm). ':w===5?'Add some rolling terrain to start building climbing legs. ':''}Practice eating while riding every 30min. Target \u2191${baseTueElev}m elevation this session.`, true, baseTueElev);
-  addSession(w,2,'Hot Pilates','1hr','N/A',`Hot Pilates. Spinal mobility, hip flexor release, deep core activation. The heat accelerates recovery and flushes the legs after Tuesday's ride. Arrive hydrated.`, false, 0);
+  addSession(w,2,'Hot Pilates','1hr','N/A',`BASE Pilates — active recovery after Tuesday's ride. Priority: hip flexor release (cyclists develop chronically tight hip flexors — this causes back pain and knee tracking issues over 20hr). Focus on: spinal rotation, cat-cow, pigeon pose, thoracic mobility. The heat flushes legs and speeds recovery. Arrive hydrated.`, true, 0);
   addSession(w,3, w===4?'Rest':'Zone 2 Ride', w===4?'—':baseThuDur[w-1], w===4?'N/A':'2',
     w===4?`Recovery week — full rest. Eat well, sleep well, let adaptations consolidate.`:`Second ride of the week. Zone 2 throughout. Use a different route to Tuesday — explore terrain, keep it easy. ${w>=3?'Add a short climb to start building climbing confidence. ':''}Target \u2191${baseThuElev}m elevation this session.`, true, baseThuElev);
-  addSession(w,4,'Barre Class','1hr','N/A',`Barre class. Single-leg balance, posterior chain activation, hip stability. Friday barre primes your body for Saturday's LSD — you'll ride better for it. Strong hips = strong climbing.`, false, 0);
+  addSession(w,4,'Barre Class','1hr','N/A',`BASE Barre — glute pre-activation before Saturday's LSD. This is intentional: barre on Friday fires the posterior chain so it's primed and ready for the long ride. Focus on: pulsing glute work, single-leg balance, hip hinge patterns, lateral hip stability. Strong glutes on Saturday means less knee stress over 3–4hrs of climbing.`, true, 0);
   addSession(w,5,'LSD',baseLSD[w-1],'2',
     w===4?`Recovery week LSD — keep it short and easy. Zone 2 throughout, no pressure. Your body is consolidating ${w-1} weeks of base training. Target \u2191${baseSatElev}m.`:
     `Long Slow Distance — the cornerstone of your week. Zone 2 the entire time. Simulate race fuelling: eat every 20–30min. This ${baseLSD[w-1]} builds the aerobic engine for 230km. Target \u2191${baseSatElev}m elevation.${w===5?' This is your longest BASE ride — a real milestone.':''}`, true, baseSatElev);
@@ -1311,15 +1311,15 @@ for (let w = 6; w <= 10; w++) {
   const buildThuElev = [400,450,500,350,500][wi];
   const buildSatElev = [700,800,900,650,1000][wi];
   const buildSunElev = [500,600,700,500,700][wi];
-  addSession(w,0,'Strength Class','60min','N/A',`Strength class — BUILD phase loading. Increase weights from BASE. Weighted deadlifts, Bulgarian split squats, single-leg press, heavy core. The strength you build now carries you through the final 80km.`, false, 0);
+  addSession(w,0,'Strength Class','60min','N/A',`BUILD Strength — Week ${w}. Increase load from BASE: Romanian deadlifts 4×8, Bulgarian split squats 3×10 each side, single-leg press 3×12, bent-over rows 3×12, push-ups 3×15, side planks 3×45s. Add upper body work — your trapezius, biceps and grip will take serious punishment bracing through 50 switchbacks at the MAC. Required — 52% of ultra-cyclists sustain knee injuries from skipping this.`, true, 0);
   addSession(w,1,'Threshold Ride','2hr','4',
     w===9?`Recovery week — Zone 2 only today, 1.5hr. No threshold. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildTueElev}m elevation.`:
     `Sustained threshold effort — Zone 4. Warm up 20min, 2\xd720min threshold blocks, cool down. This builds the power to push through the MAC and The Neverender. Target \u2191${buildTueElev}m elevation.`, true, buildTueElev);
-  addSession(w,2,'Hot Pilates','60min','N/A',`Hot Pilates. The heat session after a hard Tuesday ride accelerates recovery. Hip flexor release, spinal rotation, deep core. Keep mobility high as training load builds.`, false, 0);
+  addSession(w,2,'Hot Pilates','60min','N/A',`BUILD Pilates — recovery and mobility maintenance as training load peaks. Priority: thoracic spine rotation (prevents neck/shoulder fatigue on long climbs), hip flexor release, lumbar decompression. After ${w>=7?'a night ride':'a hard threshold ride'} your lower back needs this. Don't skip it when fatigued — that's exactly when you need it most.`, true, 0);
   addSession(w,3, w>=7?'Night Ride':'Zone 2 + Climbing', w===9?'1.5hr':w>=7?'2.5hr':'2.5hr', w>=7?'2':'2-3',
     w>=7?(w===9?`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. Recovery week: 1.5hr easy, low effort — maintain the habit without loading the body. Target \u2191${buildThuElev}m.`:`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. The race has 8+ hours of darkness. Your comfort at night is built here, not on race day. Target \u2191${buildThuElev}m elevation.`):
     `Zone 2 with climbing focus. Find a climb and repeat 3–4 ascents at steady pace. Simulates Nuwekloofpas effort management. Practice eating on the climb. Target \u2191${buildThuElev}m elevation.`, true, buildThuElev);
-  addSession(w,4,'Barre Class','60min','N/A',`Barre class. Single-leg stability, glute activation, hip hinge patterns. Friday barre before Saturday's big ride — fire up the posterior chain and arrive at the LSD ready to climb.`, false, 0);
+  addSession(w,4,'Barre Class','60min','N/A',`BUILD Barre — pre-LSD glute activation + muscular endurance. Focus: isometric glute holds, pulsing squats, single-leg balance, lateral band work. The pulsing/isometric nature of barre builds fatigue resistance in the exact muscles that fail at hour 12+ of riding. Show up Friday, ride better Saturday.`, true, 0);
   addSession(w,5,'LSD',buildLSDSat[wi],'2',
     w===9?`Recovery week Saturday — shorter LSD. Stay aerobic, no heroics. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildSatElev}m.`:
     `BUILD LSD with climbing. Race-simulation workhorse. Include 600–800m of climbing if possible. Practice checkpoint protocols — stop at intervals, eat, hydrate, restart. Target \u2191${buildSatElev}m elevation.${w===10?' Peak BUILD ride — a major confidence milestone.':''}`, true, buildSatElev);
@@ -1340,19 +1340,20 @@ for (let w = 11; w <= 15; w++) {
   const peakSatElev = [900,1100,1400,600,1100][wi];
   const peakSunElev = [700,900,0,500,900][wi];
   addSession(w,0,'Strength Class','60min','N/A',
-    w===14?`Strength class — lighter PEAK recovery week. Bodyweight or 50% reduced load only. Keep the pattern, lose the fatigue. Your body is rebuilding from Week 13's event simulation.`:
-    `Strength class — PEAK phase. Full load. Fatigue-resistant strength is what keeps your form intact at the 200km mark. Show up and do the work.`, false, 0);
+    w===14?`PEAK Strength — recovery week. Reduce to 50% load, bodyweight focus only. Glute bridges 3×15, bodyweight squats 3×15, dead hangs 3×30s (grip endurance), push-ups 3×12. Maintain the pattern — your nervous system needs the signal without the fatigue.`:
+    `PEAK Strength — Week ${w}. Add grip and forearm work: dead hangs 3×30s, farmer carries 2×40m, wrist curls 3×15. At hour 16 of Baviaans your hands will be cramping — train for it now. Continue: deadlifts 4×6 heavy, single-leg step-downs 3×12, Copenhagen planks 3×30s, bent-over rows 4×10.`, true, 0);
   addSession(w,1,'Threshold Ride', w===14?'1.5hr':'2.5hr','4',
     w===14?`Recovery week — cut to 1.5hr, Zone 2 only. Keep the engine ticking, don't dig deep. Rebuild after the event simulation. Target \u2191${peakTueElev}m.`:
     `Threshold session — PEAK intensity. 3\xd715min threshold blocks or one long sustained effort. Uncomfortable but controlled. This builds the fitness that gets your team to CP4 by 19:00. Target \u2191${peakTueElev}m elevation.`, true, peakTueElev);
   addSession(w,2,'Hot Pilates','60min','N/A',
-    w===14?`Hot Pilates — recovery week. Lean into the mobility and restoration side. Nervous system reset after Week 13's simulation.`:
-    `Hot Pilates. Spinal decompression, hip opening, deep breathing. PEAK training is hard on the body — this session is your weekly reset. Don't skip it.`, false, 0);
+    w===14?`PEAK Pilates — recovery week. Full restoration focus: long hip flexor holds, spinal decompression, deep breathing. Your body is rebuilding from Week 13's event simulation. This is medicine, not exercise.`:
+    `PEAK Pilates — nervous system and tissue recovery. PEAK training accumulates serious fatigue in lumbar spine and hip flexors. This session directly prevents the lower back collapse that derails riders at hour 10. Focus: extended pigeon holds 3min each side, thoracic rotations, psoas release, core breathing. Non-negotiable.`, true, 0);
   addSession(w,3,'Night Ride', w===14?'1.5hr':'2.5-3hr','2-3',
     w===14?`Recovery week — shorter night ride, 1.5hr easy. Keep the darkness habit alive without loading the body. Target \u2191${peakThuElev}m.`:
     `Night ride. Full darkness, 2.5–3hr. Practice eating, navigating, and holding effort when you can't see the road. Test caffeine at the 2hr mark — simulate race night fuelling. Target \u2191${peakThuElev}m elevation.`, true, peakThuElev);
   addSession(w,4,'Barre Class','60min','N/A',
-    `Barre class — the day before your biggest ride of the week. Hip activation, glute firing, single-leg stability. This is your pre-ignition for Saturday's big day. Arrive mobile and fired up.`, false, 0);
+    w===14?`PEAK Barre — recovery week. Light activation only: gentle glute work, hip circles, balance drills. 30% intensity. Keep the movement pattern, not the load.`:
+    `PEAK Barre — pre-ignition before your biggest ride of the week. Isometric glute holds, pulsing lateral raises, single-leg balance, hip flexor activation. Research shows barre's muscular endurance work directly transfers to fatigue resistance in hours 15–20 of ultra-endurance riding. Arrive and fire up the engine.`, true, 0);
   addSession(w,5,'LSD',peakLSDSatLabel[wi],'2',
     w===13?`FULL RACE SIMULATION. 10 hours riding. Exact race nutrition, lights, and kit. Ride Karoo-like terrain (Bottelary Hills or Oak Valley). Simulate checkpoint stops every ~40km. This is the most important training day of the entire plan. Do not skip. Target \u2191${peakSatElev}m elevation.`:
     w===14?`Recovery week Saturday — 4hr easy Zone 2. Your body rebuilds stronger after Week 13. Trust the process. Target \u2191${peakSatElev}m.`:
@@ -1375,11 +1376,11 @@ for (let w = 16; w <= 18; w++) {
   const taperThuElev = [200,150,100][wi];
   const taperSatElev = [400,350,200][wi];
   const taperSunElev = [150,100,0][wi];
-  addSession(w,0,'Strength Class','1hr','N/A',`Strength class — TAPER. Reduce weights by 40%. Movement quality over load. Keep the pattern going — but you are sharpening now, not building. More training will not make you faster. Rest will.`, false, 0);
+  addSession(w,0,'Strength Class','1hr','N/A',`TAPER Strength — Week ${w}. Reduce weights 40%, keep movement quality high. Glute bridges 3×12, single-leg deadlifts 2×10, dead hangs 3×20s, bird-dogs 3×10. You are sharpening now, not building. The fitness is already there. More load will not help — freshness will. Keep the session short and precise.`, true, 0);
   addSession(w,1,'Threshold Ride','1.5hr','4',`Short sharp threshold. Warm up well, 2x10min blocks, cool down. Intensity stays — volume drops. Keep the engine sharp without digging a hole. Target up ${taperTueElev}m elevation.`, true, taperTueElev);
-  addSession(w,2,'Hot Pilates','1hr','N/A',`Hot Pilates — TAPER. Focus on hip opening, spinal mobility, nervous system calming. ${w===18?'Second to last class before race day. You are ready. Lean into restoration.':'Arrive at race day loose, supple, and mobile — this is part of your preparation.'}`, false, 0);
+  addSession(w,2,'Hot Pilates','1hr','N/A',`TAPER Pilates — ${w===18?'final class before race week. Nervous system calming, full hip opening, spinal decompression. Arrive at race day loose and supple. This is the last mobility work before Baviaans.':'restoration and nervous system reset. Focus on long holds, deep breathing, hip flexor release. Arrive at race day without tightness in your hips or lower back. This is part of your race preparation.'}`, true, 0);
   addSession(w,3,'Zone 2 Ride','1hr','2',`Easy Zone 2 ride — 1hr only. Keep HR low. Use this ride to check race kit and run through your mental race plan: Nuwekloofpas, the MAC, the night section, CP4 at 19:00. See yourself riding it strong. Target up ${taperThuElev}m elevation.`, true, taperThuElev);
-  addSession(w,4,'Barre Class','1hr','N/A',`Barre class — ${w===18?'last class before race week. Light intensity, focus on hip activation and nervous system priming. You have done the work. This is the final tune-up.':'TAPER load. Reduce intensity by 30%. Hip stability and glute activation without fatigue.'}`, false, 0);
+  addSession(w,4,'Barre Class','1hr','N/A',`TAPER Barre — ${w===18?'last class before race week. Light glute activation, hip stability, single-leg balance. 20% intensity. Your purpose is to arrive at race day with a primed posterior chain and a calm nervous system. You have done the work.':'reduce intensity 30%. Light glute activation, hip stability work, balance drills. Keep the motor running without adding fatigue. This pre-LSD barre is now habitual — your glutes fire on command. Trust that.'}`, true, 0);
   addSession(w,5,'LSD',taperSat[wi],'2',`Taper LSD — ${taperSat[wi]}. Aerobic, relaxed, no heroics. ${w===18?"Your last proper ride before race day. Enjoy every kilometre. Trust what you have built over 18 weeks.":"Keep it easy and enjoyable. This is the last long ride before race day."} Target up ${taperSatElev}m elevation.`, true, taperSatElev);
   addSession(w,6,'Recovery Spin','1hr','1',`Easy Sunday flush. Light legs, short session, nothing more. Race week is ${w===18?'here':'almost here'}.`, true, taperSunElev);
 }

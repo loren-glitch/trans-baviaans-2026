@@ -1684,6 +1684,39 @@ function getDisplayType(s) {
   return s.type;
 }
 
+const KEVIN_YOGA_DESCRIPTIONS = {
+  // dayIndex 0 = Monday (Strength slot)
+  1: {
+    BASE:  `BASE Yoga — strength and stability. Focus: warrior sequences (I, II, III) for single-leg balance and glute activation, chair pose holds for quad and glute endurance, boat pose for core, bridge pose for posterior chain. These patterns prevent the knee injuries that affect 53% of ultra-cyclists. Commit to this weekly — it is not optional.`,
+    BUILD: `BUILD Yoga — strength + upper body resilience. Add: downward dog push-ups (tricep/shoulder strength for bracing through 50 MAC switchbacks), crow pose progression (grip and forearm activation), dolphin pose for upper back and shoulder stability. Your upper body takes serious punishment on 20hr rides — build it here.`,
+    PEAK:  `PEAK Yoga — strength + grip endurance. Add dead-hang holds between poses (3×20s) to build forearm endurance for hour 16+ handlebar grip. Warrior flows with longer holds, full standing balance series, core-intensive sequences. At 200km mark your form depends on what you built in this session.`,
+    TAPER: `TAPER Yoga — activation only, 40% intensity. Sun salutations, gentle warrior flow, bridge holds. You are sharpening, not building. Keep the nervous system primed without adding fatigue. The work is done.`,
+  },
+  // dayIndex 2 = Wednesday (Pilates slot)
+  3: {
+    BASE:  `BASE Yoga — recovery and hip opening. After Tuesday's ride your hip flexors are tight and your lumbar spine is compressed. Priority: extended pigeon pose (3min each side), reclining figure-4, supine spinal twist, legs-up-the-wall. Cyclists develop chronically tight hip flexors — this causes back pain and knee tracking issues over 20hrs. This session is medicine.`,
+    BUILD: `BUILD Yoga — thoracic mobility and recovery. After a ${`threshold ride or night ride`} your upper back and thoracic spine need rotation. Focus: thread-the-needle, cat-cow with lateral flexion, seated spinal twist, chest-opening poses. A mobile thoracic spine means better power transfer on long climbs and less neck fatigue.`,
+    PEAK:  `PEAK Yoga — nervous system reset and lumbar decompression. PEAK training loads accumulate serious fatigue in the lumbar spine and hip flexors. Extended yin-style holds: pigeon 4min each side, supported fish, psoas release with block, legs-up-the-wall 10min. This prevents the lower back collapse that derails riders at hour 10. Non-negotiable.`,
+    TAPER: `TAPER Yoga — restoration and nervous system calming. Long yin holds, deep breathing, no intensity. Arrive at race day without tightness in hips or lower back. This is race preparation, not exercise.`,
+  },
+  // dayIndex 4 = Friday (Barre slot)
+  5: {
+    BASE:  `BASE Yoga — glute pre-activation before Saturday's LSD. Intentional sequencing: fire the posterior chain today so it's primed for tomorrow's long ride. Focus: bridge pose with holds and pulses, warrior III balance, standing split, lateral leg raises, goddess pose. Strong glutes on Saturday means less knee stress over 3–4hrs of climbing.`,
+    BUILD: `BUILD Yoga — muscular endurance + glute activation. Longer holds in standing poses build the fatigue resistance that translates to hours 15–20 of ultra-endurance riding. Chair pose 2min, warrior I hold 90s each side, high lunge pulses, standing figure-4. Show up Friday, ride better Saturday.`,
+    PEAK:  `PEAK Yoga — pre-ignition before your biggest ride of the week. Standing balance series to fire stabilisers, bridge progressions to activate glutes, hip flexor opening to ensure full range of motion on tomorrow's big climbs. This is your Saturday ride warm-up, 24hrs early. Arrive mobile and fired up.`,
+    TAPER: `TAPER Yoga — light activation, calm focus. Gentle standing flow, hip openers, balance work at 20% intensity. Arrive at race day with a primed posterior chain and a settled nervous system. You have done the work — this is the final signal to your body that it's ready.`,
+  },
+};
+
+function getDisplayDescription(s) {
+  if (activeProfile !== 'Kevin' || s.required !== false) return s.description;
+  const phase = getPhase(s.week).name;
+  // Map day index from session id e.g. w1d1=dayIndex0, w1d3=dayIndex2, w1d5=dayIndex4
+  const dayNum = parseInt((s.id.match(/d(\d+)/) || [])[1] || '0');
+  const phaseKey = phase === 'RACE WEEK' ? 'TAPER' : phase;
+  return (KEVIN_YOGA_DESCRIPTIONS[dayNum] || {})[phaseKey] || s.description;
+}
+
 function getSessionTypeIcon(type) {
   const icons = {
     'LSD': '🚵','Threshold Ride': '🔥','Threshold': '🔥','Night Ride': '🌙',
@@ -2029,7 +2062,7 @@ function openSessionModal(s) {
     </div>
     ${s.required===false ? `<div style="background:var(--bg-card-2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--text-muted);line-height:1.5"><strong style="color:var(--text)">Choose your preferred class:</strong> Strength · Yoga · Pilates · Barre · Hot Pilates — log whatever you actually did.</div>` : ''}
     <div style="background:var(--bg-card-2);border-radius:10px;padding:14px;font-size:14px;line-height:1.65;color:var(--text-muted);margin-bottom:16px">
-      ${s.description}
+      ${getDisplayDescription(s)}
     </div>
     ${logged
       ? `<div style="text-align:center;padding:14px;background:#1a2e1a;border-radius:10px;border:1px solid #4a7a4a;margin-bottom:12px;font-size:14px;color:#6fcf6f;font-weight:600">✓ Session logged</div>`

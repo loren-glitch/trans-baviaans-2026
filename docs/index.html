@@ -1176,7 +1176,10 @@ async function stravaSyncActivities() {
     const activities = await r.json();
     if (!Array.isArray(activities)) throw new Error('Bad response');
 
-    const logs = getLogs();
+    // Get logs from Supabase (source of truth), not localStorage
+    const sbRes2 = await sbFetch('logs?profile=eq.' + activeProfile + '&order=created_at.asc');
+    const cloudLogs = sbRes2.ok ? await sbRes2.json() : getLogs();
+    const logs = [...cloudLogs];
     let newCount = 0;
 
     const newEntries = [];
@@ -1215,11 +1218,12 @@ async function stravaSyncActivities() {
     }
 
     localStorage.setItem(profileKey('strava_last_sync'), new Date().toISOString());
-    // Now pull from Supabase to confirm what was saved
+    _stravaSyncing = false;
+    // Pull from Supabase to confirm — do this last so DOM is stable
     await syncFromSupabase();
+    // Re-grab element after DOM refresh
     const syncEl2 = document.getElementById('strava-sync-status');
     if (syncEl2) syncEl2.textContent = newCount > 0 ? `✓ ${newCount} new session${newCount>1?'s':''} synced` : '✓ Up to date';
-    _stravaSyncing = false;
     return { synced: newCount, total: activities.length };
   } catch(e) {
     _stravaSyncing = false;

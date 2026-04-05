@@ -1157,9 +1157,12 @@ function stravaActivityToSessionType(act) {
   return 'Other';
 }
 
+let _stravaSyncing = false;
 async function stravaSyncActivities() {
+  if (_stravaSyncing) return;
+  _stravaSyncing = true;
   const token = await stravaGetToken();
-  if (!token) return { error: 'Not connected' };
+  if (!token) { _stravaSyncing = false; return { error: 'Not connected' }; }
 
   const syncEl = document.getElementById('strava-sync-status');
   if (syncEl) syncEl.textContent = 'Syncing…';
@@ -1197,21 +1200,31 @@ async function stravaSyncActivities() {
     if (newCount > 0) {
       saveLogs(logs);
       // Push each new entry to Supabase
+      let sbErrors = 0;
       for (const entry of newEntries) {
-        try { await sbFetch('logs', { method: 'POST', body: JSON.stringify({ ...entry, profile: activeProfile }) }); } catch(e) {}
+        try {
+          const sbRes = await sbFetch('logs', { method: 'POST', body: JSON.stringify({ ...entry, profile: activeProfile }) });
+          if (!sbRes.ok) { sbErrors++; console.error('SB push failed:', sbRes.status, await sbRes.text()); }
+        } catch(e) { sbErrors++; console.error('SB push error:', e.message); }
       }
+      const syncEl3 = document.getElementById('strava-sync-status');
+      if (syncEl3 && sbErrors > 0) syncEl3.textContent = `⚠ Synced locally but failed to save to cloud (${sbErrors} errors) — check console`;
       renderLogList();
       if (currentTab === 'home') renderHome();
       if (currentTab === 'progress') renderProgress();
     }
 
     localStorage.setItem(profileKey('strava_last_sync'), new Date().toISOString());
-    renderHome();
+    // Now pull from Supabase to confirm what was saved
+    await syncFromSupabase();
     const syncEl2 = document.getElementById('strava-sync-status');
     if (syncEl2) syncEl2.textContent = newCount > 0 ? `✓ ${newCount} new session${newCount>1?'s':''} synced` : '✓ Up to date';
+    _stravaSyncing = false;
     return { synced: newCount, total: activities.length };
   } catch(e) {
-    if (syncEl) syncEl.textContent = '⚠ Sync failed — try again';
+    _stravaSyncing = false;
+    const syncElErr = document.getElementById('strava-sync-status');
+    if (syncElErr) syncElErr.textContent = '⚠ Sync failed: ' + e.message;
     return { error: e.message };
   }
 }
@@ -1569,6 +1582,7 @@ async function sbFetch(path, options = {}) {
 }
 
 async function syncFromSupabase() {
+  if (_stravaSyncing) return;
   try {
     const res = await sbFetch('logs?order=created_at.asc');
     if (!res.ok) return;

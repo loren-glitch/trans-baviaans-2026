@@ -1176,6 +1176,7 @@ async function stravaSyncActivities() {
     const logs = getLogs();
     let newCount = 0;
 
+    const newEntries = [];
     activities.forEach(act => {
       const date = act.start_date_local.split('T')[0];
       const type = stravaActivityToSessionType(act);
@@ -1187,12 +1188,18 @@ async function stravaSyncActivities() {
       if (logs.some(l => l.strava_id === act.id)) return;
       if (logs.some(l => l.date === date && l.type === type)) return;
 
-      logs.push({ id: Date.now() + Math.random(), strava_id: act.id, date, type, hours, mins, dist, elev, rpe: 5, notes: `Synced from Strava: ${act.name}` });
+      const entry = { strava_id: act.id, session_id: '', date, type, hours, mins, dist, elev, rpe: 5, notes: `Synced from Strava: ${act.name}` };
+      logs.push({ id: Date.now() + Math.random(), ...entry });
+      newEntries.push(entry);
       newCount++;
     });
 
     if (newCount > 0) {
       saveLogs(logs);
+      // Push each new entry to Supabase
+      for (const entry of newEntries) {
+        try { await sbFetch('logs', { method: 'POST', body: JSON.stringify({ ...entry, profile: activeProfile }) }); } catch(e) {}
+      }
       renderLogList();
       if (currentTab === 'home') renderHome();
       if (currentTab === 'progress') renderProgress();

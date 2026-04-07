@@ -2027,10 +2027,15 @@ function isSessionLogged(date) {
 function isSessionLoggedById(sessionId) {
   const logs = getLogs();
   if (logs.some(l => l.session_id === sessionId)) return true;
-  // Fallback: match by session date + type (catches Strava-synced entries)
   const session = PLAN.find(s => s.id === sessionId);
   if (!session) return false;
-  return logs.some(l => l.date === session.date && (l.type === session.type || l.type === getDisplayType(session)));
+  // Fallback: match by type within the same week (catches Strava-synced rides done on any day)
+  const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
+  const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
+  return logs.some(l => {
+    if (l.date < weekStart || l.date >= weekEnd) return false;
+    return l.type === session.type || l.type === getDisplayType(session);
+  });
 }
 
 function openSessionModal(s) {

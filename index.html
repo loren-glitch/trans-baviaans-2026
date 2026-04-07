@@ -835,8 +835,11 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
 
     <!-- TAB 2: LOG -->
     <div class="tab-panel" id="tab-log">
-      <div class="section-label">Log a Session</div>
+      <div class="section-label">Recent Sessions</div>
+      <div id="log-list"></div>
+      <div class="section-label">Log Manually</div>
       <div class="card" style="margin-bottom:16px">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">For classes, rest days, or anything not on Strava.</div>
         <div class="form-group">
           <label class="form-label">Date</label>
           <input type="date" class="form-input" id="log-date">
@@ -890,8 +893,6 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
         <input type="hidden" id="log-session-id" value="">
         <button class="btn-primary" onclick="saveLog()">Save Session</button>
       </div>
-      <div class="section-label">Recent Sessions</div>
-      <div id="log-list"></div>
     </div>
 
     <!-- TAB 3: PROGRESS -->
@@ -2100,8 +2101,9 @@ function quickLogSession(date, type, durationStr, sessionId='') {
       document.getElementById('log-hours').value = 1;
       document.getElementById('log-mins').value = '';
     }
-    // Scroll to top of log form
-    document.getElementById('tab-log').scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to bottom where the manual form now lives
+    const tabLog = document.getElementById('tab-log');
+    tabLog.scrollTo({ top: tabLog.scrollHeight, behavior: 'smooth' });
   }, 150);
 }
 

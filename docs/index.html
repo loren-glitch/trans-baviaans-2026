@@ -1698,8 +1698,9 @@ function getLoggedHoursForWeek(week) {
 
 // Returns the display type for a session based on active profile
 // Kevin sees "Yoga" for all optional class slots; Loren sees the real class name
+const KEVIN_CLASS_TYPES = ['Strength Class','Hot Pilates','Barre Class'];
 function getDisplayType(s) {
-  if (activeProfile === 'Kevin' && s.required === false) return 'Yoga';
+  if (activeProfile === 'Kevin' && KEVIN_CLASS_TYPES.includes(s.type)) return 'Yoga';
   return s.type;
 }
 
@@ -1728,7 +1729,7 @@ const KEVIN_YOGA_DESCRIPTIONS = {
 };
 
 function getDisplayDescription(s) {
-  if (activeProfile !== 'Kevin' || s.required !== false) return s.description;
+  if (activeProfile !== 'Kevin' || !KEVIN_CLASS_TYPES.includes(s.type)) return s.description;
   const phase = getPhase(s.week).name;
   // Map day index from session id e.g. w1d1=dayIndex0, w1d3=dayIndex2, w1d5=dayIndex4
   const dayNum = parseInt((s.id.match(/d(\d+)/) || [])[1] || '0');

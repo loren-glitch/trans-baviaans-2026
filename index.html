@@ -1184,7 +1184,7 @@ async function stravaSyncActivities() {
     let newCount = 0;
 
     const newEntries = [];
-    activities.forEach(act => {
+    for (const act of activities) {
       const date = act.start_date_local.split('T')[0];
       const type = stravaActivityToSessionType(act);
       const hours = Math.floor(act.moving_time / 3600);
@@ -1192,14 +1192,32 @@ async function stravaSyncActivities() {
       const dist = Math.round(act.distance / 100) / 10;
       const elev = Math.round(act.total_elevation_gain || 0);
 
-      if (logs.some(l => l.strava_id === act.id)) return;
-      if (logs.some(l => l.date === date && l.type === type)) return;
+      if (logs.some(l => l.strava_id === act.id)) continue;
+      if (logs.some(l => l.date === date && l.type === type)) continue;
 
-      const entry = { strava_id: act.id, session_id: '', date, type, hours, mins, dist, elev, rpe: 5, notes: `Synced from Strava: ${act.name}` };
+      // Fetch HR zone breakdown for this activity
+      let zone_times = null;
+      try {
+        const zr = await fetch(`https://www.strava.com/api/v3/activities/${act.id}/zones`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (zr.ok) {
+          const zdata = await zr.json();
+          const hrZone = zdata.find(z => z.type === 'heartrate');
+          if (hrZone && hrZone.distribution_buckets) {
+            zone_times = {};
+            hrZone.distribution_buckets.forEach((b, i) => {
+              zone_times[`z${i+1}`] = b.time; // seconds in each zone
+            });
+          }
+        }
+      } catch(e) {}
+
+      const entry = { strava_id: act.id, session_id: '', date, type, hours, mins, dist, elev, rpe: 5, notes: `Synced from Strava: ${act.name}`, zone_times };
       logs.push({ id: Date.now() + Math.random(), ...entry });
       newEntries.push(entry);
       newCount++;
-    });
+    }
 
     if (newCount > 0) {
       saveLogs(logs);
@@ -2489,32 +2507,74 @@ function renderRpeTrend() {
 function renderZones() {
   const card = document.getElementById('zones-card');
   if (!card) return;
-  const logs = getLogs();
-  const rideTypes = { 'Zone 2': 0, 'Threshold': 0, 'Night': 0, 'LSD': 0, 'Recovery': 0, 'Other': 0 };
-  logs.filter(l => !isClassType(l.type)).forEach(l => {
-    const h = (l.hours||0) + (l.mins||0)/60;
-    const t = l.type;
-    if (t.includes('Zone 2') || t.includes('Recovery Spin')) rideTypes['Zone 2'] += h;
-    else if (t.includes('Threshold')) rideTypes['Threshold'] += h;
-    else if (t.includes('Night')) rideTypes['Night'] += h;
-    else if (t.includes('LSD') || t.includes('Back-to-Back')) rideTypes['LSD'] += h;
-    else if (t.includes('Recovery')) rideTypes['Recovery'] += h;
-    else rideTypes['Other'] += h;
-  });
-  const total = Object.values(rideTypes).reduce((s,v) => s+v, 0);
-  if (total === 0) { card.innerHTML = `<div class="card" style="margin:0 16px;color:var(--text-muted);font-size:13px;text-align:center;padding:20px">No rides logged yet</div>`; return; }
-  const colors = { 'Zone 2': '#C8832A', 'LSD': '#E8A030', 'Threshold': '#A0522D', 'Night': '#5B7FA6', 'Recovery': '#4A7C6F', 'Other': '#9A968F' };
-  const rows = Object.entries(rideTypes).filter(([,h]) => h > 0).sort((a,b) => b[1]-a[1]).map(([name, h]) => {
-    const pct = Math.round(h/total*100);
-    return `<div style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-        <span style="color:${colors[name]};font-weight:600">${name}</span>
-        <span style="color:var(--text-muted)">${Math.round(h*10)/10}hr · ${pct}%</span>
-      </div>
-      <div style="background:var(--border);border-radius:3px;height:6px"><div style="width:${pct}%;background:${colors[name]};height:6px;border-radius:3px"></div></div>
+  const logs = getLogs().filter(l => !isClassType(l.type));
+
+  // Check if we have real HR zone data from Strava
+  const hasRealZones = logs.some(l => l.zone_times && Object.keys(l.zone_times).length > 0);
+
+  if (hasRealZones) {
+    // Use actual HR zone seconds from Strava
+    const zones = { 'Z1 Recovery': 0, 'Z2 Endurance': 0, 'Z3 Tempo': 0, 'Z4 Threshold': 0, 'Z5 VO2max': 0 };
+    const zoneKeys = ['Z1 Recovery','Z2 Endurance','Z3 Tempo','Z4 Threshold','Z5 VO2max'];
+    const colors = ['#4A7C6F','#C8832A','#E8A030','#A0522D','#C4581C'];
+    logs.forEach(l => {
+      if (!l.zone_times) return;
+      Object.entries(l.zone_times).forEach(([k, secs]) => {
+        const idx = parseInt(k.replace('z','')) - 1;
+        if (idx >= 0 && idx < 5) zones[zoneKeys[idx]] += secs;
+      });
+    });
+    const totalSecs = Object.values(zones).reduce((s,v) => s+v, 0);
+    if (totalSecs === 0) { card.innerHTML = `<div class="card" style="margin:0 16px;color:var(--text-muted);font-size:13px;text-align:center;padding:20px">No HR zone data yet — sync from Strava</div>`; return; }
+    const rows = zoneKeys.map((name, i) => {
+      const secs = zones[name];
+      const pct = Math.round(secs/totalSecs*100);
+      const hrs = Math.floor(secs/3600);
+      const mins = Math.round((secs%3600)/60);
+      const timeStr = hrs > 0 ? `${hrs}h${mins.toString().padStart(2,'0')}m` : `${mins}min`;
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+          <span style="color:${colors[i]};font-weight:600">${name}</span>
+          <span style="color:var(--text-muted)">${timeStr} · ${pct}%</span>
+        </div>
+        <div style="background:var(--border);border-radius:3px;height:6px"><div style="width:${pct}%;background:${colors[i]};height:6px;border-radius:3px"></div></div>
+      </div>`;
+    }).filter((_,i) => zones[zoneKeys[i]] > 0).join('');
+    card.innerHTML = `<div class="card" style="margin:0 16px">
+      <div style="font-size:11px;color:var(--olive);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">✓ Real HR data from Strava</div>
+      ${rows}
     </div>`;
-  }).join('');
-  card.innerHTML = `<div class="card" style="margin:0 16px">${rows}</div>`;
+  } else {
+    // Fallback: group by session type
+    const rideTypes = { 'Zone 2': 0, 'Threshold': 0, 'Night': 0, 'LSD': 0, 'Recovery': 0, 'Other': 0 };
+    logs.forEach(l => {
+      const h = (l.hours||0) + (l.mins||0)/60;
+      const t = l.type;
+      if (t.includes('Zone 2') || t.includes('Recovery Spin')) rideTypes['Zone 2'] += h;
+      else if (t.includes('Threshold')) rideTypes['Threshold'] += h;
+      else if (t.includes('Night')) rideTypes['Night'] += h;
+      else if (t.includes('LSD') || t.includes('Back-to-Back')) rideTypes['LSD'] += h;
+      else if (t.includes('Recovery')) rideTypes['Recovery'] += h;
+      else rideTypes['Other'] += h;
+    });
+    const total = Object.values(rideTypes).reduce((s,v) => s+v, 0);
+    if (total === 0) { card.innerHTML = `<div class="card" style="margin:0 16px;color:var(--text-muted);font-size:13px;text-align:center;padding:20px">No rides logged yet</div>`; return; }
+    const colors = { 'Zone 2': '#C8832A', 'LSD': '#E8A030', 'Threshold': '#A0522D', 'Night': '#5B7FA6', 'Recovery': '#4A7C6F', 'Other': '#9A968F' };
+    const rows = Object.entries(rideTypes).filter(([,h]) => h > 0).sort((a,b) => b[1]-a[1]).map(([name, h]) => {
+      const pct = Math.round(h/total*100);
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+          <span style="color:${colors[name]};font-weight:600">${name}</span>
+          <span style="color:var(--text-muted)">${Math.round(h*10)/10}hr · ${pct}%</span>
+        </div>
+        <div style="background:var(--border);border-radius:3px;height:6px"><div style="width:${pct}%;background:${colors[name]};height:6px;border-radius:3px"></div></div>
+      </div>`;
+    }).join('');
+    card.innerHTML = `<div class="card" style="margin:0 16px">
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Connect Strava to see real HR zones. Showing session types for now.</div>
+      ${rows}
+    </div>`;
+  }
 }
 
 function renderWeeklyNotes() {

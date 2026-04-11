@@ -1212,7 +1212,16 @@ async function stravaSyncActivities() {
       const dist = Math.round(act.distance / 100) / 10;
       const elev = Math.round(act.total_elevation_gain || 0);
 
-      if (logs.some(l => l.strava_id === act.id)) continue;
+      // If already synced but stored as 'Other', re-type it with the updated mapper
+      const existingIdx = logs.findIndex(l => l.strava_id === act.id);
+      if (existingIdx !== -1) {
+        if (logs[existingIdx].type === 'Other' && type !== 'Other') {
+          logs[existingIdx].type = type;
+          // update in Supabase too
+          try { await sbFetch('PATCH', `/rest/v1/logs?strava_id=eq.${act.id}&profile=eq.${activeProfile}`, { type }); } catch(e) {}
+        }
+        continue;
+      }
       if (logs.some(l => l.date === date && l.type === type)) continue;
 
       // Fetch HR zone breakdown for this activity

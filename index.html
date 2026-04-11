@@ -1141,7 +1141,9 @@ function stravaActivityToSessionType(act) {
   const startHour = new Date(act.start_date_local).getHours();
 
   // Non-ride activities
-  if (['WeightTraining','Workout','Crossfit'].includes(type))
+  if (['WeightTraining','Workout','Crossfit','HIIT'].includes(type))
+    return activeProfile === 'Kevin' ? 'Yoga' : 'HIIT Class';
+  if (type === 'Elliptical' || type === 'StairStepper')
     return activeProfile === 'Kevin' ? 'Yoga' : 'Strength Class';
   if (type === 'Yoga') return 'Yoga';
   if (['Pilates'].includes(type))

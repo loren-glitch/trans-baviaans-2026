@@ -852,7 +852,7 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
             <option>Night Ride</option>
             <option>Zone 2 Ride</option>
             <option>Recovery Spin</option>
-            <option>Barre Class</option>
+            <option>HIIT Class</option>
             <option>Strength Class</option>
             <option>Hot Pilates</option>
             <option>Yoga</option>
@@ -1312,7 +1312,7 @@ for (let w = 1; w <= 5; w++) {
   addSession(w,2,'Hot Pilates','1hr','N/A',`BASE Pilates — active recovery after Tuesday's ride. Priority: hip flexor release (cyclists develop chronically tight hip flexors — this causes back pain and knee tracking issues over 20hr). Focus on: spinal rotation, cat-cow, pigeon pose, thoracic mobility. The heat flushes legs and speeds recovery. Arrive hydrated.`, true, 0);
   addSession(w,3, w===4?'Rest':'Zone 2 Ride', w===4?'—':baseThuDur[w-1], w===4?'N/A':'2',
     w===4?`Recovery week — full rest. Eat well, sleep well, let adaptations consolidate.`:`Second ride of the week. Zone 2 throughout. Use a different route to Tuesday — explore terrain, keep it easy. ${w>=3?'Add a short climb to start building climbing confidence. ':''}Target \u2191${baseThuElev}m elevation this session.`, true, baseThuElev);
-  addSession(w,4,'Barre Class','1hr','N/A',`BASE Barre — glute pre-activation before Saturday's LSD. This is intentional: barre on Friday fires the posterior chain so it's primed and ready for the long ride. Focus on: pulsing glute work, single-leg balance, hip hinge patterns, lateral hip stability. Strong glutes on Saturday means less knee stress over 3–4hrs of climbing.`, true, 0);
+  addSession(w,4,'HIIT Class','1hr','N/A',`BASE HIIT — explosive activation before Saturday's LSD. Short intervals ignite the fast-twitch fibres and prime the cardiovascular system. Format: 30s on / 30s off, 4 rounds. Exercises: jump squats, burpees, lateral shuffles, high knees. This isn't about burning out — it's about waking up the engine so Saturday's long ride starts sharp.`, true, 0);
   addSession(w,5,'LSD',baseLSD[w-1],'2',
     w===4?`Recovery week LSD — keep it short and easy. Zone 2 throughout, no pressure. Your body is consolidating ${w-1} weeks of base training. Target \u2191${baseSatElev}m.`:
     `Long Slow Distance — the cornerstone of your week. Zone 2 the entire time. Simulate race fuelling: eat every 20–30min. This ${baseLSD[w-1]} builds the aerobic engine for 230km. Target \u2191${baseSatElev}m elevation.${w===5?' This is your longest BASE ride — a real milestone.':''}`, true, baseSatElev);
@@ -1338,7 +1338,7 @@ for (let w = 6; w <= 10; w++) {
   addSession(w,3, w>=7?'Night Ride':'Zone 2 + Climbing', w===9?'1.5hr':w>=7?'2.5hr':'2.5hr', w>=7?'2':'2-3',
     w>=7?(w===9?`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. Recovery week: 1.5hr easy, low effort — maintain the habit without loading the body. Target \u2191${buildThuElev}m.`:`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. The race has 8+ hours of darkness. Your comfort at night is built here, not on race day. Target \u2191${buildThuElev}m elevation.`):
     `Zone 2 with climbing focus. Find a climb and repeat 3–4 ascents at steady pace. Simulates Nuwekloofpas effort management. Practice eating on the climb. Target \u2191${buildThuElev}m elevation.`, true, buildThuElev);
-  addSession(w,4,'Barre Class','60min','N/A',`BUILD Barre — pre-LSD glute activation + muscular endurance. Focus: isometric glute holds, pulsing squats, single-leg balance, lateral band work. The pulsing/isometric nature of barre builds fatigue resistance in the exact muscles that fail at hour 12+ of riding. Show up Friday, ride better Saturday.`, true, 0);
+  addSession(w,4,'HIIT Class','60min','N/A',`BUILD HIIT — power development and lactate tolerance before your big Saturday. Format: Tabata-style 20s max effort / 10s rest, 6 rounds. Exercises: box jumps, kettlebell swings, sprint intervals, push-press. The goal is to raise your lactate threshold so that when the race gets hard, you have more ceiling. Show up Friday, ride stronger Saturday.`, true, 0);
   addSession(w,5,'LSD',buildLSDSat[wi],'2',
     w===9?`Recovery week Saturday — shorter LSD. Stay aerobic, no heroics. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildSatElev}m.`:
     `BUILD LSD with climbing. Race-simulation workhorse. Include 600–800m of climbing if possible. Practice checkpoint protocols — stop at intervals, eat, hydrate, restart. Target \u2191${buildSatElev}m elevation.${w===10?' Peak BUILD ride — a major confidence milestone.':''}`, true, buildSatElev);
@@ -1370,9 +1370,9 @@ for (let w = 11; w <= 15; w++) {
   addSession(w,3,'Night Ride', w===14?'1.5hr':'2.5-3hr','2-3',
     w===14?`Recovery week — shorter night ride, 1.5hr easy. Keep the darkness habit alive without loading the body. Target \u2191${peakThuElev}m.`:
     `Night ride. Full darkness, 2.5–3hr. Practice eating, navigating, and holding effort when you can't see the road. Test caffeine at the 2hr mark — simulate race night fuelling. Target \u2191${peakThuElev}m elevation.`, true, peakThuElev);
-  addSession(w,4,'Barre Class','60min','N/A',
-    w===14?`PEAK Barre — recovery week. Light activation only: gentle glute work, hip circles, balance drills. 30% intensity. Keep the movement pattern, not the load.`:
-    `PEAK Barre — pre-ignition before your biggest ride of the week. Isometric glute holds, pulsing lateral raises, single-leg balance, hip flexor activation. Research shows barre's muscular endurance work directly transfers to fatigue resistance in hours 15–20 of ultra-endurance riding. Arrive and fire up the engine.`, true, 0);
+  addSession(w,4,'HIIT Class','60min','N/A',
+    w===14?`PEAK HIIT — recovery week. Drop to 50% intensity: light plyometrics, bodyweight circuits, no max efforts. Keep the movement pattern alive without accumulating fatigue before your peak LSD.`:
+    `PEAK HIIT — race-specific conditioning. This week's format simulates the intensity surges you'll face on climbs: 40s hard / 20s recovery, 5 rounds. Exercises: step-up jumps, suitcase carries, sled pushes (or hill sprints), battle ropes. Hours 15–20 of Baviaans separate finishers from DNFs. This is where you build that.`, true, 0);
   addSession(w,5,'LSD',peakLSDSatLabel[wi],'2',
     w===13?`FULL RACE SIMULATION. 10 hours riding. Exact race nutrition, lights, and kit. Ride Karoo-like terrain (Bottelary Hills or Oak Valley). Simulate checkpoint stops every ~40km. This is the most important training day of the entire plan. Do not skip. Target \u2191${peakSatElev}m elevation.`:
     w===14?`Recovery week Saturday — 4hr easy Zone 2. Your body rebuilds stronger after Week 13. Trust the process. Target \u2191${peakSatElev}m.`:
@@ -1399,7 +1399,7 @@ for (let w = 16; w <= 18; w++) {
   addSession(w,1,'Threshold Ride','1.5hr','4',`Short sharp threshold. Warm up well, 2x10min blocks, cool down. Intensity stays — volume drops. Keep the engine sharp without digging a hole. Target up ${taperTueElev}m elevation.`, true, taperTueElev);
   addSession(w,2,'Hot Pilates','1hr','N/A',`TAPER Pilates — ${w===18?'final class before race week. Nervous system calming, full hip opening, spinal decompression. Arrive at race day loose and supple. This is the last mobility work before Baviaans.':'restoration and nervous system reset. Focus on long holds, deep breathing, hip flexor release. Arrive at race day without tightness in your hips or lower back. This is part of your race preparation.'}`, true, 0);
   addSession(w,3,'Zone 2 Ride','1hr','2',`Easy Zone 2 ride — 1hr only. Keep HR low. Use this ride to check race kit and run through your mental race plan: Nuwekloofpas, the MAC, the night section, CP4 at 19:00. See yourself riding it strong. Target up ${taperThuElev}m elevation.`, true, taperThuElev);
-  addSession(w,4,'Barre Class','1hr','N/A',`TAPER Barre — ${w===18?'last class before race week. Light glute activation, hip stability, single-leg balance. 20% intensity. Your purpose is to arrive at race day with a primed posterior chain and a calm nervous system. You have done the work.':'reduce intensity 30%. Light glute activation, hip stability work, balance drills. Keep the motor running without adding fatigue. This pre-LSD barre is now habitual — your glutes fire on command. Trust that.'}`, true, 0);
+  addSession(w,4,'HIIT Class','1hr','N/A',`TAPER HIIT — ${w===18?'last class before race week. 20% intensity only: light bodyweight circuits, gentle plyometrics, no max efforts. Your goal is to stay sharp, not to train. You have done the work. Arrive at race day with fresh legs and an ignited nervous system.':'reduce to 40% intensity. Short, sharp efforts with long recovery: 10s sprint, 2min walk, 6 rounds. Keep the neuromuscular system firing without accumulating fatigue. You are sharpening the blade, not grinding it down.'}`, true, 0);
   addSession(w,5,'LSD',taperSat[wi],'2',`Taper LSD — ${taperSat[wi]}. Aerobic, relaxed, no heroics. ${w===18?"Your last proper ride before race day. Enjoy every kilometre. Trust what you have built over 18 weeks.":"Keep it easy and enjoyable. This is the last long ride before race day."} Target up ${taperSatElev}m elevation.`, true, taperSatElev);
   addSession(w,6,'Recovery Spin','1hr','1',`Easy Sunday flush. Light legs, short session, nothing more. Race week is ${w===18?'here':'almost here'}.`, true, taperSunElev);
 }
@@ -1409,7 +1409,7 @@ addSession(19,0,'Rest','—','N/A','Full rest. Skip strength class this week. Tr
 addSession(19,1,'Zone 2 Spin','45min','1','Easy 45min spin to keep legs loose. No intensity, no pressure — just movement. Ride near the venue if possible.', true, 0);
 addSession(19,2,'Rest','—','N/A','Skip Hot Pilates this week. Complete rest. Final kit check, pack drop boxes if not done yet. Mental preparation and visualisation.', true, 0);
 addSession(19,3,'Shake-out','30min','1','Very easy 30min pedal. Test bike gears and brakes. Not training — just confirming everything works. Then rest the remainder of the day.', true, 0);
-addSession(19,4,'Race Admin','—','N/A','Skip Barre — race admin day. Drop boxes depart. Registration opens 12:00 Willowmore. Collect race number. Team pasta dinner in the evening. Bed by 21:00.', true, 0);
+addSession(19,4,'Race Admin','—','N/A','Skip HIIT — race admin day. Drop boxes depart. Registration opens 12:00 Willowmore. Collect race number. Team pasta dinner in the evening. Bed by 21:00.', true, 0);
 addSession(19,5,'RACE','24hr','1-5','RACE DAY — Trans Baviaans MTB Marathon. Start 10:00 from Willowmore. 230km to Jeffreys Bay. 2840m elevation. 24hr cutoff. Trust your training.', true, 0);
 addSession(19,6,'Recovery','—','N/A','Race finish. Prize giving in Jeffreys Bay 10:00 Sunday. Rest, eat everything, celebrate with your team.', true, 0);
 
@@ -1698,7 +1698,7 @@ function getLoggedHoursForWeek(week) {
 
 // Returns the display type for a session based on active profile
 // Kevin sees "Yoga" for all optional class slots; Loren sees the real class name
-const KEVIN_CLASS_TYPES = ['Strength Class','Hot Pilates','Barre Class'];
+const KEVIN_CLASS_TYPES = ['Strength Class','Hot Pilates','HIIT Class'];
 function getDisplayType(s) {
   if (activeProfile === 'Kevin' && KEVIN_CLASS_TYPES.includes(s.type)) return 'Yoga';
   return s.type;
@@ -1719,7 +1719,7 @@ const KEVIN_YOGA_DESCRIPTIONS = {
     PEAK:  `PEAK Yoga — nervous system reset and lumbar decompression. PEAK training loads accumulate serious fatigue in the lumbar spine and hip flexors. Extended yin-style holds: pigeon 4min each side, supported fish, psoas release with block, legs-up-the-wall 10min. This prevents the lower back collapse that derails riders at hour 10. Non-negotiable.`,
     TAPER: `TAPER Yoga — restoration and nervous system calming. Long yin holds, deep breathing, no intensity. Arrive at race day without tightness in hips or lower back. This is race preparation, not exercise.`,
   },
-  // dayIndex 4 = Friday (Barre slot)
+  // dayIndex 4 = Friday (HIIT slot)
   5: {
     BASE:  `BASE Yoga — glute pre-activation before Saturday's LSD. Intentional sequencing: fire the posterior chain today so it's primed for tomorrow's long ride. Focus: bridge pose with holds and pulses, warrior III balance, standing split, lateral leg raises, goddess pose. Strong glutes on Saturday means less knee stress over 3–4hrs of climbing.`,
     BUILD: `BUILD Yoga — muscular endurance + glute activation. Longer holds in standing poses build the fatigue resistance that translates to hours 15–20 of ultra-endurance riding. Chair pose 2min, warrior I hold 90s each side, high lunge pulses, standing figure-4. Show up Friday, ride better Saturday.`,
@@ -1740,7 +1740,7 @@ function getDisplayDescription(s) {
 function getSessionTypeIcon(type) {
   const icons = {
     'LSD': '🚵','Threshold Ride': '🔥','Threshold': '🔥','Night Ride': '🌙',
-    'Barre Class': '🩰','Strength Class': '🏋️','Pilates': '🧘','Hot Pilates': '❤️‍🔥','Yoga': '🧘',
+    'HIIT Class': '⚡','Barre Class': '🩰','Strength Class': '🏋️','Pilates': '🧘','Hot Pilates': '❤️‍🔥','Yoga': '🧘',
     'Recovery Spin': '🔄','Rest': '😴','Zone 2 Ride': '🚵','Zone 2 Spin': '🚵',
     'Zone 2 + Climbing': '⛰️','Zone 2 + Night Check': '🌙','Back-to-Back LSD': '🚵',
     'Shake-out': '🚵','Race Admin': '📋','RACE': '🏁','Recovery': '😴',
@@ -1753,7 +1753,7 @@ function getSessionDotColor(type) {
   const colors = {
     'LSD': '#C8832A','Threshold Ride': '#A0522D','Threshold': '#A0522D',
     'Night Ride': '#5B7FA6',
-    'Barre Class': '#7B6DAA','Strength Class': '#6B7C44','Pilates': '#4A7C6F','Hot Pilates': '#4A7C6F','Yoga': '#4A8A7C',
+    'HIIT Class': '#C0392B','Barre Class': '#7B6DAA','Strength Class': '#6B7C44','Pilates': '#4A7C6F','Hot Pilates': '#4A7C6F','Yoga': '#4A8A7C',
     'Recovery Spin': '#4A7C6F','Rest': '#3A3F47',
     'Zone 2 Ride': '#C8832A','Zone 2 Spin': '#C8832A','Zone 2 + Climbing': '#A0522D',
     'Zone 2 + Night Check': '#5B7FA6','Back-to-Back LSD': '#C8832A',
@@ -2085,7 +2085,7 @@ function openSessionModal(s) {
         <div style="font-size:13px;font-weight:700;margin-top:2px;color:${s.required===false?'var(--text-muted)':'var(--ochre)'}">${s.required===false?'&#9898; Optional':'&#128992; Required'}</div>
       </div>
     </div>
-    ${s.required===false ? `<div style="background:var(--bg-card-2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--text-muted);line-height:1.5"><strong style="color:var(--text)">Choose your preferred class:</strong> Strength · Yoga · Pilates · Barre · Hot Pilates — log whatever you actually did.</div>` : ''}
+    ${s.required===false ? `<div style="background:var(--bg-card-2);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--text-muted);line-height:1.5"><strong style="color:var(--text)">Choose your preferred class:</strong> Strength · Yoga · HIIT · Pilates · Hot Pilates — log whatever you actually did.</div>` : ''}
     <div style="background:var(--bg-card-2);border-radius:10px;padding:14px;font-size:14px;line-height:1.65;color:var(--text-muted);margin-bottom:16px">
       ${getDisplayDescription(s)}
     </div>
@@ -2135,7 +2135,7 @@ function closeModal(e) {
 // =============================================
 // LOG TAB
 // =============================================
-const CLASS_TYPES = ['Barre Class','Strength Class','Hot Pilates','Yoga'];
+const CLASS_TYPES = ['HIIT Class','Strength Class','Hot Pilates','Yoga'];
 
 function isClassType(type) {
   return CLASS_TYPES.includes(type);
@@ -2160,8 +2160,8 @@ function renderLogDropdown(preserveValue) {
   const sel = document.getElementById('log-type');
   const current = preserveValue || sel.value;
   const rideTypes = ['LSD','Threshold Ride','Night Ride','Zone 2 Ride','Recovery Spin'];
-  const lorenClasses = ['Barre Class','Strength Class','Hot Pilates','Yoga'];
-  const kevinClasses = ['Yoga','Strength Class','Barre Class','Hot Pilates'];
+  const lorenClasses = ['HIIT Class','Strength Class','Hot Pilates','Yoga'];
+  const kevinClasses = ['Yoga','Strength Class','HIIT Class','Hot Pilates'];
   const classes = activeProfile === 'Kevin' ? kevinClasses : lorenClasses;
   const allTypes = [...rideTypes, ...classes, 'Other'];
   sel.innerHTML = allTypes.map(t => `<option${t===current?' selected':''}>${t}</option>`).join('');
@@ -2239,9 +2239,9 @@ const LOG_ENCOURAGEMENT = {
     { emoji: '🌙', msg: 'Darkness conquered.', sub: 'You just trained for the hardest part of the race. 2am in the Baviaans will feel familiar now.' },
     { emoji: '🔦', msg: 'Night miles banked.', sub: 'Most riders fear the dark. You just rode it. That\'s your edge on race night.' }
   ],
-  'Barre Class': [
-    { emoji: '🩰', msg: 'Barre done.', sub: 'Those hip stability drills are your secret weapon on the MAC\'s 50 switchbacks. Strong hips, strong rider.' },
-    { emoji: '💪', msg: 'Off-bike work counts.', sub: 'The best riders train everything. You\'re building a complete athlete.' }
+  'HIIT Class': [
+    { emoji: '⚡', msg: 'HIIT done.', sub: 'That intensity just raised your ceiling. The surges on race day will feel more manageable now.' },
+    { emoji: '🔥', msg: 'Hard session banked.', sub: 'HIIT builds the engine that carries you when the race gets brutal. You\'re investing in Baviaans.' }
   ],
   'Strength Class': [
     { emoji: '🏋️', msg: 'Strength session done.', sub: 'The strength you build today carries you through the final 80km when everyone else is falling apart.' },

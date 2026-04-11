@@ -1157,22 +1157,16 @@ function stravaActivityToSessionType(act) {
   const type = act.sport_type || act.type || '';
   const hrs = act.moving_time / 3600;
   const startHour = new Date(act.start_date_local).getHours();
-  const dayOfWeek = new Date(act.start_date_local + (act.start_date_local.includes('T') ? '' : 'T12:00:00')).getDay(); // 0=Sun, 5=Fri
 
-  // Barre-specific Strava type
-  if (type === 'Barre') return activeProfile === 'Kevin' ? 'Yoga' : 'Barre Class';
-  // Generic gym activities — use day of week: Friday = Barre, otherwise = Strength
-  if (['WeightTraining','Workout','Crossfit','HIIT'].includes(type)) {
-    if (activeProfile === 'Kevin') return 'Yoga';
-    return dayOfWeek === 5 ? 'Barre Class' : 'Strength Class';
-  }
+  // Gym/class activities — generic fallback only (on-plan days use plan session type directly)
+  if (['WeightTraining','Workout','Crossfit','HIIT','Barre'].includes(type))
+    return activeProfile === 'Kevin' ? 'Yoga' : 'Strength Class';
   if (type === 'Elliptical' || type === 'StairStepper')
     return activeProfile === 'Kevin' ? 'Yoga' : 'Strength Class';
   if (type === 'Yoga') return 'Yoga';
-  if (['Pilates'].includes(type))
-    return activeProfile === 'Kevin' ? 'Yoga' : 'Hot Pilates';
+  if (type === 'Pilates') return activeProfile === 'Kevin' ? 'Yoga' : 'Hot Pilates';
 
-  // Ride activities — smart duration + time matching
+  // Ride activities — duration + time matching
   if (['Ride','MountainBikeRide','GravelRide','VirtualRide','EBikeRide'].includes(type)) {
     if (hrs >= 4) return 'LSD';
     if (hrs >= 2.5) return 'Back-to-Back LSD';
@@ -1208,28 +1202,38 @@ async function stravaSyncActivities() {
     const logs = [...cloudLogs];
     let newCount = 0;
 
-    // DEBUG: show raw Strava sport types for last 5 activities
-    const debugEl = document.getElementById('strava-sync-status');
-    if (debugEl) debugEl.textContent = 'Raw types: ' + activities.slice(0,5).map(a => `${a.name}: ${a.sport_type||a.type}`).join(' | ');
-
     const newEntries = [];
     for (const act of activities) {
       const date = act.start_date_local.split('T')[0];
-      const type = stravaActivityToSessionType(act);
+      const planSession = findPlanSessionForDate(date);
+      const type = planSession ? planSession.type : stravaActivityToSessionType(act);
+      const sessionId = planSession ? planSession.id : '';
       const hours = Math.floor(act.moving_time / 3600);
       const mins = Math.round((act.moving_time % 3600) / 60);
       const dist = Math.round(act.distance / 100) / 10;
       const elev = Math.round(act.total_elevation_gain || 0);
 
-      // If already synced but stored as 'Other', re-type it with the updated mapper
+      // Already synced — backfill session_id and type if missing
       const existingIdx = logs.findIndex(l => l.strava_id === act.id);
       if (existingIdx !== -1) {
-        if (logs[existingIdx].type === 'Other' && type !== 'Other') {
-          logs[existingIdx].type = type;
-          newCount++; // force saveLogs to run
-          try { await sbFetch(`logs?strava_id=eq.${act.id}&profile=eq.${activeProfile}`, { method: 'PATCH', body: JSON.stringify({ type }) }); } catch(e) {}
+        const existing = logs[existingIdx];
+        if (!existing.session_id && planSession) {
+          existing.session_id = planSession.id;
+          existing.type = planSession.type;
+          newCount++;
+          try { await sbFetch(`logs?strava_id=eq.${act.id}&profile=eq.${activeProfile}`,
+            { method: 'PATCH', body: JSON.stringify({ session_id: planSession.id, type: planSession.type }) }); } catch(e) {}
         }
         continue;
+      }
+
+      // Backfill session_id on any manual log entry for the same date that's missing it
+      const manualDupe = logs.find(l => l.date === date && l.type === type && !l.strava_id && !l.session_id);
+      if (manualDupe && planSession) {
+        manualDupe.session_id = planSession.id;
+        newCount++;
+        try { await sbFetch(`logs?id=eq.${manualDupe.id}&profile=eq.${activeProfile}`,
+          { method: 'PATCH', body: JSON.stringify({ session_id: planSession.id }) }); } catch(e) {}
       }
       if (logs.some(l => l.date === date && l.type === type)) continue;
 
@@ -1251,7 +1255,7 @@ async function stravaSyncActivities() {
         }
       } catch(e) {}
 
-      const entry = { strava_id: act.id, session_id: '', date, type, hours, mins, dist, elev, rpe: 5, notes: `Synced from Strava: ${act.name}`, zone_times };
+      const entry = { strava_id: act.id, session_id: sessionId, date, type, hours, mins, dist, elev, rpe: 5, notes: `Synced from Strava: ${act.name}`, zone_times };
       logs.push({ id: Date.now() + Math.random(), ...entry });
       newEntries.push(entry);
       newCount++;
@@ -2163,21 +2167,22 @@ function renderLongRides(container) {
 function isSessionLogged(date) {
   return getLogs().some(l => l.date === date);
 }
+function findPlanSessionForDate(date) {
+  return PLAN.find(s => s.date === date && s.type !== 'Rest' && s.type !== 'Race Admin' && s.type !== 'Recovery') || null;
+}
+
 function isSessionLoggedById(sessionId) {
   const logs = getLogs();
+  // Primary: exact session_id match (set at sync time for all on-plan activities)
   if (logs.some(l => l.session_id === sessionId)) return true;
+  // Fallback: type-exact match within the week (for activities done on a different day than planned)
   const session = PLAN.find(s => s.id === sessionId);
   if (!session) return false;
-  // Fallback: match by type within the same week (catches Strava-synced rides done on any day)
   const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
   const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
-  // Zone 2 Ride and Recovery Spin are the same activity — short ride just gets labelled differently
-  const Z2_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin'];
   return logs.some(l => {
     if (l.date < weekStart || l.date >= weekEnd) return false;
-    if (l.type === session.type || l.type === getDisplayType(session)) return true;
-    if (Z2_ALIASES.includes(session.type) && Z2_ALIASES.includes(l.type)) return true;
-    return false;
+    return l.type === session.type;
   });
 }
 
@@ -3467,11 +3472,26 @@ function updateHeader() {
 // =============================================
 // INIT
 // =============================================
+function backfillLogSessionIds() {
+  const logs = getLogs();
+  let changed = false;
+  logs.forEach(l => {
+    if (!l.session_id) {
+      const ps = findPlanSessionForDate(l.date);
+      if (ps) { l.session_id = ps.id; l.type = ps.type; changed = true; }
+    }
+  });
+  if (changed) saveLogs(logs);
+}
+
 async function init() {
   selectedWeek = getCurrentWeek();
   document.getElementById('btn-loren').classList.toggle('active', activeProfile === 'Loren');
   document.getElementById('btn-kevin').classList.toggle('active', activeProfile === 'Kevin');
   updateHeader();
+
+  // Fix any existing log entries missing session_id
+  backfillLogSessionIds();
 
   // Render home immediately so the page is never blank
   renderHome();

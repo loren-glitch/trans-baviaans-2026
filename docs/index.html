@@ -2171,12 +2171,12 @@ function isSessionLoggedById(sessionId) {
   // Fallback: match by type within the same week (catches Strava-synced rides done on any day)
   const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
   const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
-  // Rides logged at different times of day should still tick off ride sessions
-  const RIDE_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin','Night Ride','Zone 2 + Climbing'];
+  // Zone 2 Ride and Recovery Spin are the same activity — short ride just gets labelled differently
+  const Z2_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin'];
   return logs.some(l => {
     if (l.date < weekStart || l.date >= weekEnd) return false;
     if (l.type === session.type || l.type === getDisplayType(session)) return true;
-    if (RIDE_ALIASES.includes(session.type) && RIDE_ALIASES.includes(l.type)) return true;
+    if (Z2_ALIASES.includes(session.type) && Z2_ALIASES.includes(l.type)) return true;
     return false;
   });
 }

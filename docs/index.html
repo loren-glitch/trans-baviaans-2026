@@ -1203,6 +1203,10 @@ async function stravaSyncActivities() {
     const logs = [...cloudLogs];
     let newCount = 0;
 
+    // DEBUG: show raw Strava sport types for last 5 activities
+    const debugEl = document.getElementById('strava-sync-status');
+    if (debugEl) debugEl.textContent = 'Raw types: ' + activities.slice(0,5).map(a => `${a.name}: ${a.sport_type||a.type}`).join(' | ');
+
     const newEntries = [];
     for (const act of activities) {
       const date = act.start_date_local.split('T')[0];

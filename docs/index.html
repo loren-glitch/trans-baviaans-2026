@@ -1657,6 +1657,8 @@ async function syncFromSupabase() {
     ['Loren', 'Kevin'].forEach(profile => {
       localStorage.setItem(`mtb_logs_${profile}`, JSON.stringify(allLogs.filter(l => l.profile === profile)));
     });
+    // Re-run backfill after Supabase overwrites localStorage
+    backfillLogSessionIds();
     renderLogList();
     renderCalendar();
     if (currentTab === 'home') renderHome();

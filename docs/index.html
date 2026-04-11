@@ -2175,12 +2175,13 @@ function isSessionLoggedById(sessionId) {
   const logs = getLogs();
   // Primary: exact session_id match (set at sync time for all on-plan activities)
   if (logs.some(l => l.session_id === sessionId)) return true;
-  // Fallback: type-exact match within the week (for activities done on a different day than planned)
+  // Fallback: only for logs with no session_id (off-plan activities done on a non-plan day)
   const session = PLAN.find(s => s.id === sessionId);
   if (!session) return false;
   const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
   const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
   return logs.some(l => {
+    if (l.session_id) return false; // already claimed by a specific session
     if (l.date < weekStart || l.date >= weekEnd) return false;
     return l.type === session.type;
   });

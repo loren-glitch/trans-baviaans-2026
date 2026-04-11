@@ -1154,7 +1154,7 @@ function stravaActivityToSessionType(act) {
     if (hrs >= 4) return 'LSD';
     if (hrs >= 2.5) return 'Back-to-Back LSD';
     if (startHour >= 18 || startHour < 5) return 'Night Ride';
-    if (hrs <= 1.25) return 'Recovery Spin';
+    if (hrs <= 0.75) return 'Recovery Spin';
     return 'Zone 2 Ride';
   }
   return 'Other';

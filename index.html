@@ -808,6 +808,23 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
   font-size: 13px; font-style: italic; color: var(--text-muted);
   line-height: 1.65;
 }
+/* LONG RIDES VIEW */
+#cal-view-toggle { display:flex; gap:4px; padding:10px 16px 4px; }
+.cal-toggle-btn { flex:1; padding:7px 10px; border-radius:7px; background:var(--bg-card); border:1px solid var(--border); color:var(--text-muted); font-size:11px; font-weight:800; cursor:pointer; font-family:inherit; letter-spacing:0.8px; text-transform:uppercase; text-align:center; }
+.cal-toggle-btn.active { background:rgba(232,146,30,0.12); border-color:var(--ochre); color:var(--ochre); }
+.lr-month-header { font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:var(--text-muted); padding:16px 18px 6px; }
+.lr-month-header:first-child { padding-top:8px; }
+.lr-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:12px 14px; margin:0 16px 6px; }
+.lr-card.done { opacity:0.5; }
+.lr-card-top { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.lr-date { flex:1; font-size:14px; font-weight:700; color:var(--text); }
+.lr-week-badge { font-size:10px; font-weight:800; padding:3px 8px; border-radius:5px; background:var(--bg-card-2); border:1px solid var(--border); color:var(--text-muted); }
+.lr-phase-pill { font-size:10px; font-weight:800; padding:3px 8px; border-radius:20px; }
+.lr-done-badge { font-size:12px; color:var(--olive); font-weight:800; }
+.lr-card-meta { display:flex; align-items:center; gap:12px; margin-bottom:8px; font-size:13px; }
+.lr-location-row { display:flex; align-items:center; gap:8px; border-top:1px solid var(--border); padding-top:8px; }
+.lr-location-input { flex:1; background:transparent; border:none; outline:none; font-family:inherit; font-size:13px; color:var(--text); min-width:0; }
+.lr-location-input::placeholder { color:var(--text-muted); }
 </style>
 </head>
 <body>
@@ -828,6 +845,7 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
 
     <!-- TAB 1: CALENDAR -->
     <div class="tab-panel" id="tab-calendar">
+      <div id="cal-view-toggle"></div>
       <div id="week-scroller"></div>
       <div id="phase-week-banner"></div>
       <div id="day-list"></div>
@@ -1558,6 +1576,7 @@ let selectedWeek = 1;
 let currentNutrTab = 'on-bike';
 let currentPrepTab = 'gear';
 let expandedLogId = null;
+let calendarView = 'weekly'; // 'weekly' | 'long-rides'
 
 // =============================================
 // LOCALSTORAGE HELPERS
@@ -1974,6 +1993,25 @@ function renderCalendar() {
   const curWeek = getCurrentWeek();
   if (selectedWeek < 1 || selectedWeek > 19) selectedWeek = curWeek;
 
+  // View toggle
+  document.getElementById('cal-view-toggle').innerHTML = `
+    <button class="cal-toggle-btn${calendarView==='weekly'?' active':''}" onclick="calendarView='weekly';renderCalendar()">Weekly</button>
+    <button class="cal-toggle-btn${calendarView==='long-rides'?' active':''}" onclick="calendarView='long-rides';renderCalendar()">Long Rides</button>`;
+
+  const weekScrollerEl = document.getElementById('week-scroller');
+  const phaseBannerEl  = document.getElementById('phase-week-banner');
+  const dayListEl      = document.getElementById('day-list');
+
+  if (calendarView === 'long-rides') {
+    weekScrollerEl.style.display = 'none';
+    phaseBannerEl.style.display  = 'none';
+    dayListEl.innerHTML = '';
+    renderLongRides(dayListEl);
+    return;
+  }
+  weekScrollerEl.style.display = '';
+  phaseBannerEl.style.display  = '';
+
   // Week scroller
   const scroller = document.getElementById('week-scroller');
   scroller.innerHTML = '';
@@ -2037,6 +2075,67 @@ function renderCalendar() {
       <div class="day-chevron">${done ? '<span style="color:var(--olive);font-size:13px;font-weight:700">Done</span>' : '›'}</div>`;
     card.onclick = () => openSessionModal(s);
     dayList.appendChild(card);
+  });
+}
+
+// =============================================
+// LONG RIDES OVERVIEW
+// =============================================
+function renderLongRides(container) {
+  const LONG_TYPES = ['LSD', 'Back-to-Back LSD'];
+  const rides = PLAN.filter(s => LONG_TYPES.includes(s.type));
+
+  const byMonth = {};
+  rides.forEach(s => {
+    const d = new Date(s.date + 'T12:00:00');
+    const key = d.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(s);
+  });
+
+  Object.keys(byMonth).forEach(month => {
+    const header = document.createElement('div');
+    header.className = 'lr-month-header';
+    header.textContent = month;
+    container.appendChild(header);
+
+    byMonth[month].forEach(s => {
+      const done = isSessionLoggedById(s.id);
+      const phase = getPhase(s.week);
+      const noteKey = profileKey('ride_note_' + s.id);
+      const savedNote = localStorage.getItem(noteKey) || '';
+
+      const d = new Date(s.date + 'T12:00:00');
+      const dateLabel = `${d.toLocaleDateString('en-ZA',{weekday:'long'})} ${d.getDate()} ${d.toLocaleDateString('en-ZA',{month:'short'})}`;
+
+      const card = document.createElement('div');
+      card.className = 'lr-card' + (done ? ' done' : '');
+      card.innerHTML = `
+        <div class="lr-card-top">
+          <div class="lr-date">${dateLabel}</div>
+          <div class="lr-week-badge">W${s.week}</div>
+          <div class="lr-phase-pill" style="background:${phase.color}22;color:${phase.color};border:1px solid ${phase.color}44">${phase.name}</div>
+          ${done ? '<div class="lr-done-badge">✓</div>' : ''}
+        </div>
+        <div class="lr-card-meta">
+          <span>${getSessionTypeIcon(s.type)} ${s.type}</span>
+          <strong>${s.duration}</strong>
+          ${s.targetElevation > 0 ? `<span style="color:var(--olive)">&#8593; ${s.targetElevation}m</span>` : ''}
+        </div>
+        <div class="lr-location-row">
+          <span style="font-size:12px">📍</span>
+          <input class="lr-location-input" type="text" placeholder="Add location…" value="${savedNote.replace(/"/g,'&quot;')}" onclick="event.stopPropagation()"/>
+        </div>`;
+
+      card.addEventListener('click', () => openSessionModal(s));
+
+      const input = card.querySelector('.lr-location-input');
+      let t = null;
+      input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => localStorage.setItem(noteKey, input.value.trim()), 600); });
+      input.addEventListener('blur', () => { clearTimeout(t); localStorage.setItem(noteKey, input.value.trim()); });
+
+      container.appendChild(card);
+    });
   });
 }
 

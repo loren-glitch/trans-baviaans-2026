@@ -1217,7 +1217,7 @@ async function stravaSyncActivities() {
       if (existingIdx !== -1) {
         if (logs[existingIdx].type === 'Other' && type !== 'Other') {
           logs[existingIdx].type = type;
-          // update in Supabase too
+          newCount++; // force saveLogs to run
           try { await sbFetch('PATCH', `/rest/v1/logs?strava_id=eq.${act.id}&profile=eq.${activeProfile}`, { type }); } catch(e) {}
         }
         continue;
@@ -2162,12 +2162,15 @@ function isSessionLoggedById(sessionId) {
   // Fallback: match by type within the same week (catches Strava-synced rides done on any day)
   const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
   const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
-  // Short rides get mislabelled by Strava — Recovery Spin and Zone 2 Ride are interchangeable
+  // Short rides get mislabelled — Zone 2 Ride / Recovery Spin are interchangeable
   const SHORT_RIDE_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin'];
+  // 'Other' from Strava means a ride that got past the mapper — check notes to confirm it's a ride
+  const isStravaRideOther = (l) => l.type === 'Other' && l.notes && l.notes.startsWith('Synced from Strava') && l.dist > 0;
   return logs.some(l => {
     if (l.date < weekStart || l.date >= weekEnd) return false;
     if (l.type === session.type || l.type === getDisplayType(session)) return true;
     if (SHORT_RIDE_ALIASES.includes(session.type) && SHORT_RIDE_ALIASES.includes(l.type)) return true;
+    if (SHORT_RIDE_ALIASES.includes(session.type) && isStravaRideOther(l)) return true;
     return false;
   });
 }

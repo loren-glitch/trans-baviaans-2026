@@ -2162,13 +2162,12 @@ function isSessionLoggedById(sessionId) {
   // Fallback: match by type within the same week (catches Strava-synced rides done on any day)
   const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
   const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
-  const NON_RIDE_TYPES = [...CLASS_TYPES, 'Rest', 'Race Admin', 'Shake-out', 'Recovery'];
-  const sessionIsRide = !NON_RIDE_TYPES.includes(session.type);
+  // Short rides get mislabelled by Strava — Recovery Spin and Zone 2 Ride are interchangeable
+  const SHORT_RIDE_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin'];
   return logs.some(l => {
     if (l.date < weekStart || l.date >= weekEnd) return false;
     if (l.type === session.type || l.type === getDisplayType(session)) return true;
-    // Any ride log ticks off any ride session in the same week
-    if (sessionIsRide && !NON_RIDE_TYPES.includes(l.type)) return true;
+    if (SHORT_RIDE_ALIASES.includes(session.type) && SHORT_RIDE_ALIASES.includes(l.type)) return true;
     return false;
   });
 }

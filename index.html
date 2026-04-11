@@ -1157,10 +1157,15 @@ function stravaActivityToSessionType(act) {
   const type = act.sport_type || act.type || '';
   const hrs = act.moving_time / 3600;
   const startHour = new Date(act.start_date_local).getHours();
+  const dayOfWeek = new Date(act.start_date_local + (act.start_date_local.includes('T') ? '' : 'T12:00:00')).getDay(); // 0=Sun, 5=Fri
 
-  // Non-ride activities
-  if (['WeightTraining','Workout','Crossfit','HIIT','Barre'].includes(type))
-    return activeProfile === 'Kevin' ? 'Yoga' : 'Barre Class';
+  // Barre-specific Strava type
+  if (type === 'Barre') return activeProfile === 'Kevin' ? 'Yoga' : 'Barre Class';
+  // Generic gym activities — use day of week: Friday = Barre, otherwise = Strength
+  if (['WeightTraining','Workout','Crossfit','HIIT'].includes(type)) {
+    if (activeProfile === 'Kevin') return 'Yoga';
+    return dayOfWeek === 5 ? 'Barre Class' : 'Strength Class';
+  }
   if (type === 'Elliptical' || type === 'StairStepper')
     return activeProfile === 'Kevin' ? 'Yoga' : 'Strength Class';
   if (type === 'Yoga') return 'Yoga';
@@ -1222,7 +1227,7 @@ async function stravaSyncActivities() {
         if (logs[existingIdx].type === 'Other' && type !== 'Other') {
           logs[existingIdx].type = type;
           newCount++; // force saveLogs to run
-          try { await sbFetch('PATCH', `/rest/v1/logs?strava_id=eq.${act.id}&profile=eq.${activeProfile}`, { type }); } catch(e) {}
+          try { await sbFetch(`logs?strava_id=eq.${act.id}&profile=eq.${activeProfile}`, { method: 'PATCH', body: JSON.stringify({ type }) }); } catch(e) {}
         }
         continue;
       }
@@ -2166,15 +2171,12 @@ function isSessionLoggedById(sessionId) {
   // Fallback: match by type within the same week (catches Strava-synced rides done on any day)
   const weekStart = isoDate(addDays(PLAN_START, (session.week - 1) * 7));
   const weekEnd = isoDate(addDays(PLAN_START, session.week * 7));
-  // Short rides get mislabelled — Zone 2 Ride / Recovery Spin are interchangeable
-  const SHORT_RIDE_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin'];
-  // 'Other' from Strava means a ride that got past the mapper — check notes to confirm it's a ride
-  const isStravaRideOther = (l) => l.type === 'Other' && l.notes && l.notes.startsWith('Synced from Strava') && l.dist > 0;
+  // Rides logged at different times of day should still tick off ride sessions
+  const RIDE_ALIASES = ['Zone 2 Ride','Recovery Spin','Zone 2 Spin','Night Ride','Zone 2 + Climbing'];
   return logs.some(l => {
     if (l.date < weekStart || l.date >= weekEnd) return false;
     if (l.type === session.type || l.type === getDisplayType(session)) return true;
-    if (SHORT_RIDE_ALIASES.includes(session.type) && SHORT_RIDE_ALIASES.includes(l.type)) return true;
-    if (SHORT_RIDE_ALIASES.includes(session.type) && isStravaRideOther(l)) return true;
+    if (RIDE_ALIASES.includes(session.type) && RIDE_ALIASES.includes(l.type)) return true;
     return false;
   });
 }

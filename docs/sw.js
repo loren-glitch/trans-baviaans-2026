@@ -1,4 +1,4 @@
-const CACHE = 'mtb-v1';
+const CACHE = 'mtb-v2';
 const ASSETS = ['./', './index.html'];
 
 self.addEventListener('install', e => {
@@ -13,7 +13,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   // Network first for Supabase/Strava, cache first for app shell
   if (e.request.url.includes('supabase.co') || e.request.url.includes('strava.com')) {
-    e.respondWith(fetch(e.request).catch(() => new Response('{"error":"offline"}', {headers:{'Content-Type':'application/json'}})));
+    e.respondWith(fetch(e.request).catch(() => new Response('{"error":"offline"}', {status: 503, headers:{'Content-Type':'application/json'}})));
     return;
   }
   e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request).then(res => {

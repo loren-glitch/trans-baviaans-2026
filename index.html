@@ -635,25 +635,6 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
   border-radius: 8px; margin-bottom: 6px; font-size: 14px;
 }
 .btn-remove { background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer; padding: 0 4px; }
-/* CLIMBS */
-.climb-card {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 10px; margin: 0 16px 8px; overflow: hidden;
-}
-.climb-header {
-  padding: 14px 16px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-  transition: background 0.12s;
-}
-.climb-header:active { background: var(--bg-card-2); }
-.climb-name { font-size: 14px; font-weight: 800; color: var(--text); letter-spacing: 0.3px; }
-.climb-sub { font-size: 11px; color: var(--ochre); margin-top: 3px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-.climb-body { padding: 0 16px 14px; border-top: 1px solid var(--border); display: none; }
-.climb-body.open { display: block; }
-.climb-stat { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-.climb-stat:last-of-type { border-bottom: none; }
-.climb-stat-label { color: var(--text-muted); text-transform: uppercase; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; }
-.climb-stat-val { color: var(--text); font-weight: 700; }
-.climb-tip { background: rgba(232,146,30,0.08); border-left: 2px solid var(--ochre); padding: 10px 12px; margin-top: 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; border-radius: 0 6px 6px 0; }
 /* TEAM RULES */
 .rule-card {
   background: var(--bg-card); border: 1px solid var(--border);
@@ -988,7 +969,8 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
       <div class="prep-sub-nav">
         <button class="prep-tab-btn active" onclick="showPrepTab('gear',this)">Gear</button>
         <button class="prep-tab-btn" onclick="showPrepTab('dropboxes',this)">Drop Boxes</button>
-        <button class="prep-tab-btn" onclick="showPrepTab('climbs',this)">Climbs</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('route',this)">Route</button>
+        <button class="prep-tab-btn" onclick="showPrepTab('supporters',this)">Supporters</button>
         <button class="prep-tab-btn" onclick="showPrepTab('team',this)">Team Rules</button>
         <button class="prep-tab-btn" onclick="showPrepTab('timeline',this)">Timeline</button>
         <button class="prep-tab-btn" onclick="showPrepTab('pace',this)">Pace Calc</button>
@@ -1050,7 +1032,7 @@ p.nutr-body { font-size: 13px; line-height: 1.6; color: var(--text-muted); margi
 // =============================================
 // DATA — 19 WEEK TRAINING PLAN
 // =============================================
-const RACE_DATE = new Date('2026-08-08T10:00:00');
+const RACE_DATE = new Date('2026-08-08T08:00:00'); // official start time per transbaviaans.co.za rider-info (was 10:00)
 const PLAN_START = new Date('2026-03-30'); // Monday Week 1
 
 // =============================================
@@ -1372,14 +1354,14 @@ for (let w = 6; w <= 10; w++) {
   const buildThuElev = [400,450,500,350,500][wi];
   const buildSatElev = [700,800,900,650,1000][wi];
   const buildSunElev = [500,600,700,500,700][wi];
-  addSession(w,0,'Strength Class','60min','N/A',`BUILD Strength — Week ${w}. Increase load from BASE: Romanian deadlifts 4×8, Bulgarian split squats 3×10 each side, single-leg press 3×12, bent-over rows 3×12, push-ups 3×15, side planks 3×45s. Add upper body work — your trapezius, biceps and grip will take serious punishment bracing through 50 switchbacks at the MAC. Required — 52% of ultra-cyclists sustain knee injuries from skipping this.`, true, 0);
+  addSession(w,0,'Strength Class','60min','N/A',`BUILD Strength — Week ${w}. Increase load from BASE: Romanian deadlifts 4×8, Bulgarian split squats 3×10 each side, single-leg press 3×12, bent-over rows 3×12, push-ups 3×15, side planks 3×45s. Add upper body work — your trapezius, biceps and grip will take serious punishment bracing through the climb to CP4 (Toring) and other technical descents. Required — 52% of ultra-cyclists sustain knee injuries from skipping this.`, true, 0);
   addSession(w,1,'Threshold Ride','2hr','4',
     w===9?`Recovery week — Zone 2 only today, 1.5hr. No threshold. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildTueElev}m elevation.`:
-    `Sustained threshold effort — Zone 4. Warm up 20min, 2\xd720min threshold blocks, cool down. This builds the power to push through the MAC and The Neverender. Target \u2191${buildTueElev}m elevation.`, true, buildTueElev);
+    `Sustained threshold effort — Zone 4. Warm up 20min, 2\xd720min threshold blocks, cool down. This builds the power to push through the climb to CP4 (Toring) and the late-race rolling hills. Target \u2191${buildTueElev}m elevation.`, true, buildTueElev);
   addSession(w,2,'Hot Pilates','60min','N/A',`BUILD Pilates — recovery and mobility maintenance as training load peaks. Priority: thoracic spine rotation (prevents neck/shoulder fatigue on long climbs), hip flexor release, lumbar decompression. After ${w>=7?'a night ride':'a hard threshold ride'} your lower back needs this. Don't skip it when fatigued — that's exactly when you need it most.`, true, 0);
   addSession(w,3, w>=7?'Night Ride':'Zone 2 + Climbing', w===9?'1.5hr':w>=7?'2.5hr':'2.5hr', w>=7?'2':'2-3',
     w>=7?(w===9?`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. Recovery week: 1.5hr easy, low effort — maintain the habit without loading the body. Target \u2191${buildThuElev}m.`:`Night ride — after dark. Test your lights, practice eating and navigating by headtorch. The race has 8+ hours of darkness. Your comfort at night is built here, not on race day. Target \u2191${buildThuElev}m elevation.`):
-    `Zone 2 with climbing focus. Find a climb and repeat 3–4 ascents at steady pace. Simulates Nuwekloofpas effort management. Practice eating on the climb. Target \u2191${buildThuElev}m elevation.`, true, buildThuElev);
+    `Zone 2 with climbing focus. Find a climb and repeat 3–4 ascents at steady pace. Simulates Father of All Climbs (FAC) — a real 17.9km sustained climb early on the 2026 route. Practice eating on the climb. Target \u2191${buildThuElev}m elevation.`, true, buildThuElev);
   addSession(w,4,'Barre Class','60min','N/A',`BUILD Barre — pre-LSD glute activation + muscular endurance. Focus: isometric glute holds, pulsing squats, single-leg balance, lateral band work. The pulsing/isometric nature of barre builds fatigue resistance in the exact muscles that fail at hour 12+ of riding. Show up Friday, ride better Saturday.`, true, 0);
   addSession(w,5,'LSD',buildLSDSat[wi],'2',
     w===9?`Recovery week Saturday — shorter LSD. Stay aerobic, no heroics. Consolidate the previous 3 weeks of BUILD loading. Target \u2191${buildSatElev}m.`:
@@ -1405,7 +1387,7 @@ for (let w = 11; w <= 15; w++) {
     `PEAK Strength — Week ${w}. Add grip and forearm work: dead hangs 3×30s, farmer carries 2×40m, wrist curls 3×15. At hour 16 of Baviaans your hands will be cramping — train for it now. Continue: deadlifts 4×6 heavy, single-leg step-downs 3×12, Copenhagen planks 3×30s, bent-over rows 4×10.`, true, 0);
   addSession(w,1,'Threshold Ride', w===14?'1.5hr':'2.5hr','4',
     w===14?`Recovery week — cut to 1.5hr, Zone 2 only. Keep the engine ticking, don't dig deep. Rebuild after the event simulation. Target \u2191${peakTueElev}m.`:
-    `Threshold session — PEAK intensity. 3\xd715min threshold blocks or one long sustained effort. Uncomfortable but controlled. This builds the fitness that gets your team to CP4 by 19:00. Target \u2191${peakTueElev}m elevation.`, true, peakTueElev);
+    `Threshold session — PEAK intensity. 3\xd715min threshold blocks or one long sustained effort. Uncomfortable but controlled. This builds the fitness that gets your team to CP4 by 17:00. Target \u2191${peakTueElev}m elevation.`, true, peakTueElev);
   addSession(w,2,'Hot Pilates','60min','N/A',
     w===14?`PEAK Pilates — recovery week. Full restoration focus: long hip flexor holds, spinal decompression, deep breathing. Your body is rebuilding from Week 13's event simulation. This is medicine, not exercise.`:
     `PEAK Pilates — nervous system and tissue recovery. PEAK training accumulates serious fatigue in lumbar spine and hip flexors. This session directly prevents the lower back collapse that derails riders at hour 10. Focus: extended pigeon holds 3min each side, thoracic rotations, psoas release, core breathing. Non-negotiable.`, true, 0);
@@ -1416,7 +1398,7 @@ for (let w = 11; w <= 15; w++) {
     w===14?`PEAK Barre — recovery week. Light activation only: gentle glute work, hip circles, balance drills. 30% intensity. Keep the movement pattern, not the load.`:
     `PEAK Barre — pre-ignition before your biggest ride of the week. Isometric glute holds, pulsing lateral raises, single-leg balance, hip flexor activation. Research shows barre's muscular endurance work directly transfers to fatigue resistance in hours 15–20 of ultra-endurance riding. Arrive and fire up the engine.`, true, 0);
   addSession(w,5,'LSD',peakLSDSatLabel[wi],'2',
-    w===13?`FULL RACE SIMULATION. 10 hours riding. Exact race nutrition, lights, and kit. Ride Karoo-like terrain (Bottelary Hills or Oak Valley). Simulate checkpoint stops every ~40km. This is the most important training day of the entire plan. Do not skip. Target \u2191${peakSatElev}m elevation.`:
+    w===13?`FULL RACE SIMULATION. 10 hours riding. Exact race nutrition, lights, and kit. Ride Karoo-like terrain (Bottelary Hills or Oak Valley). Simulate checkpoint stops every ~35km. This is the most important training day of the entire plan. Do not skip. Target \u2191${peakSatElev}m elevation.`:
     w===14?`Recovery week Saturday — 4hr easy Zone 2. Your body rebuilds stronger after Week 13. Trust the process. Target \u2191${peakSatElev}m.`:
     `PEAK Big Day — ${peakLSDSat[wi]} of sustained riding. Maximum elevation if possible. If you can do this, you can finish Baviaans. Fuel exactly as race day — no experimenting. Target \u2191${peakSatElev}m elevation.`, true, peakSatElev);
   if (w !== 13) {
@@ -1440,7 +1422,7 @@ for (let w = 16; w <= 18; w++) {
   addSession(w,0,'Strength Class','1hr','N/A',`TAPER Strength — Week ${w}. Reduce weights 40%, keep movement quality high. Glute bridges 3×12, single-leg deadlifts 2×10, dead hangs 3×20s, bird-dogs 3×10. You are sharpening now, not building. The fitness is already there. More load will not help — freshness will. Keep the session short and precise.`, true, 0);
   addSession(w,1,'Threshold Ride','1.5hr','4',`Short sharp threshold. Warm up well, 2x10min blocks, cool down. Intensity stays — volume drops. Keep the engine sharp without digging a hole. Target up ${taperTueElev}m elevation.`, true, taperTueElev);
   addSession(w,2,'Hot Pilates','1hr','N/A',`TAPER Pilates — ${w===18?'final class before race week. Nervous system calming, full hip opening, spinal decompression. Arrive at race day loose and supple. This is the last mobility work before Baviaans.':'restoration and nervous system reset. Focus on long holds, deep breathing, hip flexor release. Arrive at race day without tightness in your hips or lower back. This is part of your race preparation.'}`, true, 0);
-  addSession(w,3,'Zone 2 Ride','1hr','2',`Easy Zone 2 ride — 1hr only. Keep HR low. Use this ride to check race kit and run through your mental race plan: Nuwekloofpas, the MAC, the night section, CP4 at 19:00. See yourself riding it strong. Target up ${taperThuElev}m elevation.`, true, taperThuElev);
+  addSession(w,3,'Zone 2 Ride','1hr','2',`Easy Zone 2 ride — 1hr only. Keep HR low. Use this ride to check race kit and run through your mental race plan: the opening climb, the night section, CP4 (Toring) around 20:05. See yourself riding it strong. Target up ${taperThuElev}m elevation.`, true, taperThuElev);
   addSession(w,4,'Barre Class','1hr','N/A',`TAPER Barre — ${w===18?'last class before race week. Light glute activation, hip stability, single-leg balance. 20% intensity. Your purpose is to arrive at race day with a primed posterior chain and a calm nervous system. You have done the work.':'reduce intensity 30%. Light glute activation, hip stability work, balance drills. Keep the motor running without adding fatigue. This pre-LSD barre is now habitual — your glutes fire on command. Trust that.'}`, true, 0);
   addSession(w,5,'LSD',taperSat[wi],'2',`Taper LSD — ${taperSat[wi]}. Aerobic, relaxed, no heroics. ${w===18?"Your last proper ride before race day. Enjoy every kilometre. Trust what you have built over 18 weeks.":"Keep it easy and enjoyable. This is the last long ride before race day."} Target up ${taperSatElev}m elevation.`, true, taperSatElev);
   addSession(w,6,'Recovery Spin','1hr','1',`Easy Sunday flush. Light legs, short session, nothing more. Race week is ${w===18?'here':'almost here'}.`, true, taperSunElev);
@@ -1452,23 +1434,23 @@ addSession(19,1,'Zone 2 Spin','45min','1','Easy 45min spin to keep legs loose. N
 addSession(19,2,'Rest','—','N/A','Skip Hot Pilates this week. Complete rest. Final kit check, pack drop boxes if not done yet. Mental preparation and visualisation.', true, 0);
 addSession(19,3,'Shake-out','30min','1','Very easy 30min pedal. Test bike gears and brakes. Not training — just confirming everything works. Then rest the remainder of the day.', true, 0);
 addSession(19,4,'Race Admin','—','N/A','Skip HIIT — race admin day. Drop boxes depart. Registration opens 12:00 Willowmore. Collect race number. Team pasta dinner in the evening. Bed by 21:00.', true, 0);
-addSession(19,5,'RACE','24hr','1-5','RACE DAY — Trans Baviaans MTB Marathon. Start 10:00 from Willowmore. 230km to Jeffreys Bay. 2840m elevation. 24hr cutoff. Trust your training.', true, 0);
+addSession(19,5,'RACE','24hr','1-5','RACE DAY — Trans Baviaans MTB Marathon. NOTE: 2026 uses an alternative route via the Grootrivier area — the Baviaanskloof Reserve is flood-damaged and closed. Start 08:00 Saturday from Willowmore. 230km to Jeffreys Bay via CP1 Syphonia (54km), CP2 Rietfontein (100km), CP3 Hadley (133km), CP4 Toring (161km, midnight cutoff), CP5 Mimosa (180km, support crew), CP6 (n/a on this route), CP7 Zuurbron (210km). 2843m ascent. Finish cutoff 08:00 Sunday (a true 24hrs) — prize giving is separately at 10:00 Sunday. Trust your training.', true, 0);
 addSession(19,6,'Recovery','—','N/A','Race finish. Prize giving in Jeffreys Bay 10:00 Sunday. Rest, eat everything, celebrate with your team.', true, 0);
 
 // =============================================
 // QUOTES
 // =============================================
 const QUOTES = [
-  'The MAC has 50 switchbacks. Your legs will know every one.',
-  'Nuwekloofpas is 26km of sustained climbing. Bank the miles now.',
+  'The 2026 route is new to everyone — even returning riders. Learn the GPX, not old memories.',
+  'Father of All Climbs (FAC) is 17.9km of sustained climbing early in the route. Bank the miles now.',
   'You\'ll ride through the night. Your headlight will be your best friend at 2am.',
-  'At 20hr pace you hit CP4 at 19:00 — 3hrs before the cutoff. Train for that buffer.',
-  'The Baviaanskloof has buffalo. Stay together, keep moving.',
-  '230km. 2840m. 24 hours. One team. Build the base now.',
-  'The Neverender has false summits. So does training. Keep pushing.',
-  'The Big Dipper drops 330m in 5.5km. Your descending is your reward.',
-  'No support crew until CP5 at 172km. Train self-sufficient.',
-  'The route is unmarked. Train your navigation as hard as your legs.',
+  'At 20hr pace you hit CP4 (Toring) around 20:05 — roughly 4hrs before the midnight cutoff. Train for that buffer.',
+  'You\'ll pass through sections of the Baviaanskloof Reserve even on the alternative route. Stay together, keep moving.',
+  '230km. 2843m ascent. Race starts 08:00 Saturday, cutoff 08:00 Sunday — a true 24 hours. One team. Build the base now.',
+  'The climb up to Toring (CP4) comes right after a steep valley drop near 140km. Keep something in the tank for it.',
+  'The descent from Toring to Mimosa drops from near 1000m to under 200m in under 20km. Your descending is your reward.',
+  'No support crew until CP5 (Mimosa, 180km). Train self-sufficient.',
+  'The 2026 route is marked only where necessary — download the GPX and train your navigation as hard as your legs.',
   'Jeffreys Bay is 230km away. Every Zone 2 hour gets you closer.'
 ];
 
@@ -1476,7 +1458,7 @@ const QUOTES = [
 // GEAR CHECKLIST DATA
 // =============================================
 const GEAR_ITEMS = [
-  { id: 'nav1', cat: 'Navigation', text: 'Printed route map (waterproof)' },
+  { id: 'nav1', cat: 'Navigation', text: 'Official 2026 GPX route file loaded on device (mandatory — route marked only where necessary)' },
   { id: 'nav2', cat: 'Navigation', text: 'GPS device or phone with offline map' },
   { id: 'nav3', cat: 'Navigation', text: 'Backup battery pack' },
   { id: 'light1', cat: 'Lighting', text: 'Front light (min 500 lumens, 10hr battery)' },
@@ -1501,7 +1483,7 @@ const GEAR_ITEMS = [
   { id: 'bike4', cat: 'Bike & Tools', text: 'Multi-tool' },
   { id: 'bike5', cat: 'Bike & Tools', text: 'Chain lube' },
   { id: 'bike6', cat: 'Bike & Tools', text: 'Duct tape (wrapped on seatpost)' },
-  { id: 'nutr1', cat: 'Nutrition', text: 'Race food supply to CP2 (93km)' },
+  { id: 'nutr1', cat: 'Nutrition', text: 'Race food supply to CP2 Rietfontein (100km)' },
   { id: 'nutr2', cat: 'Nutrition', text: 'Hydration (min 2L carrying capacity)' },
   { id: 'nutr3', cat: 'Nutrition', text: 'Electrolyte tablets' },
 ];
@@ -1538,7 +1520,7 @@ const ROUTES = [
     trains: 'Sustained climbing (5.4km at 7% avg gradient)',
     open: 'Check trail status before visiting',
     warning: '⚠️ Check SANParks / TokaiMTB social media for current trail status — some trails affected by 2025 fires.',
-    tip: 'The Constantiaberg mast climb mimics the relentless gradient you\'ll face on Nuwekloofpas.'
+    tip: 'The Constantiaberg mast climb mimics the relentless gradient you\'ll face on Father of All Climbs (FAC), 17.9km early in the route.'
   },
   {
     name: 'Jonkershoek Nature Reserve',
@@ -1547,10 +1529,10 @@ const ROUTES = [
     phaseCss: 'var(--phase-peak)',
     distCT: '50km from CT',
     terrain: 'Technical switchback climbing, rocky singletrack',
-    trains: 'Technical climbing, MAC simulation, mental toughness',
+    trains: 'Technical climbing, CP4 climb simulation, mental toughness',
     open: 'Permit required — book in advance',
     warning: null,
-    tip: 'This is the closest Cape Town has to the MAC experience. Regular Cape Epic venue. Book your permit in advance.'
+    tip: 'This is the closest Cape Town has to the sustained technical climbing you\'ll face on the climb to CP4. Regular Cape Epic venue. Book your permit in advance.'
   },
   {
     name: 'Bottelary Hills / Polkadraai',
@@ -1753,7 +1735,7 @@ const KEVIN_YOGA_DESCRIPTIONS = {
   // dayIndex 0 = Monday (Strength slot)
   1: {
     BASE:  `BASE Yoga — strength and stability. Focus: warrior sequences (I, II, III) for single-leg balance and glute activation, chair pose holds for quad and glute endurance, boat pose for core, bridge pose for posterior chain. These patterns prevent the knee injuries that affect 53% of ultra-cyclists. Commit to this weekly — it is not optional.`,
-    BUILD: `BUILD Yoga — strength + upper body resilience. Add: downward dog push-ups (tricep/shoulder strength for bracing through 50 MAC switchbacks), crow pose progression (grip and forearm activation), dolphin pose for upper back and shoulder stability. Your upper body takes serious punishment on 20hr rides — build it here.`,
+    BUILD: `BUILD Yoga — strength + upper body resilience. Add: downward dog push-ups (tricep/shoulder strength for bracing through technical climbs and descents), crow pose progression (grip and forearm activation), dolphin pose for upper back and shoulder stability. Your upper body takes serious punishment on 20hr rides — build it here.`,
     PEAK:  `PEAK Yoga — strength + grip endurance. Add dead-hang holds between poses (3×20s) to build forearm endurance for hour 16+ handlebar grip. Warrior flows with longer holds, full standing balance series, core-intensive sequences. At 200km mark your form depends on what you built in this session.`,
     TAPER: `TAPER Yoga — activation only, 40% intensity. Sun salutations, gentle warrior flow, bridge holds. You are sharpening, not building. Keep the nervous system primed without adding fatigue. The work is done.`,
   },
@@ -1820,9 +1802,9 @@ const PHASE_TIPS = {
     'Every Zone 2 hour is a brick in your engine. The Karoo demands a big one — keep building.'
   ],
   'BUILD': [
-    'You\'re in the build now. Embrace the discomfort — this is where fitness is forged and the MAC stops being scary.',
+    'You\'re in the build now. Embrace the discomfort — this is where fitness is forged and the climb to CP4 stops being scary.',
     'Night rides start here. Your comfort in the dark is built in training, not on race day.',
-    'Threshold work means Nuwekloofpas won\'t break you in August. Stay consistent and trust the loading.'
+    'Threshold work means Father of All Climbs (FAC) won\'t break you in August. Stay consistent and trust the loading.'
   ],
   'PEAK': [
     'Maximum load. Fatigued legs are normal — they\'re getting stronger. Eat, sleep, recover between sessions.',
@@ -2363,15 +2345,15 @@ const LOG_ENCOURAGEMENT = {
     { emoji: '⏱️', msg: 'Time in the saddle.', sub: 'This is what separates finishers from DNFs. You showed up. Keep showing up.' }
   ],
   'Threshold Ride': [
-    { emoji: '🔥', msg: 'Threshold done.', sub: 'That discomfort you felt? That\'s your body getting faster. The MAC won\'t break you.' },
-    { emoji: '💥', msg: 'You pushed hard.', sub: 'Threshold work builds the power to tackle Nuwekloofpas without blowing up. Filed away.' }
+    { emoji: '🔥', msg: 'Threshold done.', sub: 'That discomfort you felt? That\'s your body getting faster. The climb to CP4 won\'t break you.' },
+    { emoji: '💥', msg: 'You pushed hard.', sub: 'Threshold work builds the power to tackle the opening climb without blowing up. Filed away.' }
   ],
   'Night Ride': [
     { emoji: '🌙', msg: 'Darkness conquered.', sub: 'You just trained for the hardest part of the race. 2am in the Baviaans will feel familiar now.' },
     { emoji: '🔦', msg: 'Night miles banked.', sub: 'Most riders fear the dark. You just rode it. That\'s your edge on race night.' }
   ],
   'Barre Class': [
-    { emoji: '🩰', msg: 'Barre done.', sub: 'Those hip stability drills are your secret weapon on the MAC\'s 50 switchbacks. Strong hips, strong rider.' },
+    { emoji: '🩰', msg: 'Barre done.', sub: 'Those hip stability drills are your secret weapon on the technical climbs and descents. Strong hips, strong rider.' },
     { emoji: '💪', msg: 'Off-bike work counts.', sub: 'The best riders train everything. You\'re building a complete athlete.' }
   ],
   'Strength Class': [
@@ -2384,7 +2366,7 @@ const LOG_ENCOURAGEMENT = {
   ],
   'Yoga': [
     { emoji: '🧘', msg: 'Yoga done.', sub: 'Flexibility and mindset — both crucial for 20 hours in the saddle. Every session counts.' },
-    { emoji: '🌿', msg: 'Body and mind tended.', sub: 'The MAC requires patience as much as power. Yoga builds both.' }
+    { emoji: '🌿', msg: 'Body and mind tended.', sub: 'The climb to CP4 requires patience as much as power. Yoga builds both.' }
   ],
   'Recovery Spin': [
     { emoji: '🔄', msg: 'Active recovery done.', sub: 'Smart athletes recover smart. You\'ll be fresher for the next session because of this.' }
@@ -2948,26 +2930,34 @@ function renderNutrition(tab) {
   } else if (tab === 'checkpoints') {
     content.innerHTML = `
       <h3 class="nutr-heading">Checkpoint Strategy</h3>
-      <p class="nutr-body">Checkpoints are not social stops — they are pit stops. Arrive with a plan, execute it, leave within your target time.</p>
+      <p class="nutr-body">Checkpoints are not social stops — they are pit stops. Arrive with a plan, execute it, leave within your target time. Updated to the official 2026 Race Guide — this year's alternative route (Grootrivier area, due to Baviaanskloof flood damage) has entirely new checkpoints, names and distances.</p>
       <div class="cp-card">
-        <h4>CP1 (~40km) — No Drop Box · Target: 12:30 (2.5hrs in)</h4>
-        <p>Refill bottles if needed. Quick snack. Keep moving — you're well-fuelled from the start. Don't linger. 3 minutes maximum.</p>
+        <h4>CP1 Syphonia (54km) — No Check-in Tap · Target: ~11:45 (3.8hrs in)</h4>
+        <p>You'll have just come off Father of All Climbs (FAC) — 17.9km of sustained climbing, the longest single climb on the route. Roosterbrood on the menu. Refill bottles if needed, quick snack. Keep moving — you're well-fuelled from the start. Don't linger. 3 minutes maximum.</p>
       </div>
       <div class="cp-card">
-        <h4>CP2 (93km) — DROP BOX ✅ · Target: 15:30 (5.5hrs in)</h4>
-        <p>You've survived Nuwekloofpas. The MAC is approaching. Refill all bottles. Eat real food — hot if available. Open your drop box: top up gels, swap batteries. <strong style="color:var(--ochre)">Eat before you feel hungry.</strong> 5 minutes maximum. The MAC awaits — fuel for it now.</p>
+        <h4>CP2 Rietfontein (100km) — DROP BOX ✅ · Target: ~14:45 (6.8hrs in)</h4>
+        <p>Refill all bottles. Eat real food. Open your drop box: top up gels, swap batteries. <strong style="color:var(--ochre)">Eat before you feel hungry.</strong> 5 minutes maximum. You'll cross the Groot Rivier just after this checkpoint — approach with caution, assess depth and flow before entering.</p>
       </div>
       <div class="cp-card">
-        <h4>CP3 (123km) — DROP BOX ✅ — NIGHT BEGINS · Target: 17:30 (7.5hrs in)</h4>
-        <p>You've done the MAC. You're in the Baviaanskloof. Night is falling or has fallen. Eat hot food if available. Swap to night configuration. Open drop box: caffeine gels, morale snack. Lights on. <strong style="color:var(--ochre)">Mental reset: you're halfway.</strong></p>
+        <h4>CP3 Hadley (133km) — DROP BOX ✅ — NIGHT APPROACHES · Target: ~17:10 (9.2hrs in)</h4>
+        <p>Boere braai on the menu. Sun is setting or close to it — lights ready. Open drop box: caffeine gels, morale snack. <strong style="color:var(--ochre)">Mental reset: you're over halfway to CP4.</strong> A steep valley drop and then a sustained climb up to Toring (CP4) lie ahead.</p>
       </div>
       <div class="cp-card" style="border-color:var(--red-burnt)">
-        <h4>CP4 (140km) — DROP BOX ✅ — ⚠️ MIDNIGHT CUTOFF · Target: 19:00 (9hrs in)</h4>
-        <p><strong style="color:var(--olive)">At 20hr pace you arrive 3 hours before the midnight cutoff</strong> — a huge buffer. First caffeine dose now (10pm race time = 12hrs in). Fresh gloves from drop box. Mental reset: 90km remaining, you are well on track. Keep the pace, don't celebrate too early.</p>
+        <h4>CP4 Toring (161km) — DROP BOX ✅ — ⚠️ MIDNIGHT CUTOFF · Target: ~20:05 (12.1hrs in)</h4>
+        <p>Soup on the menu. <strong style="color:var(--olive)">At 20hr pace you arrive around 4 hours before the midnight cutoff</strong> — a solid but not huge buffer, so don't dawdle here. Fresh gloves/warm layer from drop box (recommended item). A long, fast descent to Mimosa (CP5) follows — check your brakes. Watch for a road crossing right after the descent.</p>
       </div>
       <div class="cp-card">
-        <h4>CP5 (172km) — SUPPORT CREW! 🙌 · Target: 22:00 (12hrs in)</h4>
-        <p>Support crew is here — midnight, halfway through the night. Change socks. Eat real food. Brief sit if needed — but <strong style="color:var(--ochre)">don't linger.</strong> 58km to Jeffreys Bay. You are in the final quarter and well on pace for a 20hr finish. Fuel up, fix up, and go.</p>
+        <h4>CP5 Mimosa (180km) — SUPPORT CREW! 🙌 · Target: ~21:20 (13.3hrs in)</h4>
+        <p>Chip roll on the menu. This is the <strong>only</strong> checkpoint where your support crew may meet you (access allowed from 12:00 Saturday onward). Change socks, eat real food, first caffeine dose. Brief stop if needed — but <strong style="color:var(--ochre)">don't linger.</strong> 50km to Jeffreys Bay via CP7. You are in the final quarter and well on pace for a 20hr finish.</p>
+      </div>
+      <div class="cp-card">
+        <h4>CP6 — N/A on this route</h4>
+        <p>The 2026 route does not include a CP6 — CP5 (Mimosa) is followed directly by CP7 (Zuurbron). Don't waste time looking for it.</p>
+      </div>
+      <div class="cp-card">
+        <h4>CP7 Zuurbron (210km) · Target: ~01:05 Sun (17.1hrs in)</h4>
+        <p>Legendary jaffles with mince meat. No drop box here. Watch for a road crossing just before the checkpoint. Last checkpoint before the finish — top up on food/drink. Mini Mac (0.7km, 50m, 7%) still waits before the finish — small on paper, brutal after 225km in the legs. 20km to Jeffreys Bay.</p>
       </div>`;
   } else if (tab === 'night') {
     content.innerHTML = `
@@ -2975,7 +2965,7 @@ function renderNutrition(tab) {
       <p class="nutr-body">Night changes everything. Appetite drops, decisions slow, and motivation crumbles without the right fuel strategy. Plan this section as carefully as any physical training.</p>
       <div class="cp-card">
         <h4>☕ Caffeine Strategy</h4>
-        <p>First caffeine dose at approximately <strong style="color:var(--ochre)">10:00pm (12hrs in)</strong>.<br>
+        <p>First caffeine dose at approximately <strong style="color:var(--ochre)">8:00pm (12hrs in, ~CP4)</strong>.<br>
         Maximum 200mg per dose. Space doses 3–4 hours apart.<br>
         Cut caffeine 4 hours before your target finish window.<br>
         Combine with food — caffeine on empty stomach causes nausea.</p>
@@ -3023,19 +3013,19 @@ function renderNutrition(tab) {
   } else if (tab === 'dropboxes-nutr') {
     content.innerHTML = `
       <h3 class="nutr-heading">Drop Box Nutrition Guide</h3>
-      <div class="warning-banner">⚠️ Boxes depart Friday night. Pack Thursday. You cannot add items Saturday morning.</div>
+      <div class="warning-banner">⚠️ Drop boxes are loaded onto trucks during Friday Registration (12:00-20:00) at the Willowmore Town Hall. Bring your packed box with you — no truck loading on Saturday morning.</div>
       <p class="nutr-body" style="font-size:12px;color:var(--text-muted)">Box size: 22L / 34×23×28cm</p>
       <div class="cp-card">
-        <h4>CP2 Box (93km) — Day</h4>
+        <h4>CP2 Rietfontein Box (100km) — Day</h4>
         <p>Energy bars x6 · Electrolyte tablets x4 · Spare gels x4 · Chamois cream · Small real food snack · Spare batteries for lights</p>
       </div>
       <div class="cp-card">
-        <h4>CP3 Box (123km) — Nightfall</h4>
-        <p>Hot food packet (add hot water if available) · Caffeine gels x3 · Blister plasters · Morale snack (your favourite) · Extra electrolytes</p>
+        <h4>CP3 Hadley Box (133km) — Nightfall approaches</h4>
+        <p>Official recommendation: send your lights here if you're a moderate-pace rider. Also: hot food packet (add hot water if available) · caffeine gels x3 · blister plasters · morale snack (your favourite) · extra electrolytes</p>
       </div>
       <div class="cp-card" style="border-color:var(--red-burnt)">
-        <h4>CP4 Box (140km) — Night / Midnight Cutoff</h4>
-        <p>Night-specific fuel x4 · Extra warm layer · Fresh gloves · Caffeine gel x2 · Pain relief if needed · Fresh batteries</p>
+        <h4>CP4 Toring Box (161km) — Night / Midnight Cutoff</h4>
+        <p>Official recommendation: send your warm clothes here. Also: night-specific fuel x4 · fresh gloves · caffeine gel x2 · pain relief if needed · fresh batteries</p>
       </div>`;
   } else if (tab === 'calculator') {
     content.innerHTML = `
@@ -3069,12 +3059,13 @@ function calcNutrition() {
 
   // Checkpoint breakdown
   const segments = [
-    { name: 'Start → CP1', dist: '40km', time: 2.5 },
-    { name: 'CP1 → CP2', dist: '53km', time: 3 },
-    { name: 'CP2 → CP3', dist: '30km', time: 2 },
-    { name: 'CP3 → CP4', dist: '17km', time: 1.5 },
-    { name: 'CP4 → CP5', dist: '32km', time: 3 },
-    { name: 'CP5 → Finish', dist: '58km', time: Math.max(hrs - 12, 5) },
+    { name: 'Start → CP1 (Syphonia)', dist: '54km', time: 3.76 },
+    { name: 'CP1 → CP2 (Rietfontein)', dist: '46km', time: 3.02 },
+    { name: 'CP2 → CP3 (Hadley)', dist: '33km', time: 2.37 },
+    { name: 'CP3 → CP4 (Toring)', dist: '28km', time: 2.93 },
+    { name: 'CP4 → CP5 (Mimosa)', dist: '19km', time: 1.22 },
+    { name: 'CP5 → CP7 (Zuurbron)', dist: '30km', time: 3.82 },
+    { name: 'CP7 → Finish', dist: '20km', time: Math.max(hrs - 17.12, 2) },
   ];
 
   const segRows = segments.map(s => {
@@ -3126,8 +3117,10 @@ function renderPrep(tab) {
     renderGear(content);
   } else if (tab === 'dropboxes') {
     renderDropboxes(content);
-  } else if (tab === 'climbs') {
-    renderClimbs(content);
+  } else if (tab === 'route') {
+    renderRoute(content);
+  } else if (tab === 'supporters') {
+    renderSupporters(content);
   } else if (tab === 'team') {
     renderTeam(content);
   } else if (tab === 'timeline') {
@@ -3158,19 +3151,20 @@ function renderPaceCalc(container) {
 
 function calcPace() {
   const totalHrs = (parseInt(document.getElementById('pace-hrs').value)||20) + (parseInt(document.getElementById('pace-mins').value)||0)/60;
-  const raceStart = new Date('2026-08-08T10:00:00');
+  const raceStart = new Date('2026-08-08T08:00:00');
 
   // Checkpoints: name, km, % of total distance (230km), estimated % of total time
   // Time isn't linear — first half is faster (day, fresh legs), second is slower (night, fatigue)
+  // Per the official 2026 Race Guide PDF: alternative route via Grootrivier area (Baviaanskloof closed, flood damage).
+  // CP6 does not exist on this route — CP5 (Mimosa) is followed directly by CP7 (Zuurbron).
   const checkpoints = [
     { name: 'Start', km: 0, timePct: 0, color: 'var(--gold)' },
-    { name: 'CP1', km: 40, timePct: 0.125, terrain: 'Rolling farm roads, fresh legs', color: 'var(--slate-blue)' },
-    { name: 'CP2', km: 93, timePct: 0.275, terrain: 'Before the MAC climb — hardest section ahead', color: 'var(--slate-blue)' },
-    { name: 'CP3', km: 123, timePct: 0.375, terrain: 'Nightfall begins — lights on', color: 'var(--slate-blue)' },
-    { name: 'CP4', km: 140, timePct: 0.455, terrain: 'Midnight cutoff check — you need 3hrs buffer', color: 'var(--red-burnt)' },
-    { name: 'CP5', km: 172, timePct: 0.60, terrain: 'Support crew — last big push', color: 'var(--slate-blue)' },
-    { name: 'CP6', km: 195, timePct: 0.725, terrain: 'Pre-dawn — almost there', color: 'var(--slate-blue)' },
-    { name: 'CP7', km: 215, timePct: 0.84, terrain: 'Final stretch', color: 'var(--slate-blue)' },
+    { name: 'CP1', km: 54, timePct: 0.188, terrain: 'Syphonia / Dienie Douw — just past the opening climb, fresh legs', color: 'var(--slate-blue)' },
+    { name: 'CP2', km: 100, timePct: 0.339, terrain: 'Rietfontein — Groot Rivier crossing follows, drop box', color: 'var(--slate-blue)' },
+    { name: 'CP3', km: 133, timePct: 0.4575, terrain: 'Hadley — nightfall approaches, drop box', color: 'var(--slate-blue)' },
+    { name: 'CP4', km: 161, timePct: 0.604, terrain: 'Toring — after a steep valley drop and climb. Midnight cutoff check — target a healthy buffer', color: 'var(--red-burnt)' },
+    { name: 'CP5', km: 180, timePct: 0.665, terrain: 'Mimosa — support crew allowed (from 12:00 Saturday), after a long fast descent', color: 'var(--slate-blue)' },
+    { name: 'CP7', km: 210, timePct: 0.856, terrain: 'Zuurbron — last checkpoint before the finish (CP6 doesn\'t exist on this route)', color: 'var(--slate-blue)' },
     { name: 'Finish', km: 230, timePct: 1.0, terrain: 'Jeffreys Bay 🏁', color: 'var(--olive)' },
   ];
 
@@ -3273,13 +3267,13 @@ function renderDropboxes(container) {
   container.innerHTML = `
     <div class="section-label">Drop Box Planner</div>
     <div class="dropbox-tabs">
-      <button class="dropbox-tab ${currentDbTab==='cp2'?'active':''}" onclick="switchDbTab('cp2')">CP2 · 93km</button>
-      <button class="dropbox-tab ${currentDbTab==='cp3'?'active':''}" onclick="switchDbTab('cp3')">CP3 · 123km</button>
-      <button class="dropbox-tab ${currentDbTab==='cp4'?'active':''}" onclick="switchDbTab('cp4')">CP4 · 140km</button>
+      <button class="dropbox-tab ${currentDbTab==='cp2'?'active':''}" onclick="switchDbTab('cp2')">CP2 Rietfontein · 100km</button>
+      <button class="dropbox-tab ${currentDbTab==='cp3'?'active':''}" onclick="switchDbTab('cp3')">CP3 Hadley · 133km</button>
+      <button class="dropbox-tab ${currentDbTab==='cp4'?'active':''}" onclick="switchDbTab('cp4')">CP4 Toring · 161km</button>
     </div>
     <div class="dropbox-panel active" id="db-panel" style="padding:0 16px">
       <div class="box-size-banner">📦 Box size: 22L / 34×23×28cm</div>
-      <div class="warning-banner">⚠️ Boxes depart Friday night. Pack by Thursday 6 August — you cannot add items on Saturday morning.</div>
+      <div class="warning-banner">⚠️ Drop boxes are loaded onto trucks during Friday Registration (12:00-20:00) at the Willowmore Town Hall. Bring your packed box with you — no truck loading on Saturday morning.</div>
       <div class="dropbox-add-row">
         <input type="text" id="db-new-item" placeholder="Add item to ${currentDbTab.toUpperCase()}...">
         <button class="btn-add" onclick="addDbItem()">Add</button>
@@ -3333,36 +3327,127 @@ function removeDbItem(index) {
   renderDbItems(db);
 }
 
-function renderClimbs(container) {
-  const climbs = [
-    { name: 'Nuwekloofpas', sub: '~26km from start', stats: [['Distance from start','26km'],['Character','Sustained opening climb'],['Elevation','~600m'],['Length','Approx. 15km']], tip: 'Resist the adrenaline of the start. Ride this at 60% effort. Save your legs for what comes later. Your whole race pace is set here.' },
-    { name: 'MAC (Mother of All Climbs)', sub: '~90km mark', stats: [['Distance from start','~90km'],['Character','50+ switchbacks, brutal gradient'],['Elevation','~450m'],['Length','~5km']], tip: 'Sit and spin. Don\'t stand and mash. Fuel up at CP2 before attacking this. Your team must stay together — this is where groups split. Take it one switchback at a time.' },
-    { name: 'The Neverender', sub: '~110–130km', stats: [['Distance from start','~110–130km'],['Character','Multiple false summits'],['Elevation','Variable'],['Section length','~20km']], tip: 'Break it into sections. Each switchback is one less to go. Celebrate small wins. You think you\'re done, then there\'s more — it\'s in the name. Expect it. Embrace it.' },
-    { name: 'The Big Dipper', sub: '~155km', stats: [['Distance from start','~155km'],['Character','330m descent in 5.5km'],['Drop','330m'],['Type','Reward descent']], tip: 'You\'ll be tired here. Stay alert on descents — most accidents happen on downhills. Check your brakes at CP4 (140km). This descent is your reward for surviving the Baviaans.' },
-    { name: 'Mini Mac', sub: '~170km', stats: [['Distance from start','~170km'],['Character','Smaller but cruel after 170km'],['Elevation','~200m'],['Context','After CP5 support']], tip: 'You\'ve conquered the MAC. This one is smaller but your legs have 170km in them. Fuel well at CP5 (172km). Spin, don\'t smash. Home stretch starts here.' }
+function renderRoute(container) {
+  // Real named segments along the actual 2026 alternative route (Strava segment data pulled
+  // from the loaded GPX). Km positions are estimated from segment order relative to the known
+  // official checkpoints (Syphonia 54km, Rietfontein 100km, Hadley 133km, Toring 161km, Mimosa
+  // 180km, Zuurbron 210km, Finish 230km) — treat them as approximate, not official markers.
+  const zones = [
+    {
+      title: 'Willowmore → CP1 Syphonia (0–54km)',
+      note: 'Includes the biggest single climb of the whole race, early and long.',
+      segs: [
+        ['Uphill (Willowmore entrance → Bridge top)', '0.7km · +15m · 2%'],
+        ['Wilgerhof approach', '1.1km · +48m · 4%'],
+        ['Drop to river', '5.8km · −378m · −6%'],
+        ['⛰️ Father of All Climbs (FAC)', '17.9km · +645m · 3% avg'],
+      ],
+      tip: 'FAC is 17.9km long — longer than anything else on the route, even if the average gradient looks gentle at 3%. Pace it like the opening climb it is: 60% effort, save your legs. This is what "Nuwekloofpas" was on the old route.'
+    },
+    {
+      title: 'CP1 → CP3 Hadley (54–133km)',
+      note: 'A cluster of short, steep, punchy climbs on the R332.',
+      segs: [
+        ['R332 Climb', '3.1km · +304m · 10%'],
+        ['R332 Climb', '1.2km · +123m · 10%'],
+        ['R332 Climb', '0.8km · +88m · 10%'],
+        ['R332 Climb', '1.7km · +141m · 8%'],
+      ],
+      tip: 'These are short but genuinely steep (8–10% average, meaning real ramps are steeper). Different character to FAC — this is about repeated punchy efforts, not sustained grinding. Don\'t blow up on any single one.'
+    },
+    {
+      title: 'CP4 Toring → CP5 Mimosa (161–180km)',
+      note: 'The big descent, straight off the midnight-cutoff checkpoint.',
+      segs: [
+        ['⬇️ TransElands — Tower down to Patensie', '15.3km · −737m · −5%'],
+        ['Droekloof In', '5.0km · +63m · 1%'],
+      ],
+      tip: '"Tower" is Toring (CP4) — this confirms the big fast descent toward CP5 is ~737m lost over 15.3km. Check your brakes at CP4 before dropping in, especially at night.'
+    },
+    {
+      title: 'CP5 Mimosa → CP7 Zuurbron (180–210km)',
+      note: 'Rolling, then a maze of similarly-named farm gates near Zuurbron.',
+      segs: [
+        ['Never Ender opdraend sprint 1', '1.1km · +32m · 3%'],
+        ['Never Ender opdraend sprint 2', '1.1km · +31m · 3%'],
+        ['Zuurbron from Y', '7.5km · −156m · −2%'],
+        ['Boksie se bult + gate segments (×4)', 'short, mostly flat, near CP7'],
+      ],
+      tip: '⚠️ Multiple similarly-named "gate" segments cluster right around Zuurbron (3rd gate, 4th gate, 2nd gate) — easy to get turned around here on tired legs at night. Trust the GPX, not memory. "Never Ender" survives from the old route naming, but here it\'s two short sprints, not the long false-summit slog it used to be.'
+    },
+    {
+      title: 'CP7 Zuurbron → Finish (210–230km)',
+      note: 'One more real climb, then it\'s mostly downhill to the coast.',
+      segs: [
+        ['R330 Climb', '1.2km · +81m · 6%'],
+        ['⛰️ Mini Mac', '0.7km · +50m · 7%'],
+        ['Flashing red lights smooth sprint', '4.4km · −140m · −3%'],
+        ['Big Gate Down', '1.0km · −40m · −4%'],
+        ['SASKO sprint', '0.2km · +9m · 4%'],
+      ],
+      tip: 'Mini Mac is still on the 2026 route, right near the end — small on paper (0.7km, 50m) but brutal after 225km in the legs. After that it\'s essentially downhill into Jeffreys Bay.'
+    },
   ];
 
-  let html = `<div class="section-label">Key Race Climbs</div>`;
-  climbs.forEach((c, i) => {
-    html += `<div class="climb-card">
-      <div class="climb-header" onclick="toggleClimb(${i})">
-        <div><div class="climb-name">⛰️ ${c.name}</div><div class="climb-sub">${c.sub}</div></div>
-        <span id="climb-chevron-${i}" style="color:var(--text-muted);font-size:18px">›</span>
-      </div>
-      <div class="climb-body" id="climb-body-${i}">
-        ${c.stats.map(([l,v]) => `<div class="climb-stat"><span class="climb-stat-label">${l}</span><span class="climb-stat-val">${v}</span></div>`).join('')}
-        <div class="climb-tip">${c.tip}</div>
-      </div>
+  let html = `<div class="section-label">Route Detail (2026 Alternative Route)</div>
+    <p class="nutr-body" style="padding:0 16px 8px">Real named segments from the loaded GPX route, grouped by checkpoint zone. Km ranges are estimated from segment order, not official markers — for the definitive route, always follow the GPX on your device.</p>`;
+  zones.forEach(z => {
+    html += `<div class="cp-card">
+      <h4>${z.title}</h4>
+      <p style="color:var(--text-muted);font-size:12px;margin-bottom:6px">${z.note}</p>
+      ${z.segs.map(([name, stat]) => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <span>${name}</span><span style="color:var(--text-muted);font-size:12px;white-space:nowrap;padding-left:8px">${stat}</span>
+      </div>`).join('')}
+      <p style="margin-top:8px">${z.tip}</p>
     </div>`;
   });
   container.innerHTML = html;
 }
 
-function toggleClimb(i) {
-  const body = document.getElementById(`climb-body-${i}`);
-  const chev = document.getElementById(`climb-chevron-${i}`);
-  const open = body.classList.toggle('open');
-  chev.textContent = open ? '⌄' : '›';
+function renderSupporters(container) {
+  container.innerHTML = `
+    <div class="section-label">Supporter Info</div>
+    <p class="nutr-body" style="padding:0 16px 8px">Everything family/support crew need in one place. Pulled from the official 2026 Race Guide — for exact driving directions to checkpoints, get the organizers' separate Supporter Guide (not something this app has).</p>
+
+    <div class="cp-card" style="border-color:var(--red-burnt)">
+      <h4>⚠️ Where You Can Actually Meet Them</h4>
+      <p><strong style="color:var(--olive)">CP5 Mimosa (180km) is the ONLY place on the route where support crew are allowed to assist</strong> — access permitted from 12:00 Saturday onward, and only for crews registered with the team in advance. Anywhere else on route is a disqualification risk for the riders, even a quick roadside hello with food. Supporters should also stay in Willowmore until the team clears CP1, in case of an early emergency or withdrawal. The Finish in Jeffreys Bay is open to spectators.</p>
+    </div>
+
+    <div class="cp-card">
+      <h4>📍 Full Checkpoint List (for reference)</h4>
+      <p>Start Willowmore (0km) → CP1 Syphonia (54km) → CP2 Rietfontein (100km) → CP3 Hadley (133km) → CP4 Toring (161km, midnight cutoff) → <strong style="color:var(--olive)">CP5 Mimosa (180km) — meet here</strong> → CP7 Zuurbron (210km) → Finish, Jeffreys Bay (230km). CP6 does not exist on the 2026 route.</p>
+    </div>
+
+    <div class="cp-card">
+      <h4>🕐 Expected Timings (at a 20hr pace)</h4>
+      <p>Start 08:00 Sat · CP1 ~11:45 · CP2 ~14:45 · CP3 ~17:10 · CP4 ~20:05 · <strong style="color:var(--olive)">CP5 ~21:20 Sat night</strong> · CP7 ~01:05 Sun · Finish ~04:00 Sun. These shift with actual pace — check the Pace Calc tab and plug in the team's real target time for updated estimates. Race cutoff is 08:00 Sunday; prize giving is 10:00 Sunday.</p>
+    </div>
+
+    <div class="cp-card">
+      <h4>📡 Tracking Progress</h4>
+      <p>Checkpoints have timing pods, so arrival times get logged as the team checks in/out — but this is <strong>not live tracking</strong>. Signal in the Grootrivier area is patchy, so reported times can lag behind reality. The organizers post leading-team updates at each checkpoint on their social media, and there's a separate live feed for the finish line only, active during event hours. Don't panic if there's a long gap between updates — that's normal, not a sign something's wrong.</p>
+    </div>
+
+    <div class="cp-card">
+      <h4>🎽 Registering as Support Crew</h4>
+      <p>Support crew must be registered on entry to be authorised. Collect your T-shirt, badge and vehicle sticker at Registration (Friday, Willowmore Town Hall, 12:00–20:00). The support crew briefing is Friday 18:00 at the NG Church — same time as the riders' briefing. You must follow the official designated support-crew route and instructions to reach CP5 and the Finish — get these from the organizers' Supporter Guide, since it isn't part of the rider's Race Guide this app is built from.</p>
+    </div>
+
+    <div class="cp-card">
+      <h4>🧥 What To Bring (Waiting Around)</h4>
+      <p>This is a winter event — temperatures can drop to 2°C overnight with possible snow at altitude. Bring warm layers, blankets, a flask of something hot, snacks, a fully charged phone/power bank, and patience — ETAs are estimates and checkpoint waits can run long. If you're meeting them at CP5: they'll likely want dry socks, real food, and their next set of lights/batteries ready to hand over fast — every minute they spend at a checkpoint is a minute off their finish time.</p>
+    </div>
+
+    <div class="cp-card" style="border-color:var(--red-burnt)">
+      <h4>🚨 If Something Goes Wrong</h4>
+      <p><strong style="color:var(--red-burnt)">Emergency number: +27 76 234 8869.</strong> If a rider needs to withdraw, it must happen at an official checkpoint (not mid-route) and gets reported to the Checkpoint Captain — the team may need to ride together to the next checkpoint first. Depending on where it happens, evacuation vehicles take withdrawn riders to different places: from CP1, arrange with the checkpoint captain or wait for the sweep vehicle; from CP2 or CP3, evacuation vehicles go to the Finish via Steytlerville; from CP4, evacuation vehicles go to CP5; from CP5, support vehicles go to the Finish. Riders are never dropped off along the route. If you get a message that they're pulling out at CP2/CP3, head to the Finish, not that checkpoint.</p>
+    </div>
+
+    <div class="cp-card">
+      <h4>📅 Supporter Race Weekend Schedule</h4>
+      <p>Fri 7 Aug: Registration 12:00–20:00, support crew briefing 18:00 (NG Church). Sat 8 Aug: race start 08:00 Willowmore; support crew access to CP5 opens 12:00. Sun 9 Aug: race cutoff 08:00, prize giving 10:00 in Jeffreys Bay — attendance is required to claim a medal, so worth being there if the team qualifies.</p>
+    </div>`;
 }
 
 function renderTeam(container) {
@@ -3370,12 +3455,12 @@ function renderTeam(container) {
     { icon: '⏱️', text: '<strong>Stay within 2 minutes of each other at ALL times.</strong> This is a race rule — any violation results in disqualification. Know your team\'s pace.' },
     { icon: '📋', text: '<strong>Check in AND out at every checkpoint</strong>, even unmanned ones. All team members must sign in together.' },
     { icon: '💡', text: '<strong>Lights on by dusk — simultaneously.</strong> All team members switch on lights at the same time. No exceptions.' },
-    { icon: '🚫', text: '<strong>No outside assistance except at CP5 (172km).</strong> No feeding through fences, no meeting family on route. Disqualification risk.' },
-    { icon: '🗺️', text: '<strong>The route is completely unmarked.</strong> Navigate together — never split up to scout ahead. One team, one direction.' },
+    { icon: '🚫', text: '<strong>No outside assistance except at CP5 Mimosa (180km), and only for riders registered with a support crew.</strong> No feeding through fences, no meeting family on route. Disqualification risk.' },
+    { icon: '🗺️', text: '<strong>The 2026 route is marked only where necessary</strong> (turn-offs, river crossings, flood damage) — you must navigate with the official GPX files. Navigate together — never split up to scout ahead. One team, one direction.' },
     { icon: '🔧', text: '<strong>If a rider mechanicals, the team waits.</strong> No exceptions. A team finishes together or not at all.' },
     { icon: '🐢', text: '<strong>Agree on a team pace before the start.</strong> The slowest rider sets the pace for the first 100km. Ego kills teams.' },
     { icon: '📣', text: '<strong>Night section communication protocol:</strong> call out hazards verbally, maintain verbal contact at all times. If you can\'t hear your teammate, something is wrong.' },
-    { icon: '🚑', text: '<strong>Emergency extraction plan:</strong> know the nearest road access points before the race. If someone cannot continue, know how to get them out safely.' }
+    { icon: '🚑', text: '<strong>Emergency number: +27 76 234 8869.</strong> If you have signal and need to withdraw or have an emergency, call this number and follow instructions. Know the nearest road access points before the race.' }
   ];
   let html = `<div class="section-label">Team Rules</div>`;
   rules.forEach(r => {
@@ -3386,24 +3471,25 @@ function renderTeam(container) {
 
 function renderTimeline(container) {
   const events = [
-    { time: 'Thu 6 Aug', event: 'Pack drop boxes', note: 'Final deadline to pack. Boxes depart Friday night.', type: '' },
-    { time: 'Fri 7 Aug · 12:00', event: 'Registration opens', note: 'Willowmore. Collect race number and timing chip.', type: '' },
-    { time: 'Fri 7 Aug · 18:00', event: 'Drop boxes submitted', note: 'Hard deadline. Boxes transported to checkpoints overnight.', type: 'cp' },
-    { time: 'Fri 7 Aug · 19:00', event: 'Team pasta dinner', note: 'Carb load. Keep it simple — tested foods only. No new foods night before race.', type: '' },
+    { time: 'Fri 7 Aug · 12:00', event: 'Registration opens', note: 'Willowmore Town Hall. Collect race number, timing tag, drop boxes — bring your packed drop box items with you.', type: '' },
+    { time: 'Fri 7 Aug · 14:00', event: 'Opening ceremony', note: 'Town Hall.', type: '' },
+    { time: 'Fri 7 Aug · 17:00', event: 'Pasta meal opens', note: 'NG Church. Carb load. Keep it simple — tested foods only. No new foods the night before race.', type: '' },
+    { time: 'Fri 7 Aug · 18:00', event: 'Race briefing', note: 'NG Church, including support crew briefing.', type: '' },
+    { time: 'Fri 7 Aug · 20:00', event: 'Registration + drop box loading closes', note: 'Hard deadline — drop boxes must be on the truck by now. No loading on Saturday morning.', type: 'cp' },
     { time: 'Fri 7 Aug · 21:00', event: 'Early bedtime', note: 'Target 7–8 hours sleep. You\'ll be anxious — that\'s normal. Trust the training.', type: '' },
     { time: 'Sat 8 Aug · 04:00', event: 'Wake up + breakfast', note: 'Oats, banana, coffee. Eat 2–3hrs before start for digestion.', type: '' },
-    { time: 'Sat 8 Aug · 06:00', event: 'Final bike + kit check', note: 'Check tyres, brakes, lights, GPS, food in jersey pockets.', type: '' },
-    { time: 'Sat 8 Aug · 09:00', event: 'Warm-up + team briefing', note: 'Easy spin. Confirm team plan, pace, fuelling strategy.', type: '' },
-    { time: 'Sat 8 Aug · 10:00', event: '🚀 RACE START — Willowmore', note: 'The journey begins. 230km to Jeffreys Bay. Ride your race.', type: 'race' },
-    { time: 'Sat 8 Aug · ~12:30', event: 'CP1 — ~40km', note: '2.5hr in. Pace check — are you riding at ~16km/hr? Quick stop, refill, keep moving.', type: 'cp' },
-    { time: 'Sat 8 Aug · ~15:30', event: 'CP2 — 93km · DROP BOX', note: '5.5hr in. On target for 20hr finish. Fuel hard — the MAC is next. 10 min max stop.', type: 'cp' },
-    { time: 'Sat 8 Aug · ~17:30', event: 'CP3 — 123km · DROP BOX', note: '7.5hr in. Sun is setting. Lights on. Night section begins. Strong riding — you\'re well ahead of cutoff.', type: 'cp' },
-    { time: 'Sat 8 Aug · ~19:00', event: 'CP4 — 140km · DROP BOX', note: '9hr in. ✅ 3hrs ahead of midnight cutoff. Night fuelling: first caffeine dose now. 90km to go.', type: 'cp' },
-    { time: 'Sat 8 Aug · ~22:00', event: 'CP5 — 172km · SUPPORT CREW', note: '12hr in. Halfway through the night. Change socks, eat real food, brief sit. Don\'t linger — you have a 20hr goal to protect.', type: 'cp' },
-    { time: 'Sun 9 Aug · ~00:30', event: 'CP6 — 195km', note: '14.5hr in. 35km to go. Dawn in ~5hrs. Second caffeine dose if needed. Dig deep.', type: 'cp' },
-    { time: 'Sun 9 Aug · ~02:30', event: 'CP7 — 215km', note: '16.5hr in. 15km to Jeffreys Bay. Everything you have left. The ocean is waiting.', type: 'cp' },
-    { time: 'Sun 9 Aug · ~06:00', event: '🏁 FINISH — Jeffreys Bay', note: 'Target: 20hrs. 06:00 Sunday morning. Jeffreys Bay. You did it — 4hrs before cutoff.', type: 'finish' },
-    { time: 'Sun 9 Aug · 10:00', event: 'Prize Giving', note: 'Jeffreys Bay. 4hrs of sleep, then celebrate with your team.', type: 'finish' }
+    { time: 'Sat 8 Aug · 06:00', event: 'Final bike + kit check', note: 'Check tyres, brakes, lights, GPS with GPX loaded, food in jersey pockets, race number on handlebar.', type: '' },
+    { time: 'Sat 8 Aug · 07:00', event: 'Start check-in opens', note: 'Team must be fully present to check in at the start chute.', type: '' },
+    { time: 'Sat 8 Aug · 08:00', event: '🚀 RACE START — Willowmore', note: '2026 alternative route via the Grootrivier area (Baviaanskloof Reserve closed — flood damage). 230km to Jeffreys Bay, 2843m ascent. Ride your race.', type: 'race' },
+    { time: 'Sat 8 Aug · ~11:45', event: 'CP1 Syphonia — 54km', note: '3.8hr in. Just past Father of All Climbs (FAC) — 17.9km of sustained climbing. No check-in tap required here. Roosterbrood on the menu. Quick stop, refill, keep moving.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~14:45', event: 'CP2 Rietfontein — 100km · DROP BOX', note: '6.8hr in. On target for 20hr finish. Groot Rivier crossing just after this checkpoint — approach with caution. 10 min max stop.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~17:10', event: 'CP3 Hadley — 133km · DROP BOX', note: '9.2hr in. Sun is setting. Lights on. Steep valley drop and the climb to Toring (CP4) next — the toughest stretch on this year\'s route.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~20:05', event: 'CP4 Toring — 161km · DROP BOX', note: '12.1hr in. ✅ ~4hrs ahead of the midnight cutoff — solid but don\'t dawdle. First caffeine dose. Long fast descent to Mimosa next, 69km to go.', type: 'cp' },
+    { time: 'Sat 8 Aug · ~21:20', event: 'CP5 Mimosa — 180km · SUPPORT CREW', note: '13.3hr in. Down the big descent from Toring. Only checkpoint with support crew access (from 12:00 Saturday). Change socks, eat real food, brief stop. Don\'t linger.', type: 'cp' },
+    { time: 'Sun 9 Aug · ~01:05', event: 'CP7 Zuurbron — 210km', note: '17.1hr in. No drop box here. CP6 doesn\'t exist on this route. Legendary jaffles on the menu. Last checkpoint — top up and go. Mini Mac still waits before the finish. 20km to Jeffreys Bay.', type: 'cp' },
+    { time: 'Sun 9 Aug · ~04:00', event: '🏁 FINISH — Jeffreys Bay', note: 'Target: ~20hrs. Mentors Country Estate. You did it — official race cutoff is 08:00 Sunday (a true 24hrs), so you\'d have ~4hrs in hand.', type: 'finish' },
+    { time: 'Sun 9 Aug · 08:00', event: 'Race cut-off', note: 'Official event support withdrawn after this time; team supporters responsible for collecting their team.', type: 'finish' },
+    { time: 'Sun 9 Aug · 10:00', event: 'Prize Giving', note: 'Jeffreys Bay. Attendance required to claim any prize. Rest, then celebrate with your team.', type: 'finish' }
   ];
 
   let html = `<div class="section-label">Race Day Timeline</div><div class="timeline">`;
